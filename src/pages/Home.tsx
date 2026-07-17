@@ -7,6 +7,7 @@ import { BudgetEstimator } from '../components/BudgetEstimator'
 import { Benefits } from '../components/Benefits'
 import { Testimonials } from '../components/Testimonials'
 import { Footer } from '../components/Footer'
+import { usePageMeta } from '../hooks/usePageMeta'
 
 const cities = Array.from(new Set(properties.map((p) => p.city)))
 
@@ -20,6 +21,10 @@ const categories: { key: Category; label: string }[] = [
 ]
 
 export function HomePage() {
+  usePageMeta(
+    'innbly — Verified PGs, Coliving & Rentals',
+    'Search verified PGs, coliving spaces, and rentals across India. Schedule a free visit and chat with hosts instantly on innbly.',
+  )
   const navigate = useNavigate()
   const [city, setCity] = useState('all')
   const [roomType, setRoomType] = useState('all')

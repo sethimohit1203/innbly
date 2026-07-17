@@ -5,10 +5,12 @@ import { Footer } from '../components/Footer'
 import { PhoneInput } from '../components/PhoneInput'
 import { useToast } from '../context/ToastContext'
 import { submitToSheet } from '../lib/backend'
+import { usePageMeta } from '../hooks/usePageMeta'
 
 const SUPPORT_EMAIL = 'innblysupport@gmail.com'
 
 export function ContactPage() {
+  usePageMeta('Contact Us', 'Get in touch with the innbly team for questions about a stay, a listing, or partnering with us.')
   const { showToast } = useToast()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')

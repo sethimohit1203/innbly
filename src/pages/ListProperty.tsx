@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Check, ImagePlus, UploadCloud } from 'lucide-react'
 import { Footer } from '../components/Footer'
+import { usePageMeta } from '../hooks/usePageMeta'
 
 const ALL_AMENITIES = [
   'Wi-Fi',
@@ -19,6 +20,7 @@ const ALL_AMENITIES = [
 const steps = ['Basic Details & Rent', 'Amenities', 'Photos']
 
 export function ListPropertyPage() {
+  usePageMeta('List Your Property', 'List your PG, coliving space, or rental on innbly in three simple steps and start receiving tenant leads.')
   const navigate = useNavigate()
   const [step, setStep] = useState(0)
   const [done, setDone] = useState(false)

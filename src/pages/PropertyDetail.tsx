@@ -25,6 +25,8 @@ import { getPropertyById } from '../data/properties'
 import { MapPlaceholder } from '../components/MapPlaceholder'
 import { Footer } from '../components/Footer'
 import { useVisitModal } from '../context/VisitModalContext'
+import { useSavedProperties } from '../context/SavedPropertiesContext'
+import { usePageMeta } from '../hooks/usePageMeta'
 import type { TenantPreference } from '../types'
 
 const amenityIcons: Record<string, JSX.Element> = {
@@ -50,11 +52,19 @@ export function PropertyDetailPage() {
   const { id } = useParams()
   const property = id ? getPropertyById(id) : undefined
   const { openVisitModal } = useVisitModal()
+  const { isSaved, toggleSaved } = useSavedProperties()
   const [showAllPhotos, setShowAllPhotos] = useState(false)
   const [descExpanded, setDescExpanded] = useState(false)
   const [tenantType, setTenantType] = useState<TenantPreference>('Anyone')
   const [moveIn, setMoveIn] = useState('')
-  const [saved, setSaved] = useState(false)
+  const saved = property ? isSaved(property.id) : false
+
+  usePageMeta(
+    property ? `${property.title} for Rent in ${property.neighborhood}, ${property.city}` : 'Property not found',
+    property
+      ? `${property.title} — ₹${property.price.toLocaleString('en-IN')}/month ${property.roomType} stay in ${property.neighborhood}, ${property.city}. ${property.verified ? 'Verified property.' : ''} Schedule a free visit today.`
+      : undefined,
+  )
 
   if (!property) {
     return (
@@ -85,7 +95,7 @@ export function PropertyDetailPage() {
         </nav>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setSaved((s) => !s)}
+            onClick={() => toggleSaved(property.id)}
             className="flex items-center gap-1.5 rounded-full border border-slate-300 px-3.5 py-1.5 text-sm font-medium text-slate-600 transition hover:border-slate-400"
           >
             <Heart className={`h-4 w-4 ${saved ? 'fill-rose-500 text-rose-500' : ''}`} />

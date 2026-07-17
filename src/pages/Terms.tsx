@@ -1,9 +1,11 @@
 import { Footer } from '../components/Footer'
+import { usePageMeta } from '../hooks/usePageMeta'
 
 export function TermsPage() {
+  usePageMeta('Terms of Service', 'The terms governing your use of innbly.')
   return (
     <>
-      <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+      <section className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
         <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Terms of Service</h1>
         <p className="mt-2 text-sm text-slate-500">Last updated: January 2026</p>
 
@@ -63,7 +65,7 @@ export function TermsPage() {
             </p>
           </section>
         </div>
-      </div>
+      </section>
       <Footer />
     </>
   )

@@ -77,6 +77,7 @@ export function Footer() {
               <li><Link to="/terms" className="transition-colors hover:text-white">Terms of Service</Link></li>
               <li><Link to="/privacy-policy" className="transition-colors hover:text-white">Privacy Policy</Link></li>
               <li><Link to="/contact" className="transition-colors hover:text-white">Contact Support</Link></li>
+              <li><Link to="/enterprise" className="transition-colors hover:text-white">innbly for Hotels →</Link></li>
             </ul>
           </div>
 

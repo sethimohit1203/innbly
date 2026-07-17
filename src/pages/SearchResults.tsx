@@ -6,6 +6,7 @@ import { INDIAN_STATES } from '../data/states'
 import { PropertyCard } from '../components/PropertyCard'
 import { MapPlaceholder } from '../components/MapPlaceholder'
 import { PropertyTypeScroller } from '../components/PropertyTypeScroller'
+import { usePageMeta } from '../hooks/usePageMeta'
 import type { PropertyType } from '../types'
 
 const cities = Array.from(new Set(properties.map((p) => p.city)))
@@ -47,6 +48,7 @@ function SelectFilter({
 }
 
 export function SearchResultsPage() {
+  usePageMeta('Search Stays', 'Search verified PGs, coliving spaces, and rentals by city, budget, room type, and amenities on innbly.')
   const [searchParams] = useSearchParams()
   const [city, setCity] = useState(searchParams.get('city') ?? 'all')
   const [state, setState] = useState('all')
@@ -70,7 +72,8 @@ export function SearchResultsPage() {
   }, [city, state, roomType, budget, tenantPref, propertyType, verifiedOnly])
 
   return (
-    <div className="flex h-[calc(100vh-80px)] flex-col">
+    <section className="flex h-[calc(100vh-80px)] flex-col">
+      <h1 className="sr-only">Search PGs, coliving spaces, and rentals</h1>
       <div className="space-y-3 border-b border-slate-200 bg-white px-4 py-4 sm:px-6">
         <div className="mx-auto max-w-7xl">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
@@ -152,6 +155,6 @@ export function SearchResultsPage() {
           <MapPlaceholder className="h-full w-full" label={`${filtered.length} pins on map`} />
         </div>
       </div>
-    </div>
+    </section>
   )
 }

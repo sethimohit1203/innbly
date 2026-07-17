@@ -3,13 +3,16 @@ import { AuthProvider } from './AuthContext'
 import { LeadsProvider } from './LeadsContext'
 import { ToastProvider } from './ToastContext'
 import { VisitModalProvider } from './VisitModalContext'
+import { SavedPropertiesProvider } from './SavedPropertiesContext'
 
 export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <ToastProvider>
       <AuthProvider>
         <LeadsProvider>
-          <VisitModalProvider>{children}</VisitModalProvider>
+          <SavedPropertiesProvider>
+            <VisitModalProvider>{children}</VisitModalProvider>
+          </SavedPropertiesProvider>
         </LeadsProvider>
       </AuthProvider>
     </ToastProvider>

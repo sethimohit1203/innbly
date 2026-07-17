@@ -4,14 +4,16 @@ import { PlusCircle, Users, Home, Phone, Calendar } from 'lucide-react'
 import { useLeads } from '../context/LeadsContext'
 import { properties } from '../data/properties'
 import { Footer } from '../components/Footer'
+import { usePageMeta } from '../hooks/usePageMeta'
 
 export function HostDashboardPage() {
+  usePageMeta('Host Dashboard', 'Manage your property listings and track incoming tenant leads on innbly.')
   const { leads } = useLeads()
   const [myListings] = useState(properties.slice(0, 2))
 
   return (
     <>
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+    <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-extrabold text-slate-900">Host Dashboard</h1>
@@ -45,7 +47,7 @@ export function HostDashboardPage() {
         </div>
       </div>
 
-      <div className="mt-10">
+      <div id="listings" className="mt-10 scroll-mt-24">
         <h2 className="mb-4 text-lg font-bold text-slate-900">My Listings</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {myListings.map((p) => (
@@ -66,7 +68,7 @@ export function HostDashboardPage() {
         </div>
       </div>
 
-      <div className="mt-10">
+      <div id="leads" className="mt-10 scroll-mt-24">
         <h2 className="mb-4 text-lg font-bold text-slate-900">Incoming Leads</h2>
         <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-card">
           <table className="w-full min-w-[560px] text-left text-sm">
@@ -106,7 +108,7 @@ export function HostDashboardPage() {
           </table>
         </div>
       </div>
-    </div>
+    </section>
     <Footer />
     </>
   )
