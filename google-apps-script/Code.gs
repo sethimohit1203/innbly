@@ -47,8 +47,46 @@ function doPost(e) {
   }
 }
 
-function doGet() {
+function doGet(e) {
+  var params = (e && e.parameter) || {};
+
+  if (params.action === 'stats') {
+    var expectedKey = PropertiesService.getScriptProperties().getProperty('ADMIN_KEY');
+    if (!expectedKey || params.key !== expectedKey) {
+      return jsonResponse({ ok: false, error: 'Unauthorized' });
+    }
+    return jsonResponse(buildStats());
+  }
+
   return jsonResponse({ ok: true, message: 'innbly Apps Script backend is running.' });
+}
+
+function buildStats() {
+  var types = ['lead', 'signup', 'newsletter', 'contact'];
+  var counts = {};
+  var recent = {};
+
+  types.forEach(function (type) {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES[type]);
+    if (!sheet || sheet.getLastRow() <= 1) {
+      counts[type] = 0;
+      recent[type] = [];
+      return;
+    }
+
+    var numRows = sheet.getLastRow() - 1;
+    counts[type] = numRows;
+
+    var startRow = Math.max(2, sheet.getLastRow() - 19);
+    var values = sheet.getRange(startRow, 1, sheet.getLastRow() - startRow + 1, sheet.getLastColumn()).getValues();
+    recent[type] = values.reverse().map(function (row) {
+      return row.map(function (cell) {
+        return cell instanceof Date ? cell.toISOString() : cell;
+      });
+    });
+  });
+
+  return { counts: counts, recent: recent };
 }
 
 function getOrCreateSheet(type) {

@@ -17,6 +17,7 @@ import { HostOnlyRoute } from './components/HostOnlyRoute'
 import { EnterpriseHomePage } from './pages/enterprise/EnterpriseHome'
 import { EnterpriseSearchPage } from './pages/enterprise/EnterpriseSearch'
 import { EnterpriseDashboardPage } from './pages/enterprise/EnterpriseDashboard'
+import { AdminPage } from './pages/Admin'
 
 export default function App() {
   return (
@@ -52,6 +53,7 @@ export default function App() {
           <Route path="/enterprise" element={<EnterpriseHomePage />} />
           <Route path="/enterprise/search" element={<EnterpriseSearchPage />} />
           <Route path="/enterprise/dashboard" element={<EnterpriseDashboardPage />} />
+          <Route path="/admin" element={<AdminPage />} />
         </Routes>
       </main>
       <AuthModal />

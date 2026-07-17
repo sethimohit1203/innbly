@@ -250,8 +250,8 @@ export function PropertyDetailPage() {
               Security deposit: ₹{property.deposit.toLocaleString('en-IN')} (refundable)
             </p>
 
-            <div className="mt-5">
-              <label className="mb-1.5 block text-xs font-semibold text-slate-600">Preferred Tenant Type</label>
+            <fieldset className="mt-5">
+              <legend className="mb-1.5 block text-xs font-semibold text-slate-600">Preferred Tenant Type</legend>
               <div className="grid grid-cols-3 gap-2">
                 {(['Boys', 'Girls', 'Anyone'] as TenantPreference[]).map((t) => (
                   <button
@@ -267,11 +267,12 @@ export function PropertyDetailPage() {
                   </button>
                 ))}
               </div>
-            </div>
+            </fieldset>
 
             <div className="mt-4">
-              <label className="mb-1.5 block text-xs font-semibold text-slate-600">Select Move-in Date</label>
+              <label htmlFor="property-move-in-date" className="mb-1.5 block text-xs font-semibold text-slate-600">Select Move-in Date</label>
               <input
+                id="property-move-in-date"
                 type="date"
                 value={moveIn}
                 onChange={(e) => setMoveIn(e.target.value)}

@@ -1,11 +1,18 @@
-import { useState } from 'react'
-import { Clock, TrendingUp } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { Clock, TrendingUp, Loader2 } from 'lucide-react'
+import { useServerPrice } from '../../hooks/useServerPrice'
+
+interface RoiResult {
+  adminHoursSaved: number
+  revenueIncrease: number
+}
 
 export function RoiCalculator() {
   const [rooms, setRooms] = useState(40)
 
-  const adminHoursSaved = Math.round(rooms * 0.9)
-  const revenueIncrease = Math.round(rooms * 6200 * 0.08)
+  const request = useMemo(() => ({ kind: 'roi', rooms }), [rooms])
+  const fallback = useMemo<RoiResult>(() => ({ adminHoursSaved: 0, revenueIncrease: 0 }), [])
+  const { data, loading, error } = useServerPrice<RoiResult>({ request, fallback })
 
   return (
     <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-card md:p-8">
@@ -32,22 +39,26 @@ export function RoiCalculator() {
         </div>
       </div>
 
-      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="rounded-2xl bg-primary-50 p-5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600 text-white">
-            <Clock className="h-4.5 w-4.5" />
+      {error ? (
+        <p className="mt-8 text-sm font-semibold text-rose-500">Could not reach the estimate service. Please retry.</p>
+      ) : (
+        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="rounded-2xl bg-primary-50 p-5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600 text-white">
+              {loading ? <Loader2 className="h-4.5 w-4.5 animate-spin" /> : <Clock className="h-4.5 w-4.5" />}
+            </div>
+            <p className="mt-3 text-3xl font-extrabold text-primary-700">{data.adminHoursSaved} hrs</p>
+            <p className="text-sm font-semibold text-slate-500">Admin hours saved / month</p>
           </div>
-          <p className="mt-3 text-3xl font-extrabold text-primary-700">{adminHoursSaved} hrs</p>
-          <p className="text-sm font-semibold text-slate-500">Admin hours saved / month</p>
-        </div>
-        <div className="rounded-2xl bg-accent-50 p-5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-600 text-white">
-            <TrendingUp className="h-4.5 w-4.5" />
+          <div className="rounded-2xl bg-accent-50 p-5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-600 text-white">
+              {loading ? <Loader2 className="h-4.5 w-4.5 animate-spin" /> : <TrendingUp className="h-4.5 w-4.5" />}
+            </div>
+            <p className="mt-3 text-3xl font-extrabold text-accent-700">₹{data.revenueIncrease.toLocaleString('en-IN')}</p>
+            <p className="text-sm font-semibold text-slate-500">Direct revenue increase / month</p>
           </div>
-          <p className="mt-3 text-3xl font-extrabold text-accent-700">₹{revenueIncrease.toLocaleString('en-IN')}</p>
-          <p className="text-sm font-semibold text-slate-500">Direct revenue increase / month</p>
         </div>
-      </div>
+      )}
     </div>
   )
 }

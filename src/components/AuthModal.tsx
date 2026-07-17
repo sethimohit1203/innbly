@@ -13,6 +13,7 @@ export function AuthModal() {
   const [mode, setMode] = useState<'signup' | 'login'>('signup')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
   if (!isModalOpen) return null
 
@@ -22,21 +23,42 @@ export function AuthModal() {
     setEmail('')
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!role) return
-    login({ name: name || 'Guest User', email: email || 'guest@innbly.com', role })
-    submitToSheet('signup', { name: name || 'Guest User', email: email || 'guest@innbly.com', role, method: 'email' })
+    if (!role || submitting) return
+
+    const finalName = name || 'Guest User'
+    const finalEmail = email || 'guest@innbly.com'
+
+    setSubmitting(true)
+    const result = await submitToSheet('signup', { name: finalName, email: finalEmail, role, method: 'email' })
+    setSubmitting(false)
+
+    if (!result.ok) {
+      showToast(result.error ?? 'Could not sign you up. Please try again.', 'error')
+      return
+    }
+
+    login({ name: finalName, email: finalEmail, role })
     reset()
   }
 
-  const handleGoogleSuccess = (profile: { name: string; email: string }) => {
+  const handleGoogleSuccess = async (profile: { name: string; email: string }) => {
     if (!role) {
       showToast('Pick "Rent a Space" or "List My Property" first', 'error')
       return
     }
+
+    setSubmitting(true)
+    const result = await submitToSheet('signup', { name: profile.name, email: profile.email, role, method: 'google' })
+    setSubmitting(false)
+
+    if (!result.ok) {
+      showToast(result.error ?? 'Could not sign you up. Please try again.', 'error')
+      return
+    }
+
     login({ name: profile.name, email: profile.email, role })
-    submitToSheet('signup', { name: profile.name, email: profile.email, role, method: 'google' })
     showToast(`Welcome, ${profile.name.split(' ')[0]}!`)
     reset()
   }
@@ -120,10 +142,10 @@ export function AuthModal() {
           />
           <button
             type="submit"
-            disabled={!role}
+            disabled={!role || submitting}
             className="w-full rounded-xl bg-accent-500 px-4 py-3 text-sm font-semibold text-white shadow-card transition hover:bg-accent-600 hover:shadow-card-hover disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {mode === 'signup' ? 'Create account' : 'Log in'}
+            {submitting ? 'Please wait…' : mode === 'signup' ? 'Create account' : 'Log in'}
           </button>
         </form>
 

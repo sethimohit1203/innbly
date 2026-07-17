@@ -18,10 +18,19 @@ export function ContactPage() {
   const [phoneCountry, setPhoneCountry] = useState<CountryCode>('IN')
   const [message, setMessage] = useState('')
   const [sent, setSent] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    submitToSheet('contact', { name, email, phone, message })
+    if (submitting) return
+    setSubmitting(true)
+    const result = await submitToSheet('contact', { name, email, phone, message })
+    setSubmitting(false)
+
+    if (!result.ok) {
+      showToast(result.error ?? 'Could not send your message. Please try again.', 'error')
+      return
+    }
     setSent(true)
     showToast('Message sent! We will get back to you shortly.')
   }
@@ -92,10 +101,11 @@ export function ContactPage() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600">
+                      <label htmlFor="contact-name" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600">
                         Name <span className="text-rose-500">*</span>
                       </label>
                       <input
+                        id="contact-name"
                         required
                         value={name}
                         onChange={(e) => setName(e.target.value)}
@@ -103,10 +113,11 @@ export function ContactPage() {
                       />
                     </div>
                     <div>
-                      <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600">
+                      <label htmlFor="contact-email" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600">
                         Email <span className="text-rose-500">*</span>
                       </label>
                       <input
+                        id="contact-email"
                         required
                         type="email"
                         value={email}
@@ -122,10 +133,11 @@ export function ContactPage() {
                     <PhoneInput value={phone} onChange={setPhone} country={phoneCountry} onCountryChange={setPhoneCountry} />
                   </div>
                   <div>
-                    <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600">
+                    <label htmlFor="contact-message" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600">
                       Message <span className="text-rose-500">*</span>
                     </label>
                     <textarea
+                      id="contact-message"
                       required
                       rows={5}
                       value={message}
@@ -136,9 +148,10 @@ export function ContactPage() {
                   </div>
                   <button
                     type="submit"
-                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary-600 py-3.5 text-[15px] font-bold text-white shadow-lg shadow-primary-500/10 transition-all hover:bg-primary-700 active:scale-95"
+                    disabled={submitting}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary-600 py-3.5 text-[15px] font-bold text-white shadow-lg shadow-primary-500/10 transition-all hover:bg-primary-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
                   >
-                    <Send className="h-4 w-4" /> Send Message
+                    <Send className="h-4 w-4" /> {submitting ? 'Sending…' : 'Send Message'}
                   </button>
                 </form>
               )}

@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { PlusCircle, Users, Home, Phone, Calendar } from 'lucide-react'
 import { useLeads } from '../context/LeadsContext'
 import { properties } from '../data/properties'
@@ -10,6 +10,17 @@ export function HostDashboardPage() {
   usePageMeta('Host Dashboard', 'Manage your property listings and track incoming tenant leads on innbly.')
   const { leads } = useLeads()
   const [myListings] = useState(properties.slice(0, 2))
+  const { hash } = useLocation()
+
+  useEffect(() => {
+    if (!hash) return
+    const id = hash.replace('#', '')
+    const el = document.getElementById(id)
+    if (el) {
+      const t = setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
+      return () => clearTimeout(t)
+    }
+  }, [hash])
 
   return (
     <>

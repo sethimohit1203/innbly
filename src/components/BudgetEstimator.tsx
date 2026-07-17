@@ -1,10 +1,13 @@
-import { useState } from 'react'
-import { SlidersHorizontal, UtensilsCrossed, Snowflake, ShieldCheck, Receipt } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { SlidersHorizontal, UtensilsCrossed, Snowflake, ShieldCheck, Receipt, Loader2 } from 'lucide-react'
 import { useVisitModal } from '../context/VisitModalContext'
+import { useServerPrice } from '../hooks/useServerPrice'
 
 type RoomConfig = 'Single' | 'Double' | 'Triple'
 
-const PRICES: Record<RoomConfig, number> = { Single: 15000, Double: 9000, Triple: 7000 }
+// Display-only reference prices for the room picker cards — the receipt
+// itself always reflects the server's authoritative computation below.
+const DISPLAY_PRICES: Record<RoomConfig, number> = { Single: 15000, Double: 9000, Triple: 7000 }
 const MEALS_PRICE = 2500
 const AC_PRICE = 1500
 
@@ -14,16 +17,27 @@ const configOptions: { key: RoomConfig; label: string; icon: string }[] = [
   { key: 'Triple', label: 'Triple Sharing', icon: '👨‍👩‍👦' },
 ]
 
+interface EstimatorTotal {
+  baseRent: number
+  mealRent: number
+  acRent: number
+  totalMonthly: number
+  securityDeposit: number
+}
+
 export function BudgetEstimator() {
   const { openVisitModal } = useVisitModal()
   const [roomType, setRoomType] = useState<RoomConfig>('Single')
   const [meals, setMeals] = useState(false)
   const [ac, setAc] = useState(false)
 
-  const baseRent = PRICES[roomType]
-  const mealRent = meals ? MEALS_PRICE : 0
-  const acRent = ac ? AC_PRICE : 0
-  const totalMonthly = baseRent + mealRent + acRent
+  const request = useMemo(() => ({ kind: 'estimator', roomType, meals, ac }), [roomType, meals, ac])
+  const fallback = useMemo<EstimatorTotal>(
+    () => ({ baseRent: DISPLAY_PRICES[roomType], mealRent: 0, acRent: 0, totalMonthly: DISPLAY_PRICES[roomType], securityDeposit: DISPLAY_PRICES[roomType] }),
+    [roomType],
+  )
+  const { data, loading, error } = useServerPrice<EstimatorTotal>({ request, fallback })
+  const { baseRent, mealRent, acRent, totalMonthly } = data
 
   return (
     <section id="estimator" className="border-y border-slate-100 bg-slate-50/70 py-20">
@@ -68,7 +82,7 @@ export function BudgetEstimator() {
                       <span className="text-xl">{opt.icon}</span>
                       <span className="text-sm font-bold">{opt.label}</span>
                       <span className="mt-1 text-xs font-semibold text-slate-500">
-                        ₹{PRICES[opt.key].toLocaleString('en-IN')}/mo
+                        ₹{DISPLAY_PRICES[opt.key].toLocaleString('en-IN')}/mo
                       </span>
                     </button>
                   ))}
@@ -126,10 +140,11 @@ export function BudgetEstimator() {
                   <h4 className="text-lg font-bold tracking-tight text-white">Your Stay Plan</h4>
                   <p className="text-xs font-medium text-slate-400">Auto-calculating billing schedule</p>
                 </div>
-                <span className="rounded-lg border border-primary-500/20 bg-primary-500/10 px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-primary-400">
-                  Live Receipt
+                <span className="flex items-center gap-1.5 rounded-lg border border-primary-500/20 bg-primary-500/10 px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-primary-400">
+                  {loading && <Loader2 className="h-3 w-3 animate-spin" />} Live Receipt
                 </span>
               </div>
+              {error && <p className="mt-2 text-xs font-medium text-rose-400">Showing an estimate — pricing service unreachable.</p>}
 
               <div className="space-y-4 py-8">
                 <div className="flex justify-between text-sm">

@@ -38,6 +38,7 @@ export function PhoneInput({ value, onChange, country, onCountryChange, required
         showError ? 'border-rose-400' : 'border-slate-200 focus-within:border-primary-500'
       }`}>
         <select
+          aria-label="Country code"
           value={country}
           onChange={(e) => onCountryChange(e.target.value as CountryCode)}
           className="cursor-pointer border-r border-slate-200 bg-transparent px-2.5 py-3 text-[15px] font-semibold text-slate-700 outline-none"
@@ -49,6 +50,7 @@ export function PhoneInput({ value, onChange, country, onCountryChange, required
           ))}
         </select>
         <input
+          aria-label="Phone number"
           type="tel"
           required={required}
           value={value}

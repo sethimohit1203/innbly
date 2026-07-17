@@ -1,26 +1,40 @@
 type SubmissionType = 'lead' | 'signup' | 'newsletter' | 'contact'
 
-const WEBAPP_URL = import.meta.env.VITE_SHEETS_WEBAPP_URL as string | undefined
+const ENDPOINTS: Record<SubmissionType, string> = {
+  lead: '/api/leads',
+  signup: '/api/signup',
+  newsletter: '/api/newsletter',
+  contact: '/api/contact',
+}
 
-export const isBackendConfigured = Boolean(WEBAPP_URL)
+export interface SubmitResult {
+  ok: boolean
+  error?: string
+}
 
-/**
- * Fire-and-forget POST to the Google Apps Script Web App.
- * Uses text/plain to avoid a CORS preflight (Apps Script doesn't handle OPTIONS).
- * Apps Script web apps don't return readable CORS headers to the browser, so we
- * can't inspect the response — this resolves once the request has been sent.
- */
-export async function submitToSheet(type: SubmissionType, payload: Record<string, unknown>): Promise<void> {
-  if (!WEBAPP_URL) return
-
+/** Posts to our own serverless API (never the Sheets URL directly — that
+ * stays server-side only). Returns a result so callers can surface rate
+ * limit or validation errors instead of failing silently. */
+export async function submitToSheet(type: SubmissionType, payload: Record<string, unknown>): Promise<SubmitResult> {
   try {
-    await fetch(WEBAPP_URL, {
+    const res = await fetch(ENDPOINTS[type], {
       method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ type, ...payload }),
-      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
     })
+
+    if (res.status === 429) {
+      const data = await res.json().catch(() => ({}))
+      return { ok: false, error: data.error ?? "You're doing that too often — please try again in a bit." }
+    }
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}))
+      return { ok: false, error: data.error ?? 'Something went wrong. Please try again.' }
+    }
+
+    return { ok: true }
   } catch {
-    // Silently ignore network failures — this is a best-effort mirror to the sheet.
+    return { ok: false, error: 'Could not reach the server. Please check your connection and try again.' }
   }
 }

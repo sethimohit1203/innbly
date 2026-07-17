@@ -85,8 +85,9 @@ export function ListPropertyPage() {
         {step === 0 && (
           <div className="space-y-4">
             <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">Property Title</label>
+              <label htmlFor="list-title" className="mb-1 block text-sm font-medium text-slate-700">Property Title</label>
               <input
+                id="list-title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. Sunrise Coliving — Koramangala"
@@ -94,8 +95,9 @@ export function ListPropertyPage() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">City / Neighborhood</label>
+              <label htmlFor="list-city" className="mb-1 block text-sm font-medium text-slate-700">City / Neighborhood</label>
               <input
+                id="list-city"
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 placeholder="e.g. Koramangala, Bengaluru"
@@ -104,8 +106,9 @@ export function ListPropertyPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="mb-1 block text-sm font-medium text-slate-700">Monthly Rent (₹)</label>
+                <label htmlFor="list-rent" className="mb-1 block text-sm font-medium text-slate-700">Monthly Rent (₹)</label>
                 <input
+                  id="list-rent"
                   type="number"
                   value={rent}
                   onChange={(e) => setRent(e.target.value)}
@@ -114,8 +117,9 @@ export function ListPropertyPage() {
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-slate-700">Security Deposit (₹)</label>
+                <label htmlFor="list-deposit" className="mb-1 block text-sm font-medium text-slate-700">Security Deposit (₹)</label>
                 <input
+                  id="list-deposit"
                   type="number"
                   value={deposit}
                   onChange={(e) => setDeposit(e.target.value)}

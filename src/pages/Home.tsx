@@ -77,10 +77,11 @@ export function HomePage() {
           <div className="mx-auto max-w-4xl rounded-2xl border border-slate-100 bg-white p-4 shadow-xl shadow-slate-100 md:rounded-3xl">
             <form onSubmit={handleSearch} className="grid grid-cols-1 items-center gap-3 md:grid-cols-4">
               <div className="relative border-slate-100 px-3 py-2 md:border-r">
-                <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                <label htmlFor="home-search-location" className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-slate-400">
                   <MapPin className="mr-1 inline h-3 w-3 text-primary-500" /> Location
                 </label>
                 <select
+                  id="home-search-location"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
                   className="w-full cursor-pointer bg-transparent text-[15px] font-semibold text-slate-800 outline-none"
@@ -95,10 +96,11 @@ export function HomePage() {
               </div>
 
               <div className="relative border-slate-100 px-3 py-2 md:border-r">
-                <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                <label htmlFor="home-search-room-type" className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-slate-400">
                   <BedDouble className="mr-1 inline h-3 w-3 text-primary-500" /> Room Configuration
                 </label>
                 <select
+                  id="home-search-room-type"
                   value={roomType}
                   onChange={(e) => setRoomType(e.target.value)}
                   className="w-full cursor-pointer bg-transparent text-[15px] font-semibold text-slate-800 outline-none"
@@ -110,10 +112,11 @@ export function HomePage() {
               </div>
 
               <div className="relative border-slate-100 px-3 py-2 md:border-r">
-                <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                <label htmlFor="home-search-budget" className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-slate-400">
                   <Wallet className="mr-1 inline h-3 w-3 text-primary-500" /> Max Monthly Rent
                 </label>
                 <select
+                  id="home-search-budget"
                   value={budget}
                   onChange={(e) => setBudget(e.target.value)}
                   className="w-full cursor-pointer bg-transparent text-[15px] font-semibold text-slate-800 outline-none"

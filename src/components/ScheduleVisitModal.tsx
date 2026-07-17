@@ -26,6 +26,7 @@ export function ScheduleVisitModal() {
   const [slot, setSlot] = useState('morning')
   const [submitted, setSubmitted] = useState(false)
   const [visible, setVisible] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
     if (isOpen) {
@@ -49,12 +50,20 @@ export function ScheduleVisitModal() {
     }, 200)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!phoneValid) return
+    if (!phoneValid || submitting) return
+
+    setSubmitting(true)
+    const result = await submitToSheet('lead', { name, phone, propertyTitle: target.propertyTitle, visitDate: date, slot })
+    setSubmitting(false)
+
+    if (!result.ok) {
+      showToast(result.error ?? 'Could not schedule your visit. Please try again.', 'error')
+      return
+    }
 
     const visitDate = `${date} · ${slot === 'morning' ? '10 AM–1 PM' : slot === 'afternoon' ? '1 PM–4 PM' : '4 PM–7 PM'}`
-
     addLead({
       propertyId: target.propertyId,
       propertyTitle: target.propertyTitle,
@@ -62,7 +71,6 @@ export function ScheduleVisitModal() {
       phone,
       visitDate,
     })
-    submitToSheet('lead', { name, phone, propertyTitle: target.propertyTitle, visitDate: date, slot })
     setSubmitted(true)
     showToast('Visit scheduled successfully!')
   }
@@ -113,10 +121,11 @@ export function ScheduleVisitModal() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-600">
+                <label htmlFor="visit-name" className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-600">
                   Your Name <span className="text-rose-500">*</span>
                 </label>
                 <input
+                  id="visit-name"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -139,10 +148,11 @@ export function ScheduleVisitModal() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-600">
+                  <label htmlFor="visit-date" className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-600">
                     Visit Date <span className="text-rose-500">*</span>
                   </label>
                   <input
+                    id="visit-date"
                     required
                     type="date"
                     min={new Date().toISOString().split('T')[0]}
@@ -152,10 +162,11 @@ export function ScheduleVisitModal() {
                   />
                 </div>
                 <div>
-                  <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-600">
+                  <label htmlFor="visit-slot" className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-600">
                     Preferred Slot
                   </label>
                   <select
+                    id="visit-slot"
                     required
                     value={slot}
                     onChange={(e) => setSlot(e.target.value)}
@@ -170,10 +181,10 @@ export function ScheduleVisitModal() {
 
               <button
                 type="submit"
-                disabled={!phoneValid}
+                disabled={!phoneValid || submitting}
                 className="mt-4 w-full rounded-xl bg-primary-600 py-4 text-[15px] font-bold text-white shadow-lg shadow-primary-500/10 transition-all hover:bg-primary-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
               >
-                Confirm Appointment Booking
+                {submitting ? 'Submitting…' : 'Confirm Appointment Booking'}
               </button>
             </form>
           </div>

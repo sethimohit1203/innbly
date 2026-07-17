@@ -5,6 +5,11 @@ requests, signups, newsletter subscriptions, and contact messages. It also
 emails `innblysupport@gmail.com` whenever a visit request or contact message
 comes in. No paid services required.
 
+The site never talks to this Sheet directly from the browser — all
+submissions go through the site's own `/api/*` serverless functions first
+(see `api/` in the project root), which apply rate limiting and keep the
+Web App URL out of the public JS bundle entirely.
+
 ## 1. Create the Sheet
 
 1. Go to [sheets.google.com](https://sheets.google.com) and create a new blank spreadsheet.
@@ -19,7 +24,16 @@ comes in. No paid services required.
    [`Code.gs`](./Code.gs) from this folder.
 3. Click **Save** (the disk icon), name the project "innbly backend".
 
-## 3. Deploy as a Web App
+## 3. Set the admin key (for the admin dashboard)
+
+1. In the Apps Script editor, click the gear icon (**Project Settings**) in
+   the left sidebar.
+2. Scroll to **Script Properties → Add script property**.
+3. Add a property named `ADMIN_KEY` with any long random value you choose
+   (e.g. generate one at [1password.com/password-generator](https://1password.com/password-generator/)).
+   This gates the admin dashboard's read access to your sheet — keep it secret.
+
+## 4. Deploy as a Web App
 
 1. Click **Deploy → New deployment**.
 2. Click the gear icon next to "Select type" and choose **Web app**.
@@ -31,17 +45,28 @@ comes in. No paid services required.
    through the "Advanced" warning, this is your own script.
 5. Copy the **Web app URL** it gives you (ends in `/exec`).
 
-## 4. Connect the site
+## 5. Connect the site
 
-1. In the `innbly` project folder, copy `.env.example` to `.env`.
-2. Paste your Web app URL as the value of `VITE_SHEETS_WEBAPP_URL`.
-3. Restart the dev server (`npm run dev`) or rebuild (`npm run build`) so
-   Vite picks up the new environment variable.
+Set these as environment variables on your Vercel project (Project →
+Settings → Environment Variables) — **not** in `.env` with a `VITE_` prefix,
+since anything `VITE_`-prefixed is bundled into the public JS and would leak
+the URL and key to every visitor:
+
+| Variable | Value |
+|---|---|
+| `SHEETS_WEBAPP_URL` | The Web app URL from step 4 |
+| `ADMIN_SHEETS_KEY` | The same value you set for `ADMIN_KEY` in step 3 |
+| `ADMIN_PASSCODE` | A passcode you'll type to log into `/admin` |
+| `ADMIN_SESSION_SECRET` | Another long random value, used to sign the admin login cookie |
+
+For local development, copy `.env.example` to `.env` in the project root
+and fill in the same values — the local dev API server (`npm run dev`)
+reads them the same way Vercel does.
 
 That's it — visit requests, signups, newsletter signups, and contact
-messages submitted on the site will now land as rows in your Sheet, and
+messages submitted on the site will now land as rows in your Sheet,
 leads/contact messages will also trigger an email to
-`innblysupport@gmail.com`.
+`innblysupport@gmail.com`, and `/admin` will show live counts.
 
 ## Notes & limitations
 
@@ -52,7 +77,7 @@ leads/contact messages will also trigger an email to
   user database.
 - If you ever need to update the script, edit `Code.gs` in the Apps Script
   editor and create a **new deployment** (or manage deployments → edit) —
-  editing the code alone doesn't update a already-deployed Web App URL.
+  editing the code alone doesn't update an already-deployed Web App URL.
 - Free tier limits: Apps Script Web Apps have a generous free quota (20,000
   URL fetch calls/day, 100 emails/day on a personal Gmail account) — far
   more than a small site needs.

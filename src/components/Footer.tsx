@@ -10,10 +10,14 @@ export function Footer() {
   const { showToast } = useToast()
   const [email, setEmail] = useState('')
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email) return
-    submitToSheet('newsletter', { email })
+    const result = await submitToSheet('newsletter', { email })
+    if (!result.ok) {
+      showToast(result.error ?? 'Could not subscribe. Please try again.', 'error')
+      return
+    }
     showToast('Subscribed! We will notify you of openings.')
     setEmail('')
   }

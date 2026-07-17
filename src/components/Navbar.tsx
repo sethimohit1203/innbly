@@ -51,13 +51,13 @@ export function Navbar() {
         <nav className="hidden items-center gap-8 md:flex">
           {isHost
             ? hostLinks.map((link) => (
-                <a
+                <Link
                   key={link.to}
-                  href={link.to}
+                  to={link.to}
                   className="flex items-center gap-1.5 text-[15px] font-semibold text-slate-600 transition-colors hover:text-primary-600"
                 >
                   <link.icon className="h-4 w-4" /> {link.label}
-                </a>
+                </Link>
               ))
             : (
                 <Link
@@ -159,14 +159,14 @@ export function Navbar() {
         <div className="space-y-4 border-t border-slate-100 bg-white/95 px-4 py-6 shadow-xl backdrop-blur-md md:hidden">
           {isHost ? (
             hostLinks.map((link) => (
-              <a
+              <Link
                 key={link.to}
-                href={link.to}
+                to={link.to}
                 onClick={() => setMobileOpen(false)}
                 className="block text-base font-semibold text-slate-700 transition-colors hover:text-primary-600"
               >
                 {link.label}
-              </a>
+              </Link>
             ))
           ) : (
             <Link
