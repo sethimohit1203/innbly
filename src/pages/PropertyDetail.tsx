@@ -1,0 +1,354 @@
+import { useState } from 'react'
+import { useParams, Link } from 'react-router-dom'
+import {
+  ChevronRight,
+  Heart,
+  Share2,
+  Images,
+  MapPin,
+  BadgeCheck,
+  Sofa,
+  Wifi,
+  Wind,
+  Bath,
+  Zap,
+  Sparkles,
+  UtensilsCrossed,
+  ShieldCheck,
+  Car,
+  Dumbbell,
+  Star,
+  MessageCircle,
+  CalendarCheck2,
+} from 'lucide-react'
+import { getPropertyById } from '../data/properties'
+import { MapPlaceholder } from '../components/MapPlaceholder'
+import { ScheduleVisitModal } from '../components/ScheduleVisitModal'
+import type { TenantPreference } from '../types'
+
+const amenityIcons: Record<string, JSX.Element> = {
+  'Wi-Fi': <Wifi className="h-5 w-5" />,
+  AC: <Wind className="h-5 w-5" />,
+  'Attached Bath': <Bath className="h-5 w-5" />,
+  'Power Backup': <Zap className="h-5 w-5" />,
+  Housekeeping: <Sparkles className="h-5 w-5" />,
+  Meals: <UtensilsCrossed className="h-5 w-5" />,
+  CCTV: <ShieldCheck className="h-5 w-5" />,
+  Parking: <Car className="h-5 w-5" />,
+  Gym: <Dumbbell className="h-5 w-5" />,
+  Laundry: <Sparkles className="h-5 w-5" />,
+}
+
+const amenityGroups: Record<string, string[]> = {
+  Comfort: ['AC', 'Attached Bath', 'Laundry'],
+  Utilities: ['Wi-Fi', 'Power Backup', 'CCTV', 'Parking'],
+  Services: ['Housekeeping', 'Meals', 'Gym'],
+}
+
+export function PropertyDetailPage() {
+  const { id } = useParams()
+  const property = id ? getPropertyById(id) : undefined
+  const [showAllPhotos, setShowAllPhotos] = useState(false)
+  const [showVisitModal, setShowVisitModal] = useState(false)
+  const [descExpanded, setDescExpanded] = useState(false)
+  const [tenantType, setTenantType] = useState<TenantPreference>('Anyone')
+  const [moveIn, setMoveIn] = useState('')
+  const [saved, setSaved] = useState(false)
+
+  if (!property) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-24 text-center">
+        <h2 className="text-xl font-bold text-slate-800">Property not found</h2>
+        <Link to="/search" className="mt-4 inline-block text-primary-600 hover:underline">
+          Back to search
+        </Link>
+      </div>
+    )
+  }
+
+  const whatsappUrl = `https://wa.me/${property.ownerPhone.replace('+', '')}?text=${encodeURIComponent(
+    `Hi ${property.ownerName}, I'm interested in "${property.title}" listed on innbly. Could you share more details?`,
+  )}`
+
+  return (
+    <div className="mx-auto max-w-7xl px-4 pb-16 pt-5 sm:px-6">
+      {/* Breadcrumbs + utility buttons */}
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <nav className="flex items-center gap-1.5 text-sm text-slate-500">
+          <Link to="/" className="hover:text-primary-600">Home</Link>
+          <ChevronRight className="h-3.5 w-3.5" />
+          <Link to="/search" className="hover:text-primary-600">{property.city}</Link>
+          <ChevronRight className="h-3.5 w-3.5" />
+          <span className="font-medium text-slate-700">{property.neighborhood}</span>
+        </nav>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setSaved((s) => !s)}
+            className="flex items-center gap-1.5 rounded-full border border-slate-300 px-3.5 py-1.5 text-sm font-medium text-slate-600 transition hover:border-slate-400"
+          >
+            <Heart className={`h-4 w-4 ${saved ? 'fill-rose-500 text-rose-500' : ''}`} />
+            {saved ? 'Saved' : 'Save'}
+          </button>
+          <button className="flex items-center gap-1.5 rounded-full border border-slate-300 px-3.5 py-1.5 text-sm font-medium text-slate-600 transition hover:border-slate-400">
+            <Share2 className="h-4 w-4" /> Share
+          </button>
+        </div>
+      </div>
+
+      {/* Hero media grid */}
+      <div className="relative mb-8 grid h-[420px] grid-cols-5 grid-rows-2 gap-2 overflow-hidden rounded-2xl">
+        <img
+          src={property.images[0]}
+          alt={property.title}
+          className="col-span-3 row-span-2 h-full w-full object-cover transition hover:brightness-95"
+        />
+        {property.images.slice(1, 5).map((img, i) => (
+          <img
+            key={i}
+            src={img}
+            alt=""
+            className="col-span-1 h-full w-full object-cover transition hover:brightness-95"
+          />
+        ))}
+        <button
+          onClick={() => setShowAllPhotos(true)}
+          className="absolute bottom-4 right-4 flex items-center gap-1.5 rounded-full bg-white/95 px-4 py-2 text-sm font-semibold text-slate-800 shadow-card-hover transition hover:bg-white"
+        >
+          <Images className="h-4 w-4" /> View all photos
+        </button>
+      </div>
+
+      {showAllPhotos && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 p-4 animate-fade-in"
+          onClick={() => setShowAllPhotos(false)}
+        >
+          <div className="grid max-h-full max-w-4xl grid-cols-2 gap-3 overflow-y-auto">
+            {property.images.map((img, i) => (
+              <img key={i} src={img} alt="" className="w-full rounded-xl object-cover" />
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="flex flex-col gap-10 lg:flex-row">
+        {/* LEFT COLUMN 65% */}
+        <div className="lg:w-[65%]">
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">{property.title}</h1>
+          <div className="mt-2 flex items-center gap-1.5 text-slate-500">
+            <MapPin className="h-4 w-4" />
+            {property.address}
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {property.verified && (
+              <span className="flex items-center gap-1 rounded-full bg-accent-50 px-3 py-1 text-xs font-semibold text-accent-700">
+                <BadgeCheck className="h-3.5 w-3.5" /> Verified Property
+              </span>
+            )}
+            {property.furnished && (
+              <span className="flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                <Sofa className="h-3.5 w-3.5" /> Fully Furnished
+              </span>
+            )}
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+              {property.roomType}
+            </span>
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+              For {property.tenantPreference}
+            </span>
+          </div>
+
+          {/* Description */}
+          <div className="mt-6 border-t border-slate-200 pt-6">
+            <h2 className="mb-2 text-lg font-bold text-slate-900">About this property</h2>
+            <p className={`text-sm leading-relaxed text-slate-600 ${descExpanded ? '' : 'line-clamp-4'}`}>
+              {property.description}
+            </p>
+            <button
+              onClick={() => setDescExpanded((v) => !v)}
+              className="mt-1 text-sm font-semibold text-primary-600 hover:underline"
+            >
+              {descExpanded ? 'Show less' : 'Read More'}
+            </button>
+          </div>
+
+          {/* Amenities */}
+          <div className="mt-8 border-t border-slate-200 pt-6">
+            <h2 className="mb-4 text-lg font-bold text-slate-900">Amenities</h2>
+            <div className="space-y-5">
+              {Object.entries(amenityGroups).map(([group, items]) => {
+                const present = items.filter((a) => property.amenities.includes(a))
+                if (present.length === 0) return null
+                return (
+                  <div key={group}>
+                    <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400">{group}</h3>
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                      {present.map((a) => (
+                        <div
+                          key={a}
+                          className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-700 transition hover:border-primary-300 hover:bg-primary-50/50"
+                        >
+                          <span className="text-primary-600">{amenityIcons[a]}</span>
+                          {a}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Location */}
+          <div className="mt-8 border-t border-slate-200 pt-6">
+            <h2 className="mb-4 text-lg font-bold text-slate-900">Location & Proximity</h2>
+            <MapPlaceholder className="h-64 w-full" label={property.neighborhood} />
+            <div className="mt-4 space-y-1">
+              <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400">Nearby Landmarks</h3>
+              {property.landmarks.map((l) => (
+                <div
+                  key={l.name}
+                  className="flex items-center justify-between border-l-2 border-primary-200 py-2 pl-4 text-sm transition hover:border-primary-500"
+                >
+                  <span className="font-medium text-slate-700">{l.name}</span>
+                  <span className="text-slate-500">
+                    {l.distanceM}m ({l.walkMin} min walk)
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT COLUMN 35% - sticky booking card */}
+        <div className="lg:w-[35%]">
+          <div className="sticky top-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-card-hover">
+            <div className="flex items-end justify-between">
+              <div>
+                <span className="text-3xl font-extrabold text-slate-900">
+                  ₹{property.price.toLocaleString('en-IN')}
+                </span>
+                <span className="text-slate-500"> /month</span>
+              </div>
+              <div className="flex items-center gap-1 text-sm font-semibold text-amber-500">
+                <Star className="h-4 w-4 fill-amber-400 text-amber-400" /> {property.rating}
+              </div>
+            </div>
+            <p className="mt-1 text-xs text-slate-500">
+              Security deposit: ₹{property.deposit.toLocaleString('en-IN')} (refundable)
+            </p>
+
+            <div className="mt-5">
+              <label className="mb-1.5 block text-xs font-semibold text-slate-600">Preferred Tenant Type</label>
+              <div className="grid grid-cols-3 gap-2">
+                {(['Boys', 'Girls', 'Anyone'] as TenantPreference[]).map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setTenantType(t)}
+                    className={`rounded-lg border px-2 py-2 text-xs font-semibold transition ${
+                      tenantType === t
+                        ? 'border-primary-500 bg-primary-50 text-primary-700'
+                        : 'border-slate-300 text-slate-600 hover:border-slate-400'
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <label className="mb-1.5 block text-xs font-semibold text-slate-600">Select Move-in Date</label>
+              <input
+                type="date"
+                value={moveIn}
+                onChange={(e) => setMoveIn(e.target.value)}
+                className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+              />
+            </div>
+
+            <button
+              onClick={() => setShowVisitModal(true)}
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-4 py-3.5 text-sm font-bold text-white shadow-card transition hover:bg-accent-600 hover:shadow-card-hover"
+            >
+              <CalendarCheck2 className="h-4 w-4" /> Schedule a Free Visit
+            </button>
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-primary-400 hover:bg-primary-50 hover:text-primary-700"
+            >
+              <MessageCircle className="h-4 w-4" /> Chat with Host
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Reviews */}
+      <div className="mt-12 border-t border-slate-200 pt-8">
+        <h2 className="mb-6 text-2xl font-bold text-slate-900">Ratings & Reviews</h2>
+        <div className="flex flex-col gap-10 lg:flex-row">
+          <div className="lg:w-2/5">
+            <div className="flex items-baseline gap-2">
+              <span className="text-5xl font-extrabold text-slate-900">{property.rating}</span>
+              <span className="text-lg text-slate-500">out of 5</span>
+            </div>
+            <p className="mt-1 text-sm text-slate-500">{property.reviewCount} verified reviews</p>
+            <div className="mt-6 space-y-3">
+              {property.ratingBreakdown.map((r) => (
+                <div key={r.label}>
+                  <div className="mb-1 flex justify-between text-sm text-slate-600">
+                    <span>{r.label}</span>
+                    <span className="font-semibold">{r.score}</span>
+                  </div>
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                    <div
+                      className="h-full rounded-full bg-accent-500 transition-all"
+                      style={{ width: `${(r.score / 5) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-1 flex-col gap-4">
+            {property.reviews.map((r) => (
+              <div
+                key={r.id}
+                className="rounded-2xl border border-slate-200 p-4 transition hover:shadow-card"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <img src={r.avatar} alt={r.name} className="h-10 w-10 rounded-full object-cover" />
+                    <div>
+                      <div className="flex items-center gap-1.5 font-semibold text-slate-800">
+                        {r.name}
+                        {r.verifiedStay && (
+                          <span className="flex items-center gap-0.5 rounded-full bg-accent-50 px-2 py-0.5 text-[10px] font-semibold text-accent-700">
+                            <BadgeCheck className="h-3 w-3" /> Verified Stay
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-xs text-slate-400">{r.date}</span>
+                    </div>
+                  </div>
+                </div>
+                <p className="mt-3 text-sm leading-relaxed text-slate-600">{r.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {showVisitModal && (
+        <ScheduleVisitModal
+          propertyId={property.id}
+          propertyTitle={property.title}
+          onClose={() => setShowVisitModal(false)}
+        />
+      )}
+    </div>
+  )
+}

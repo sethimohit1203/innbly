@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 180" width="680" height="180">
+  <rect x="0" y="0" width="680" height="180" rx="16" fill="white"/>
+  <g transform="translate(30, 25)">
+    <circle cx="60" cy="60" r="54" fill="#E8390A"/>
+    <circle cx="60" cy="60" r="32" fill="white"/>
+    <polygon points="60,30 40,52 80,52" fill="#E8390A"/>
+    <rect x="42" y="50" width="36" height="24" rx="2" fill="#E8390A"/>
+    <path fill="white" d="M 52 74 Q 52 62 60 62 Q 68 62 68 74 Z"/>
+    <rect x="112" y="50" width="96" height="21" rx="10.5" fill="#E8390A"/>
+    <rect x="154" y="69" width="15" height="20" rx="5" fill="#E8390A"/>
+    <rect x="181" y="69" width="15" height="14" rx="5" fill="#E8390A"/>
+  </g>
+  <text x="248" y="100" font-family="'Helvetica Neue',Arial,sans-serif" font-weight="800" font-size="64" letter-spacing="-2.5" fill="#E8390A">Apna</text>
+  <text x="420" y="100" font-family="'Helvetica Neue',Arial,sans-serif" font-weight="300" font-size="64" letter-spacing="-1.5" fill="#1A1A1A">Bnb</text>
+  <rect x="248" y="108" width="164" height="4" rx="2" fill="#E8390A"/>
+  <text x="248" y="140" font-family="'Helvetica Neue',Arial,sans-serif" font-size="13" letter-spacing="3.5" fill="#AAAAAA">YOUR HOME AWAY FROM HOME</text>
+</svg>
