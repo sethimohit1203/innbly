@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Search } from 'lucide-react'
 import { properties } from '../data/properties'
 import { PropertyCard } from '../components/PropertyCard'
@@ -13,13 +14,25 @@ const priceInRange = (price: number, range: string) => {
   return true
 }
 
+const budgetToRanges = (budget: string): string[] => {
+  if (budget === '10000') return ['Under ₹8,000', '₹8,000–₹12,000']
+  if (budget === '15000') return ['Under ₹8,000', '₹8,000–₹12,000', '₹12,000–₹16,000']
+  if (budget === '20000') return ['Under ₹8,000', '₹8,000–₹12,000', '₹12,000–₹16,000', 'Above ₹16,000']
+  return []
+}
+
 export function SearchResultsPage() {
-  const [query, setQuery] = useState('')
-  const [filters, setFilters] = useState<Filters>({
-    priceRanges: [],
-    roomTypes: [],
-    tenantPrefs: [],
-    amenities: [],
+  const [searchParams] = useSearchParams()
+  const [query, setQuery] = useState(searchParams.get('city') ?? '')
+  const [filters, setFilters] = useState<Filters>(() => {
+    const roomType = searchParams.get('roomType')
+    const budget = searchParams.get('budget')
+    return {
+      priceRanges: budget ? budgetToRanges(budget) : [],
+      roomTypes: roomType ? [roomType] : [],
+      tenantPrefs: [],
+      amenities: [],
+    }
   })
 
   const filtered = useMemo(() => {
@@ -34,7 +47,7 @@ export function SearchResultsPage() {
   }, [query, filters])
 
   return (
-    <div className="flex h-[calc(100vh-65px)] flex-col">
+    <div className="flex h-[calc(100vh-80px)] flex-col">
       <div className="border-b border-slate-200 bg-white px-4 py-4 sm:px-6">
         <div className="mx-auto max-w-7xl">
           <div className="relative mb-3 max-w-md">
@@ -52,7 +65,7 @@ export function SearchResultsPage() {
 
       <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col overflow-hidden md:flex-row">
         <div className="flex-1 overflow-y-auto px-4 py-5 sm:px-6 md:w-3/5 scrollbar-thin">
-          <p className="mb-4 text-sm text-slate-500">{filtered.length} stays found</p>
+          <p className="mb-4 text-sm font-semibold text-slate-500">{filtered.length} stays found</p>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             {filtered.map((p) => (
               <PropertyCard key={p.id} property={p} />

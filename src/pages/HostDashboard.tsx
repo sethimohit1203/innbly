@@ -3,12 +3,14 @@ import { Link } from 'react-router-dom'
 import { PlusCircle, Users, Home, Phone, Calendar } from 'lucide-react'
 import { useLeads } from '../context/LeadsContext'
 import { properties } from '../data/properties'
+import { Footer } from '../components/Footer'
 
 export function HostDashboardPage() {
   const { leads } = useLeads()
   const [myListings] = useState(properties.slice(0, 2))
 
   return (
+    <>
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
@@ -37,7 +39,7 @@ export function HostDashboardPage() {
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
           <Calendar className="h-6 w-6 text-amber-500" />
           <p className="mt-3 text-2xl font-extrabold text-slate-900">
-            {leads.filter((l) => new Date(l.visitDate) >= new Date()).length}
+            {leads.filter((l) => new Date(l.visitDate.split(' · ')[0]) >= new Date(new Date().toDateString())).length}
           </p>
           <p className="text-sm text-slate-500">Upcoming visits</p>
         </div>
@@ -105,5 +107,7 @@ export function HostDashboardPage() {
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   )
 }

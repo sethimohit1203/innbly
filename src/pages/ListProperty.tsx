@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Check, ImagePlus, UploadCloud } from 'lucide-react'
+import { Footer } from '../components/Footer'
 
 const ALL_AMENITIES = [
   'Wi-Fi',
@@ -55,6 +56,7 @@ export function ListPropertyPage() {
   }
 
   return (
+    <>
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
       <h1 className="text-2xl font-extrabold text-slate-900">List Your Property</h1>
 
@@ -219,5 +221,7 @@ export function ListPropertyPage() {
         )}
       </div>
     </div>
+    <Footer />
+    </>
   )
 }

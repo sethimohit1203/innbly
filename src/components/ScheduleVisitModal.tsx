@@ -1,97 +1,171 @@
-import { useState } from 'react'
-import { X, CalendarCheck2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { X, CalendarCheck, CircleCheck } from 'lucide-react'
 import { useLeads } from '../context/LeadsContext'
+import { useVisitModal } from '../context/VisitModalContext'
+import { useToast } from '../context/ToastContext'
 
-export function ScheduleVisitModal({
-  propertyId,
-  propertyTitle,
-  onClose,
-}: {
-  propertyId: string
-  propertyTitle: string
-  onClose: () => void
-}) {
+function tomorrowISO() {
+  const d = new Date()
+  d.setDate(d.getDate() + 1)
+  return d.toISOString().split('T')[0]
+}
+
+export function ScheduleVisitModal() {
+  const { isOpen, target, closeVisitModal } = useVisitModal()
   const { addLead } = useLeads()
+  const { showToast } = useToast()
+
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
-  const [date, setDate] = useState('')
+  const [date, setDate] = useState(tomorrowISO())
+  const [slot, setSlot] = useState('morning')
   const [submitted, setSubmitted] = useState(false)
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    if (isOpen) {
+      setVisible(false)
+      const t = setTimeout(() => setVisible(true), 10)
+      return () => clearTimeout(t)
+    }
+  }, [isOpen])
+
+  if (!isOpen) return null
+
+  const handleClose = () => {
+    setVisible(false)
+    setTimeout(() => {
+      closeVisitModal()
+      setSubmitted(false)
+      setName('')
+      setPhone('')
+      setSlot('morning')
+      setDate(tomorrowISO())
+    }, 200)
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    addLead({ propertyId, propertyTitle, name, phone, visitDate: date })
+    addLead({
+      propertyId: target.propertyId,
+      propertyTitle: target.propertyTitle,
+      name,
+      phone,
+      visitDate: `${date} · ${slot === 'morning' ? '10 AM–1 PM' : slot === 'afternoon' ? '1 PM–4 PM' : '4 PM–7 PM'}`,
+    })
     setSubmitted(true)
+    showToast('Visit scheduled successfully!')
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4 animate-fade-in">
-      <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm">
+      <div
+        className={`relative w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl transition-all duration-300 ${
+          visible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
+        }`}
+      >
         <button
-          onClick={onClose}
-          className="absolute right-4 top-4 rounded-full p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+          onClick={handleClose}
+          className="absolute right-5 top-5 flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-400 transition-all hover:text-slate-600"
         >
-          <X className="h-5 w-5" />
+          <X className="h-4 w-4" />
         </button>
 
         {submitted ? (
-          <div className="flex flex-col items-center gap-3 py-6 text-center">
-            <CalendarCheck2 className="h-12 w-12 text-accent-500" />
-            <h3 className="text-lg font-bold text-slate-900">Visit request sent!</h3>
-            <p className="text-sm text-slate-500">
-              The host has been notified. They'll confirm your visit to <strong>{propertyTitle}</strong> shortly.
+          <div className="flex flex-col items-center justify-center p-8 text-center">
+            <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-accent-100 text-3xl text-accent-600 shadow-md">
+              <CircleCheck className="h-8 w-8" />
+            </div>
+            <h3 className="mb-2 text-2xl font-extrabold text-slate-900">Visit Successfully Scheduled!</h3>
+            <p className="mb-6 max-w-sm text-sm font-medium leading-relaxed text-slate-500">
+              Our verified relationship manager has received your request for{' '}
+              <strong>{target.propertyTitle}</strong>. We'll message you on WhatsApp shortly to confirm exact
+              navigation details.
             </p>
             <button
-              onClick={onClose}
-              className="mt-2 rounded-xl bg-primary-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-primary-700"
+              onClick={handleClose}
+              className="rounded-xl bg-stone-950 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-black"
             >
-              Done
+              Back to Home Page
             </button>
           </div>
         ) : (
-          <>
-            <h3 className="text-xl font-bold text-slate-900">Schedule a free visit</h3>
-            <p className="mt-1 text-sm text-slate-500">{propertyTitle}</p>
-
-            <form onSubmit={handleSubmit} className="mt-5 space-y-3">
+          <div className="p-6 md:p-8">
+            <div className="mb-6 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-500/10 text-lg text-primary-600">
+                <CalendarCheck className="h-5 w-5" />
+              </div>
               <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600">Full name</label>
+                <h3 className="text-xl font-extrabold text-slate-900">Schedule Premium Visit</h3>
+                <p className="text-xs font-semibold text-slate-500">{target.propertyTitle}</p>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-600">
+                  Your Name
+                </label>
                 <input
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Aditya Sharma"
-                  className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+                  placeholder="E.g., Aditya Sharma"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-[15px] font-semibold text-slate-800 outline-none transition-all focus:border-primary-500 focus:bg-white"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600">Phone number</label>
+                <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-600">
+                  WhatsApp Contact Number
+                </label>
                 <input
                   required
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="e.g. +91 98765 43210"
-                  className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+                  placeholder="E.g., +91 98765 43210"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-[15px] font-semibold text-slate-800 outline-none transition-all focus:border-primary-500 focus:bg-white"
                 />
               </div>
-              <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600">Preferred visit date</label>
-                <input
-                  required
-                  type="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-600">
+                    Visit Date
+                  </label>
+                  <input
+                    required
+                    type="date"
+                    min={new Date().toISOString().split('T')[0]}
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-[15px] font-semibold text-slate-800 outline-none transition-all focus:border-primary-500 focus:bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-600">
+                    Preferred Slot
+                  </label>
+                  <select
+                    required
+                    value={slot}
+                    onChange={(e) => setSlot(e.target.value)}
+                    className="w-full cursor-pointer rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-[15px] font-semibold text-slate-800 outline-none transition-all focus:border-primary-500 focus:bg-white"
+                  >
+                    <option value="morning">Morning (10 AM–1 PM)</option>
+                    <option value="afternoon">Afternoon (1 PM–4 PM)</option>
+                    <option value="evening">Evening (4 PM–7 PM)</option>
+                  </select>
+                </div>
               </div>
+
               <button
                 type="submit"
-                className="w-full rounded-xl bg-accent-500 px-4 py-3 text-sm font-semibold text-white shadow-card transition hover:bg-accent-600 hover:shadow-card-hover"
+                className="mt-4 w-full rounded-xl bg-primary-600 py-4 text-[15px] font-bold text-white shadow-lg shadow-primary-500/10 transition-all hover:bg-primary-700 active:scale-95"
               >
-                Confirm visit request
+                Confirm Appointment Booking
               </button>
             </form>
-          </>
+          </div>
         )}
       </div>
     </div>

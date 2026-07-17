@@ -23,7 +23,8 @@ import {
 } from 'lucide-react'
 import { getPropertyById } from '../data/properties'
 import { MapPlaceholder } from '../components/MapPlaceholder'
-import { ScheduleVisitModal } from '../components/ScheduleVisitModal'
+import { Footer } from '../components/Footer'
+import { useVisitModal } from '../context/VisitModalContext'
 import type { TenantPreference } from '../types'
 
 const amenityIcons: Record<string, JSX.Element> = {
@@ -48,8 +49,8 @@ const amenityGroups: Record<string, string[]> = {
 export function PropertyDetailPage() {
   const { id } = useParams()
   const property = id ? getPropertyById(id) : undefined
+  const { openVisitModal } = useVisitModal()
   const [showAllPhotos, setShowAllPhotos] = useState(false)
-  const [showVisitModal, setShowVisitModal] = useState(false)
   const [descExpanded, setDescExpanded] = useState(false)
   const [tenantType, setTenantType] = useState<TenantPreference>('Anyone')
   const [moveIn, setMoveIn] = useState('')
@@ -71,6 +72,7 @@ export function PropertyDetailPage() {
   )}`
 
   return (
+    <>
     <div className="mx-auto max-w-7xl px-4 pb-16 pt-5 sm:px-6">
       {/* Breadcrumbs + utility buttons */}
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -268,7 +270,7 @@ export function PropertyDetailPage() {
             </div>
 
             <button
-              onClick={() => setShowVisitModal(true)}
+              onClick={() => openVisitModal({ propertyId: property.id, propertyTitle: property.title })}
               className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-4 py-3.5 text-sm font-bold text-white shadow-card transition hover:bg-accent-600 hover:shadow-card-hover"
             >
               <CalendarCheck2 className="h-4 w-4" /> Schedule a Free Visit
@@ -342,13 +344,8 @@ export function PropertyDetailPage() {
         </div>
       </div>
 
-      {showVisitModal && (
-        <ScheduleVisitModal
-          propertyId={property.id}
-          propertyTitle={property.title}
-          onClose={() => setShowVisitModal(false)}
-        />
-      )}
     </div>
+    <Footer />
+    </>
   )
 }
