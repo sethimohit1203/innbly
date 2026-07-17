@@ -114,9 +114,9 @@ export function HomePage() {
                   className="w-full cursor-pointer bg-transparent text-[15px] font-semibold text-slate-800 outline-none"
                 >
                   <option value="any">Any Budget</option>
-                  <option value="10000">Under ₹10,000</option>
-                  <option value="15000">Under ₹15,000</option>
-                  <option value="20000">Under ₹20,000</option>
+                  <option value="12000">Under ₹12,000</option>
+                  <option value="18000">Under ₹18,000</option>
+                  <option value="25000">Under ₹25,000</option>
                 </select>
               </div>
 

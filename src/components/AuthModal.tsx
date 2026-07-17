@@ -1,10 +1,14 @@
 import { useState } from 'react'
 import { X, Home as HomeIcon, Building2 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
+import { submitToSheet } from '../lib/backend'
+import { GoogleSignInButton } from './GoogleSignInButton'
 import type { UserRole } from '../types'
 
 export function AuthModal() {
   const { isModalOpen, closeAuthModal, login } = useAuth()
+  const { showToast } = useToast()
   const [role, setRole] = useState<UserRole | null>(null)
   const [mode, setMode] = useState<'signup' | 'login'>('signup')
   const [name, setName] = useState('')
@@ -12,13 +16,29 @@ export function AuthModal() {
 
   if (!isModalOpen) return null
 
+  const reset = () => {
+    setRole(null)
+    setName('')
+    setEmail('')
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!role) return
     login({ name: name || 'Guest User', email: email || 'guest@innbly.com', role })
-    setRole(null)
-    setName('')
-    setEmail('')
+    submitToSheet('signup', { name: name || 'Guest User', email: email || 'guest@innbly.com', role, method: 'email' })
+    reset()
+  }
+
+  const handleGoogleSuccess = (profile: { name: string; email: string }) => {
+    if (!role) {
+      showToast('Pick "Rent a Space" or "List My Property" first', 'error')
+      return
+    }
+    login({ name: profile.name, email: profile.email, role })
+    submitToSheet('signup', { name: profile.name, email: profile.email, role, method: 'google' })
+    showToast(`Welcome, ${profile.name.split(' ')[0]}!`)
+    reset()
   }
 
   return (
@@ -27,7 +47,7 @@ export function AuthModal() {
         <button
           onClick={() => {
             closeAuthModal()
-            setRole(null)
+            reset()
           }}
           className="absolute right-4 top-4 rounded-full p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
         >
@@ -71,7 +91,17 @@ export function AuthModal() {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-3">
+        <div className="mt-6">
+          <GoogleSignInButton onSuccess={handleGoogleSuccess} />
+        </div>
+
+        <div className="my-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+          <div className="h-px flex-1 bg-slate-200" />
+          or continue with email
+          <div className="h-px flex-1 bg-slate-200" />
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-3">
           <input
             type="text"
             required

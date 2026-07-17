@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react'
+import type { CountryCode } from 'libphonenumber-js/min'
 import { X, CalendarCheck, CircleCheck } from 'lucide-react'
 import { useLeads } from '../context/LeadsContext'
 import { useVisitModal } from '../context/VisitModalContext'
 import { useToast } from '../context/ToastContext'
+import { submitToSheet } from '../lib/backend'
+import { PhoneInput } from './PhoneInput'
 
 function tomorrowISO() {
   const d = new Date()
@@ -17,6 +20,8 @@ export function ScheduleVisitModal() {
 
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
+  const [phoneCountry, setPhoneCountry] = useState<CountryCode>('IN')
+  const [phoneValid, setPhoneValid] = useState(false)
   const [date, setDate] = useState(tomorrowISO())
   const [slot, setSlot] = useState('morning')
   const [submitted, setSubmitted] = useState(false)
@@ -46,13 +51,18 @@ export function ScheduleVisitModal() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (!phoneValid) return
+
+    const visitDate = `${date} · ${slot === 'morning' ? '10 AM–1 PM' : slot === 'afternoon' ? '1 PM–4 PM' : '4 PM–7 PM'}`
+
     addLead({
       propertyId: target.propertyId,
       propertyTitle: target.propertyTitle,
       name,
       phone,
-      visitDate: `${date} · ${slot === 'morning' ? '10 AM–1 PM' : slot === 'afternoon' ? '1 PM–4 PM' : '4 PM–7 PM'}`,
+      visitDate,
     })
+    submitToSheet('lead', { name, phone, propertyTitle: target.propertyTitle, visitDate: date, slot })
     setSubmitted(true)
     showToast('Visit scheduled successfully!')
   }
@@ -104,7 +114,7 @@ export function ScheduleVisitModal() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-600">
-                  Your Name
+                  Your Name <span className="text-rose-500">*</span>
                 </label>
                 <input
                   required
@@ -116,21 +126,21 @@ export function ScheduleVisitModal() {
               </div>
               <div>
                 <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-600">
-                  WhatsApp Contact Number
+                  WhatsApp Contact Number <span className="text-rose-500">*</span>
                 </label>
-                <input
-                  required
-                  type="tel"
+                <PhoneInput
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="E.g., +91 98765 43210"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-[15px] font-semibold text-slate-800 outline-none transition-all focus:border-primary-500 focus:bg-white"
+                  onChange={setPhone}
+                  country={phoneCountry}
+                  onCountryChange={setPhoneCountry}
+                  required
+                  onValidityChange={setPhoneValid}
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-600">
-                    Visit Date
+                    Visit Date <span className="text-rose-500">*</span>
                   </label>
                   <input
                     required
@@ -160,7 +170,8 @@ export function ScheduleVisitModal() {
 
               <button
                 type="submit"
-                className="mt-4 w-full rounded-xl bg-primary-600 py-4 text-[15px] font-bold text-white shadow-lg shadow-primary-500/10 transition-all hover:bg-primary-700 active:scale-95"
+                disabled={!phoneValid}
+                className="mt-4 w-full rounded-xl bg-primary-600 py-4 text-[15px] font-bold text-white shadow-lg shadow-primary-500/10 transition-all hover:bg-primary-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Confirm Appointment Booking
               </button>

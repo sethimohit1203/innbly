@@ -1,10 +1,41 @@
 export type TenantPreference = 'Boys' | 'Girls' | 'Family' | 'Anyone'
 export type RoomType = 'Single' | 'Sharing'
 
+export const PROPERTY_TYPES = [
+  'Hotels',
+  'Apartments',
+  'Resorts',
+  'Villas',
+  'Cabins',
+  'Cottages',
+  'Glamping Sites',
+  'Serviced Apartments',
+  'Holiday Homes',
+  'Guest Houses',
+  'Hostels',
+  'Motels',
+  'B&Bs',
+  'Ryokans',
+  'Riads',
+  'Holiday Parks',
+  'Homestays',
+  'Campsites',
+  'Country Houses',
+  'Farm Stays',
+  'Boats',
+  'Luxury Tents',
+  'Self Catering Accommodation',
+  'Tiny Houses',
+] as const
+
+export type PropertyType = (typeof PROPERTY_TYPES)[number]
+
 export interface Property {
   id: string
   title: string
+  propertyType: PropertyType
   city: string
+  state: string
   neighborhood: string
   address: string
   price: number

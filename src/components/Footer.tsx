@@ -1,7 +1,10 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { HomeIcon, Twitter, Linkedin, Instagram, Send } from 'lucide-react'
+import { Twitter, Linkedin, Instagram, Facebook, Youtube, Send, Mail } from 'lucide-react'
 import { useToast } from '../context/ToastContext'
+import { submitToSheet } from '../lib/backend'
+
+const SUPPORT_EMAIL = 'innblysupport@gmail.com'
 
 export function Footer() {
   const { showToast } = useToast()
@@ -10,6 +13,7 @@ export function Footer() {
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault()
     if (!email) return
+    submitToSheet('newsletter', { email })
     showToast('Subscribed! We will notify you of openings.')
     setEmail('')
   }
@@ -20,24 +24,34 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-12 border-b border-slate-800 pb-12 md:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-6">
             <Link to="/" className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600 text-white">
-                <HomeIcon className="h-4.5 w-4.5" />
-              </div>
+              <img src="/brand/innbly-icon.jpg" alt="innbly" className="h-9 w-9 rounded-xl object-cover" />
               <span className="text-lg font-extrabold tracking-tight text-white">innbly</span>
             </Link>
             <p className="text-sm font-medium leading-relaxed text-slate-400">
               India's most trusted premium co-living network. Redefining modern stays and private homestays with
               total price transparency.
             </p>
+            <a
+              href={`mailto:${SUPPORT_EMAIL}`}
+              className="flex items-center gap-2 text-sm font-semibold text-slate-300 transition-colors hover:text-white"
+            >
+              <Mail className="h-4 w-4" /> {SUPPORT_EMAIL}
+            </a>
             <div className="flex items-center gap-3 text-white">
               <a href="#" className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800 transition-colors hover:bg-primary-600">
                 <Twitter className="h-3.5 w-3.5" />
+              </a>
+              <a href="#" className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800 transition-colors hover:bg-primary-600">
+                <Facebook className="h-3.5 w-3.5" />
               </a>
               <a href="#" className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800 transition-colors hover:bg-primary-600">
                 <Linkedin className="h-3.5 w-3.5" />
               </a>
               <a href="#" className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800 transition-colors hover:bg-primary-600">
                 <Instagram className="h-3.5 w-3.5" />
+              </a>
+              <a href="#" className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800 transition-colors hover:bg-primary-600">
+                <Youtube className="h-3.5 w-3.5" />
               </a>
             </div>
           </div>
@@ -60,8 +74,9 @@ export function Footer() {
             <ul className="space-y-3 text-sm font-medium">
               <li><Link to="/search" className="transition-colors hover:text-white">Schedule Visit</Link></li>
               <li><Link to="/dashboard" className="transition-colors hover:text-white">Host Dashboard</Link></li>
-              <li><a href="#" className="transition-colors hover:text-white">Terms of Service</a></li>
-              <li><a href="#" className="transition-colors hover:text-white">Contact Support</a></li>
+              <li><Link to="/terms" className="transition-colors hover:text-white">Terms of Service</Link></li>
+              <li><Link to="/privacy-policy" className="transition-colors hover:text-white">Privacy Policy</Link></li>
+              <li><Link to="/contact" className="transition-colors hover:text-white">Contact Support</Link></li>
             </ul>
           </div>
 
@@ -92,8 +107,8 @@ export function Footer() {
         <div className="flex flex-col items-center justify-between gap-4 pt-8 text-xs font-semibold text-slate-500 sm:flex-row">
           <p>© 2026 innbly Premium Stays. All rights reserved.</p>
           <div className="flex gap-6">
-            <a href="#" className="transition-colors hover:text-slate-400">Privacy Policy</a>
-            <a href="#" className="transition-colors hover:text-slate-400">Cookie Preferences</a>
+            <Link to="/privacy-policy" className="transition-colors hover:text-slate-400">Privacy Policy</Link>
+            <Link to="/terms" className="transition-colors hover:text-slate-400">Terms of Service</Link>
           </div>
         </div>
       </div>

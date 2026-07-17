@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { HomeIcon, Search, LayoutDashboard, User, Menu, X, CalendarCheck } from 'lucide-react'
+import { Search, LayoutDashboard, User, Menu, X, CalendarCheck } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { TranslateWidget } from './TranslateWidget'
 
 export function Navbar({ onScheduleVisit }: { onScheduleVisit?: () => void }) {
   const { user, openAuthModal, logout } = useAuth()
@@ -17,9 +18,7 @@ export function Navbar({ onScheduleVisit }: { onScheduleVisit?: () => void }) {
     <header className="sticky top-0 z-40 border-b border-slate-100 glass-header">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-2.5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-600 text-white shadow-lg shadow-primary-500/20">
-            <HomeIcon className="h-5 w-5" />
-          </div>
+          <img src="/brand/innbly-icon.jpg" alt="innbly" className="h-10 w-10 rounded-xl object-cover shadow-lg shadow-primary-500/20" />
           <span className="bg-gradient-to-r from-primary-900 to-primary-600 bg-clip-text text-xl font-extrabold tracking-tight text-transparent">
             innbly
           </span>
@@ -38,6 +37,7 @@ export function Navbar({ onScheduleVisit }: { onScheduleVisit?: () => void }) {
         </nav>
 
         <div className="flex items-center gap-3">
+          <TranslateWidget />
           {onScheduleVisit && (
             <button
               onClick={onScheduleVisit}
