@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import {
   ChevronRight,
@@ -22,6 +22,15 @@ import {
   CalendarCheck2,
   Users,
   Clock,
+  TrainFront,
+  Building2,
+  Landmark as LandmarkIcon,
+  ShoppingBag,
+  GraduationCap,
+  Waves,
+  Plane,
+  MapPinned,
+  ThumbsUp,
 } from 'lucide-react'
 import { getPropertyById, properties } from '../data/properties'
 import { MapPlaceholder } from '../components/MapPlaceholder'
@@ -29,10 +38,33 @@ import { Footer } from '../components/Footer'
 import { PropertyCard } from '../components/PropertyCard'
 import { DateRangePicker } from '../components/DateRangePicker'
 import { GuestCounter } from '../components/GuestCounter'
+import { PriceCalendar } from '../components/PriceCalendar'
 import { useVisitModal } from '../context/VisitModalContext'
 import { useSavedProperties } from '../context/SavedPropertiesContext'
+import { useRecentlyViewed } from '../context/RecentlyViewedContext'
 import { usePageMeta } from '../hooks/usePageMeta'
-import type { TenantPreference } from '../types'
+import type { LandmarkType, TenantPreference } from '../types'
+
+const landmarkIcons: Record<LandmarkType, JSX.Element> = {
+  Metro: <TrainFront className="h-4 w-4" />,
+  Gym: <Dumbbell className="h-4 w-4" />,
+  Restaurant: <UtensilsCrossed className="h-4 w-4" />,
+  Hospital: <Building2 className="h-4 w-4" />,
+  Market: <ShoppingBag className="h-4 w-4" />,
+  College: <GraduationCap className="h-4 w-4" />,
+  Mall: <ShoppingBag className="h-4 w-4" />,
+  Beach: <Waves className="h-4 w-4" />,
+  Temple: <LandmarkIcon className="h-4 w-4" />,
+  Airport: <Plane className="h-4 w-4" />,
+  Office: <Building2 className="h-4 w-4" />,
+  Attraction: <MapPinned className="h-4 w-4" />,
+}
+
+const AVAILABILITY_LABEL: Record<string, string> = {
+  Available: 'Available',
+  Limited: 'Limited Availability',
+  Booked: 'Fully Booked',
+}
 
 const amenityIcons: Record<string, JSX.Element> = {
   'Wi-Fi': <Wifi className="h-5 w-5" />,
@@ -58,6 +90,7 @@ export function PropertyDetailPage() {
   const property = id ? getPropertyById(id) : undefined
   const { openVisitModal } = useVisitModal()
   const { isSaved, toggleSaved } = useSavedProperties()
+  const { addRecentlyViewed } = useRecentlyViewed()
   const [showAllPhotos, setShowAllPhotos] = useState(false)
   const [descExpanded, setDescExpanded] = useState(false)
   const [tenantType, setTenantType] = useState<TenantPreference>('Anyone')
@@ -65,6 +98,11 @@ export function PropertyDetailPage() {
   const [checkOut, setCheckOut] = useState<string | null>(null)
   const [guests, setGuests] = useState(1)
   const saved = property ? isSaved(property.id) : false
+
+  useEffect(() => {
+    if (property) addRecentlyViewed(property.id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [property?.id])
 
   usePageMeta(
     property ? `${property.title} for Rent in ${property.neighborhood}, ${property.city}` : 'Property not found',
@@ -178,6 +216,27 @@ export function PropertyDetailPage() {
             <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
               For {property.tenantPreference}
             </span>
+            {property.instantBook && (
+              <span className="flex items-center gap-1 rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700">
+                <Zap className="h-3.5 w-3.5" /> Instant Book
+              </span>
+            )}
+            {property.freeCancellation && (
+              <span className="flex items-center gap-1 rounded-full bg-accent-50 px-3 py-1 text-xs font-semibold text-accent-700">
+                <ShieldCheck className="h-3.5 w-3.5" /> Free Cancellation
+              </span>
+            )}
+            <span
+              className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                property.availabilityStatus === 'Available'
+                  ? 'bg-accent-50 text-accent-700'
+                  : property.availabilityStatus === 'Limited'
+                    ? 'bg-amber-50 text-amber-700'
+                    : 'bg-slate-200 text-slate-600'
+              }`}
+            >
+              {AVAILABILITY_LABEL[property.availabilityStatus]}
+            </span>
           </div>
 
           {/* Description */}
@@ -223,7 +282,14 @@ export function PropertyDetailPage() {
 
           {/* Location */}
           <div className="mt-8 border-t border-slate-200 pt-6">
-            <h2 className="mb-4 text-lg font-bold text-slate-900">Location & Proximity</h2>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-slate-900">Location & Proximity</h2>
+              <span className="rounded-full bg-primary-50 px-3 py-1 text-xs font-bold text-primary-700">
+                Walk Score: {Math.max(10, 100 - Math.round(
+                  (property.landmarks.reduce((sum, l) => sum + l.walkMin, 0) / property.landmarks.length) * 3,
+                ))}
+              </span>
+            </div>
             <MapPlaceholder className="h-64 w-full" label={property.neighborhood} />
             <div className="mt-4 space-y-1">
               <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400">Nearby Landmarks</h3>
@@ -232,7 +298,9 @@ export function PropertyDetailPage() {
                   key={l.name}
                   className="flex items-center justify-between border-l-2 border-primary-200 py-2 pl-4 text-sm transition hover:border-primary-500"
                 >
-                  <span className="font-medium text-slate-700">{l.name}</span>
+                  <span className="flex items-center gap-2 font-medium text-slate-700">
+                    <span className="text-primary-600">{landmarkIcons[l.type]}</span> {l.name}
+                  </span>
                   <span className="text-slate-500">
                     {l.distanceM}m ({l.walkMin} min walk)
                   </span>
@@ -244,7 +312,10 @@ export function PropertyDetailPage() {
           {/* Host Profile */}
           <div className="mt-8 border-t border-slate-200 pt-6">
             <h2 className="mb-4 text-lg font-bold text-slate-900">Meet your host</h2>
-            <div className="flex items-start gap-4 rounded-2xl border border-slate-200 p-5">
+            <Link
+              to={`/host/${encodeURIComponent(property.ownerName)}`}
+              className="flex items-start gap-4 rounded-2xl border border-slate-200 p-5 transition hover:border-primary-300 hover:bg-primary-50/30"
+            >
               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xl font-bold text-primary-700">
                 {property.ownerName.charAt(0)}
               </div>
@@ -253,9 +324,13 @@ export function PropertyDetailPage() {
                 <p className="mt-0.5 flex items-center gap-1.5 text-xs font-semibold text-accent-700">
                   <Clock className="h-3.5 w-3.5" /> {property.hostResponseTime}
                 </p>
+                <p className="mt-1 text-xs font-medium text-slate-500">
+                  {property.hostResponseRate}% response rate · Hosting since {property.hostJoinedYear} · {property.hostTotalListings} listing{property.hostTotalListings > 1 ? 's' : ''}
+                </p>
                 <p className="mt-2 text-sm leading-relaxed text-slate-600">{property.hostBio}</p>
+                <span className="mt-2 inline-block text-xs font-bold text-primary-600 hover:underline">View host profile →</span>
               </div>
-            </div>
+            </Link>
           </div>
         </div>
 
@@ -303,6 +378,10 @@ export function PropertyDetailPage() {
 
             <div className="mt-4">
               <GuestCounter value={guests} onChange={setGuests} max={property.maxGuests} />
+            </div>
+
+            <div className="mt-5 border-t border-slate-100 pt-4">
+              <PriceCalendar propertyId={property.id} />
             </div>
 
             <button
@@ -369,11 +448,19 @@ export function PropertyDetailPage() {
                           </span>
                         )}
                       </div>
-                      <span className="text-xs text-slate-400">{r.date}</span>
+                      <span className="text-xs text-slate-400">{r.occupation} · {r.date}</span>
                     </div>
                   </div>
                 </div>
                 <p className="mt-3 text-sm leading-relaxed text-slate-600">{r.text}</p>
+                <div className="mt-3 flex items-center gap-4 border-t border-slate-50 pt-3 text-xs font-semibold text-slate-500">
+                  {r.wouldRecommend && (
+                    <span className="flex items-center gap-1 text-accent-700">
+                      <ThumbsUp className="h-3.5 w-3.5" /> Would recommend
+                    </span>
+                  )}
+                  <span>{r.helpfulVotes} found this helpful</span>
+                </div>
               </div>
             ))}
           </div>

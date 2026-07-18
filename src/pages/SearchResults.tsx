@@ -1,16 +1,20 @@
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { ChevronDown, SlidersHorizontal } from 'lucide-react'
+import { ChevronDown, SlidersHorizontal, BellPlus } from 'lucide-react'
 import { properties } from '../data/properties'
 import { INDIAN_STATES } from '../data/states'
 import { PropertyCard } from '../components/PropertyCard'
 import { MapPlaceholder } from '../components/MapPlaceholder'
 import { PropertyTypeScroller } from '../components/PropertyTypeScroller'
 import { DateRangePicker } from '../components/DateRangePicker'
+import { getQuickFilter } from '../data/quickFilters'
+import { useSavedSearch } from '../context/SavedSearchContext'
+import { useToast } from '../context/ToastContext'
 import { usePageMeta } from '../hooks/usePageMeta'
 import type { PropertyType } from '../types'
 
 const cities = Array.from(new Set(properties.map((p) => p.city)))
+const ALL_AMENITIES = ['Wi-Fi', 'AC', 'Meals', 'Housekeeping', 'Parking', 'Gym', 'Pool', 'Power Backup']
 
 const budgetLimits: Record<string, number> = {
   '1200': 1200,
@@ -51,28 +55,62 @@ function SelectFilter({
 export function SearchResultsPage() {
   usePageMeta('Search Stays', 'Search verified PGs, coliving spaces, and rentals by city, budget, guests, and amenities on innbly.')
   const [searchParams] = useSearchParams()
+  const { addSavedSearch } = useSavedSearch()
+  const { showToast } = useToast()
+
   const [city, setCity] = useState(searchParams.get('city') ?? 'all')
   const [state, setState] = useState('all')
   const [guests, setGuests] = useState(searchParams.get('guests') ?? 'all')
   const [budget, setBudget] = useState(searchParams.get('budget') ?? 'all')
   const [tenantPref, setTenantPref] = useState('all')
   const [propertyType, setPropertyType] = useState<PropertyType | 'all'>('all')
+  const [amenity, setAmenity] = useState('all')
+  const [stayDuration, setStayDuration] = useState('all')
   const [verifiedOnly, setVerifiedOnly] = useState(false)
-  const [checkIn, setCheckIn] = useState<string | null>(null)
-  const [checkOut, setCheckOut] = useState<string | null>(null)
+  const [checkIn, setCheckIn] = useState<string | null>(searchParams.get('checkIn'))
+  const [checkOut, setCheckOut] = useState<string | null>(searchParams.get('checkOut'))
+  const [collectionSlug] = useState(searchParams.get('collection'))
+  const [freeTextQuery] = useState(searchParams.get('q') ?? '')
+
+  const collection = getQuickFilter(collectionSlug)
 
   const filtered = useMemo(() => {
     return properties.filter((p) => {
+      if (freeTextQuery) {
+        const haystack = `${p.title} ${p.city} ${p.neighborhood}`.toLowerCase()
+        if (!haystack.includes(freeTextQuery.toLowerCase())) return false
+      }
       if (city !== 'all' && p.city !== city) return false
       if (state !== 'all' && p.state !== state) return false
       if (guests !== 'all' && p.maxGuests < Number(guests)) return false
       if (budget !== 'all' && p.price > budgetLimits[budget]) return false
       if (tenantPref !== 'all' && p.tenantPreference !== tenantPref) return false
       if (propertyType !== 'all' && p.propertyType !== propertyType) return false
+      if (amenity !== 'all' && !p.amenities.includes(amenity)) return false
+      if (stayDuration === 'short' && p.minStayNights > 6) return false
+      if (stayDuration === 'weekly' && (p.minStayNights < 7 || p.minStayNights > 29)) return false
+      if (stayDuration === 'monthly' && p.minStayNights < 30) return false
       if (verifiedOnly && !p.verified) return false
+      if (collection && !collection.predicate(p)) return false
       return true
     })
-  }, [city, state, guests, budget, tenantPref, propertyType, verifiedOnly])
+  }, [city, state, guests, budget, tenantPref, propertyType, amenity, stayDuration, verifiedOnly, collection, freeTextQuery])
+
+  const handleSaveSearch = () => {
+    const parts = [
+      city !== 'all' ? city : null,
+      guests !== 'all' ? `${guests}+ guests` : null,
+      budget !== 'all' ? `under ₹${budgetLimits[budget]}` : null,
+      collection ? collection.label : null,
+    ].filter(Boolean)
+    addSavedSearch({
+      label: parts.length ? parts.join(' · ') : 'All stays',
+      notifyBudgetDrop: true,
+      notifyNewProperty: true,
+      notifyRoomAvailable: true,
+    })
+    showToast('Search saved! You can manage alerts from your saved searches.')
+  }
 
   return (
     <section>
@@ -81,6 +119,11 @@ export function SearchResultsPage() {
       {/* Sticky search & filter bar — stays fixed directly beneath the sticky brand header */}
       <div className="sticky top-20 z-30 space-y-3 border-b border-slate-200 bg-white px-4 py-4 shadow-sm sm:px-6">
         <div className="mx-auto max-w-7xl">
+          {collection && (
+            <div className="mb-3 flex items-center gap-2 rounded-xl bg-primary-50 px-4 py-2 text-sm font-bold text-primary-700">
+              Showing: {collection.label}
+            </div>
+          )}
           <div className="mb-3 flex flex-wrap items-center gap-2.5">
             <div className="w-full max-w-xs sm:w-56">
               <DateRangePicker checkIn={checkIn} checkOut={checkOut} onChange={(a, b) => { setCheckIn(a); setCheckOut(b) }} />
@@ -127,7 +170,29 @@ export function SearchResultsPage() {
                 { value: 'Family', label: 'Family' },
               ]}
             />
+            <SelectFilter
+              label="🛎️ Any Amenity"
+              value={amenity}
+              onChange={setAmenity}
+              options={ALL_AMENITIES.map((a) => ({ value: a, label: a }))}
+            />
+            <SelectFilter
+              label="📅 Any Stay Length"
+              value={stayDuration}
+              onChange={setStayDuration}
+              options={[
+                { value: 'short', label: 'Short Stay (< 1 week)' },
+                { value: 'weekly', label: 'Weekly' },
+                { value: 'monthly', label: 'Monthly+' },
+              ]}
+            />
             <div className="ml-auto flex items-center gap-3">
+              <button
+                onClick={handleSaveSearch}
+                className="flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-600 transition hover:border-primary-300 hover:text-primary-700"
+              >
+                <BellPlus className="h-3.5 w-3.5" /> Save Search
+              </button>
               <span className="text-xs font-bold text-slate-500">Verified Only</span>
               <label className="relative inline-flex cursor-pointer items-center">
                 <input

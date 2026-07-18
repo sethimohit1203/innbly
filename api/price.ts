@@ -1,10 +1,10 @@
 import type { ApiRequest, ApiResponse } from './_lib/http'
 import { getClientIp, readJsonBody } from './_lib/http'
 import { rateLimit } from './_lib/rateLimit'
-import { computeEstimatorTotal, computeBookingTotal, computeRoiEstimate } from './_lib/pricing'
+import { computeEstimatorTotal, computeBookingTotal, computeRoiEstimate, computeWeeklyCalendar } from './_lib/pricing'
 
 interface PriceRequest {
-  kind: 'estimator' | 'booking' | 'roi'
+  kind: 'estimator' | 'booking' | 'roi' | 'calendar'
   roomType?: 'Single' | 'Double' | 'Triple'
   meals?: boolean
   ac?: boolean
@@ -49,6 +49,20 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
       meals: Boolean(body.meals),
       ac: Boolean(body.ac),
     })
+    if (!result) {
+      res.status(404).json({ error: 'Property not found' })
+      return
+    }
+    res.status(200).json(result)
+    return
+  }
+
+  if (body.kind === 'calendar') {
+    if (!body.propertyId) {
+      res.status(400).json({ error: 'propertyId is required' })
+      return
+    }
+    const result = computeWeeklyCalendar({ propertyId: body.propertyId })
     if (!result) {
       res.status(404).json({ error: 'Property not found' })
       return

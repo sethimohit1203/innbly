@@ -18,13 +18,17 @@ import { EnterpriseHomePage } from './pages/enterprise/EnterpriseHome'
 import { EnterpriseSearchPage } from './pages/enterprise/EnterpriseSearch'
 import { EnterpriseDashboardPage } from './pages/enterprise/EnterpriseDashboard'
 import { AdminPage } from './pages/Admin'
+import { ComparePage } from './pages/Compare'
+import { HostProfilePage } from './pages/HostProfile'
+import { MobileBottomNav } from './components/MobileBottomNav'
+import { QuickMatchAssistant } from './components/QuickMatchAssistant'
 
 export default function App() {
   return (
     <div className="flex min-h-screen flex-col bg-slate-50">
       <TopBanner />
       <Navbar />
-      <main className="flex-1">
+      <main className="flex-1 pb-16 md:pb-0">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/search" element={<SearchResultsPage />} />
@@ -54,10 +58,14 @@ export default function App() {
           <Route path="/enterprise/search" element={<EnterpriseSearchPage />} />
           <Route path="/enterprise/dashboard" element={<EnterpriseDashboardPage />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/compare" element={<ComparePage />} />
+          <Route path="/host/:id" element={<HostProfilePage />} />
         </Routes>
       </main>
       <AuthModal />
       <ScheduleVisitModal />
+      <MobileBottomNav />
+      <QuickMatchAssistant />
     </div>
   )
 }

@@ -9,8 +9,8 @@ test.describe('Core navigation & pages', () => {
 
   test('home search widget navigates to /search with query params', async ({ page }) => {
     await page.goto('/')
-    await page.getByLabel(/location/i).selectOption({ label: 'Bengaluru' })
-    await page.getByRole('button', { name: /search stays/i }).click()
+    await page.getByPlaceholder('Any Area / City').fill('Bengaluru')
+    await page.getByRole('button', { name: 'Search', exact: true }).click()
     await expect(page).toHaveURL(/\/search\?city=Bengaluru/)
   })
 

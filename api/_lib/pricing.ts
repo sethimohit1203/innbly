@@ -64,6 +64,32 @@ export function computeBookingTotal(input: BookingInput) {
   }
 }
 
+export interface CalendarInput {
+  propertyId: string
+}
+
+// Deterministic weekend markup so the 7-day preview is stable, not randomized.
+const DAY_MULTIPLIERS = [1.05, 1, 1, 1, 1, 1.15, 1.3] // Sun, Mon, Tue, Wed, Thu, Fri, Sat
+
+export function computeWeeklyCalendar(input: CalendarInput) {
+  const property = properties.find((p) => p.id === input.propertyId)
+  if (!property) return null
+
+  const days = []
+  const today = new Date()
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(today)
+    d.setDate(today.getDate() + i)
+    const price = Math.round((property.price * DAY_MULTIPLIERS[d.getDay()]) / 10) * 10
+    days.push({
+      date: d.toISOString().split('T')[0],
+      label: d.toLocaleDateString('en-IN', { weekday: 'short' }),
+      price,
+    })
+  }
+  return { propertyId: property.id, days }
+}
+
 export interface RoiInput {
   rooms: number
 }

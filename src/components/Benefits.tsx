@@ -1,25 +1,40 @@
-import { CircleCheck, Fingerprint, Sparkles, RotateCcw } from 'lucide-react'
+import { BadgeIndianRupee, BadgeCheck, CalendarRange, Zap, ShieldCheck, GraduationCap, Briefcase } from 'lucide-react'
 
 const benefits = [
   {
-    icon: CircleCheck,
-    title: '100% Verified',
-    text: 'Every listing is physical-audit checked, documented, and fully photographed by our operations team.',
+    icon: BadgeIndianRupee,
+    title: 'No Brokerage',
+    text: 'Book directly with verified hosts — zero brokerage or hidden agent fees, ever.',
   },
   {
-    icon: Fingerprint,
-    title: 'High-End Security',
-    text: 'Premium smart locks, 24/7 CCTV surveillance in shared spaces, and active building security guards.',
+    icon: BadgeCheck,
+    title: 'Verified Rooms',
+    text: 'Every listing is physical-audit checked, documented, and fully photographed by our team.',
   },
   {
-    icon: Sparkles,
-    title: 'Daily Housekeeping',
-    text: 'Continuous daily cleanup of bathrooms, kitchens, common zones, and personal linens.',
+    icon: CalendarRange,
+    title: 'Flexible Stay',
+    text: 'From a single night to long-term stays — choose the duration that fits your plans.',
   },
   {
-    icon: RotateCcw,
-    title: 'Direct Refunds',
-    text: 'Hassle-free, guaranteed security deposit refunds processed on-the-spot during check-out.',
+    icon: Zap,
+    title: 'Instant Booking',
+    text: 'Skip the back-and-forth on eligible listings and confirm your stay immediately.',
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Secure Deposit',
+    text: 'Refundable security deposits are tracked transparently and returned hassle-free.',
+  },
+  {
+    icon: GraduationCap,
+    title: 'Student Friendly',
+    text: 'Verified PGs and hostels near colleges, with flexible move-in dates for the academic year.',
+  },
+  {
+    icon: Briefcase,
+    title: 'Corporate Friendly',
+    text: 'Furnished coliving and serviced apartments built for working professionals on relocation.',
   },
 ]
 
@@ -32,14 +47,14 @@ export function Benefits() {
             Our Standards
           </span>
           <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 md:text-4xl">
-            Living Standards Redefined
+            Why Choose innbly
           </h2>
           <p className="mt-4 font-medium text-slate-500">
             We bridge the gap between high-end professional hospitality and authentic homestay comfort.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {benefits.map((b) => (
             <div
               key={b.title}

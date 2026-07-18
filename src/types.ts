@@ -1,5 +1,20 @@
 export type TenantPreference = 'Boys' | 'Girls' | 'Family' | 'Anyone'
 
+export const LIFESTYLE_TAGS = [
+  'Student Living',
+  'Digital Nomad',
+  'Family',
+  'Corporate',
+  'Backpacker',
+  'Couple',
+  'Senior Friendly',
+  'Pet Friendly',
+] as const
+export type LifestyleTag = (typeof LIFESTYLE_TAGS)[number]
+
+export type AvailabilityStatus = 'Available' | 'Limited' | 'Booked'
+export type LandmarkType = 'Metro' | 'Gym' | 'Restaurant' | 'Hospital' | 'Market' | 'College' | 'Mall' | 'Beach' | 'Temple' | 'Airport' | 'Office' | 'Attraction'
+
 export const PROPERTY_TYPES = [
   'Hotels',
   'Apartments',
@@ -40,6 +55,8 @@ export interface Property {
   price: number
   deposit: number
   maxGuests: number
+  minStayNights: number
+  roomSizeSqft: number
   tenantPreference: TenantPreference
   amenities: string[]
   images: string[]
@@ -52,13 +69,25 @@ export interface Property {
   ownerPhone: string
   hostResponseTime: string
   hostBio: string
-  landmarks: { name: string; distanceM: number; walkMin: number }[]
+  hostResponseRate: number
+  hostJoinedYear: number
+  hostTotalListings: number
+  hostLanguages: string[]
+  wifiSpeedMbps: number
+  freeCancellation: boolean
+  instantBook: boolean
+  availabilityStatus: AvailabilityStatus
+  lifestyleTags: LifestyleTag[]
+  landmarks: { name: string; type: LandmarkType; distanceM: number; walkMin: number }[]
   ratingBreakdown: { label: string; score: number }[]
   reviews: {
     id: string
     name: string
     avatar: string
+    occupation: string
     verifiedStay: boolean
+    wouldRecommend: boolean
+    helpfulVotes: number
     date: string
     text: string
   }[]

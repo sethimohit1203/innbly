@@ -25,8 +25,8 @@ export function Footer() {
   return (
     <footer className="border-t border-slate-800 bg-stone-950 pb-8 pt-16 text-slate-400">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-12 border-b border-slate-800 pb-12 md:grid-cols-2 lg:grid-cols-4">
-          <div className="space-y-6">
+        <div className="grid grid-cols-1 gap-10 border-b border-slate-800 pb-12 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="space-y-6 sm:col-span-2 lg:col-span-1">
             <Link to="/" className="flex items-center gap-2.5">
               <img src="/brand/innbly-icon.jpg" alt="innbly" className="h-9 w-9 rounded-xl object-cover" />
               <span className="text-lg font-extrabold tracking-tight text-white">innbly</span>
@@ -61,15 +61,32 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="mb-6 text-sm font-bold uppercase tracking-wider text-white">Our Cities</h4>
+            <h4 className="mb-6 text-sm font-bold uppercase tracking-wider text-white">Cities</h4>
             <ul className="space-y-3 text-sm font-medium">
-              {['Delhi NCR', 'Mumbai', 'Bangalore', 'Pune'].map((city) => (
+              {['Bengaluru', 'Mumbai', 'Hyderabad', 'Noida', 'Goa'].map((city) => (
                 <li key={city}>
-                  <Link to="/search" className="transition-colors hover:text-white">
+                  <Link to={`/search?city=${encodeURIComponent(city)}`} className="transition-colors hover:text-white">
                     {city}
                   </Link>
                 </li>
               ))}
+            </ul>
+            <h4 className="mb-3 mt-6 text-sm font-bold uppercase tracking-wider text-white">Popular Searches</h4>
+            <ul className="space-y-3 text-sm font-medium">
+              <li><Link to="/search?collection=student-pg" className="transition-colors hover:text-white">Student PGs</Link></li>
+              <li><Link to="/search?collection=women-only" className="transition-colors hover:text-white">Women-Only Stays</Link></li>
+              <li><Link to="/search?collection=near-metro" className="transition-colors hover:text-white">Near Metro</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="mb-6 text-sm font-bold uppercase tracking-wider text-white">Company</h4>
+            <ul className="space-y-3 text-sm font-medium">
+              <li><Link to="/enterprise" className="transition-colors hover:text-white">About innbly</Link></li>
+              <li><a href="#" className="transition-colors hover:text-white">Careers</a></li>
+              <li><a href="#" className="transition-colors hover:text-white">Blog</a></li>
+              <li><a href="#" className="transition-colors hover:text-white">Press</a></li>
+              <li><Link to="/enterprise" className="transition-colors hover:text-white">innbly for Hotels →</Link></li>
             </ul>
           </div>
 
@@ -78,10 +95,13 @@ export function Footer() {
             <ul className="space-y-3 text-sm font-medium">
               <li><Link to="/search" className="transition-colors hover:text-white">Schedule Visit</Link></li>
               <li><Link to="/dashboard" className="transition-colors hover:text-white">Host Dashboard</Link></li>
-              <li><Link to="/terms" className="transition-colors hover:text-white">Terms of Service</Link></li>
-              <li><Link to="/privacy-policy" className="transition-colors hover:text-white">Privacy Policy</Link></li>
               <li><Link to="/contact" className="transition-colors hover:text-white">Contact Support</Link></li>
-              <li><Link to="/enterprise" className="transition-colors hover:text-white">innbly for Hotels →</Link></li>
+              <li><Link to="/terms" className="transition-colors hover:text-white">Cancellation Policy</Link></li>
+              <li><Link to="/terms" className="transition-colors hover:text-white">Refund Policy</Link></li>
+              <li><Link to="/privacy-policy" className="transition-colors hover:text-white">Safety</Link></li>
+              <li><a href="#" className="transition-colors hover:text-white">Student Guide</a></li>
+              <li><a href="#" className="transition-colors hover:text-white">Corporate Stays</a></li>
+              <li><a href="#" className="transition-colors hover:text-white">Move-in Checklist</a></li>
             </ul>
           </div>
 

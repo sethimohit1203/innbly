@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test'
 test.describe('Nightly pricing & guest-based booking', () => {
   test('property cards show nightly pricing and guest capacity, not room type', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByText('₹1,800')).toBeVisible()
+    await expect(page.getByText('₹1,800').first()).toBeVisible()
     await expect(page.getByText('/ night').first()).toBeVisible()
     await expect(page.getByText('Single', { exact: true })).toHaveCount(0)
     await expect(page.getByText('Sharing', { exact: true })).toHaveCount(0)
