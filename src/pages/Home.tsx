@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, MapPin, BedDouble, Wallet } from 'lucide-react'
+import { Search, MapPin, Users, Wallet } from 'lucide-react'
 import { properties } from '../data/properties'
 import { PropertyCard } from '../components/PropertyCard'
 import { BudgetEstimator } from '../components/BudgetEstimator'
@@ -11,12 +11,12 @@ import { usePageMeta } from '../hooks/usePageMeta'
 
 const cities = Array.from(new Set(properties.map((p) => p.city)))
 
-type Category = 'all' | 'Sharing' | 'Single' | 'Verified'
+type Category = 'all' | 'Solo' | 'Group' | 'Verified'
 
 const categories: { key: Category; label: string }[] = [
   { key: 'all', label: 'All Stays' },
-  { key: 'Sharing', label: 'Co-Living Hubs' },
-  { key: 'Single', label: 'Premium Homestays' },
+  { key: 'Solo', label: 'Solo Stays' },
+  { key: 'Group', label: 'Family & Group Stays' },
   { key: 'Verified', label: 'Verified Only' },
 ]
 
@@ -27,7 +27,7 @@ export function HomePage() {
   )
   const navigate = useNavigate()
   const [city, setCity] = useState('all')
-  const [roomType, setRoomType] = useState('all')
+  const [guests, setGuests] = useState('all')
   const [budget, setBudget] = useState('any')
   const [activeCategory, setActiveCategory] = useState<Category>('all')
 
@@ -35,15 +35,15 @@ export function HomePage() {
     e.preventDefault()
     const params = new URLSearchParams()
     if (city !== 'all') params.set('city', city)
-    if (roomType !== 'all') params.set('roomType', roomType)
+    if (guests !== 'all') params.set('guests', guests)
     if (budget !== 'any') params.set('budget', budget)
     navigate(`/search?${params.toString()}`)
   }
 
   const filtered = useMemo(() => {
     return properties.filter((p) => {
-      if (activeCategory === 'Sharing') return p.roomType === 'Sharing'
-      if (activeCategory === 'Single') return p.roomType === 'Single'
+      if (activeCategory === 'Solo') return p.maxGuests === 1
+      if (activeCategory === 'Group') return p.maxGuests >= 4
       if (activeCategory === 'Verified') return p.verified
       return true
     })
@@ -96,24 +96,26 @@ export function HomePage() {
               </div>
 
               <div className="relative border-slate-100 px-3 py-2 md:border-r">
-                <label htmlFor="home-search-room-type" className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                  <BedDouble className="mr-1 inline h-3 w-3 text-primary-500" /> Room Configuration
+                <label htmlFor="home-search-guests" className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  <Users className="mr-1 inline h-3 w-3 text-primary-500" /> Guests
                 </label>
                 <select
-                  id="home-search-room-type"
-                  value={roomType}
-                  onChange={(e) => setRoomType(e.target.value)}
+                  id="home-search-guests"
+                  value={guests}
+                  onChange={(e) => setGuests(e.target.value)}
                   className="w-full cursor-pointer bg-transparent text-[15px] font-semibold text-slate-800 outline-none"
                 >
-                  <option value="all">All Room Types</option>
-                  <option value="Single">Single Room</option>
-                  <option value="Sharing">Sharing</option>
+                  <option value="all">Any Number of Guests</option>
+                  <option value="1">1 Guest</option>
+                  <option value="2">2 Guests</option>
+                  <option value="4">4 Guests</option>
+                  <option value="6">6+ Guests</option>
                 </select>
               </div>
 
               <div className="relative border-slate-100 px-3 py-2 md:border-r">
                 <label htmlFor="home-search-budget" className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                  <Wallet className="mr-1 inline h-3 w-3 text-primary-500" /> Max Monthly Rent
+                  <Wallet className="mr-1 inline h-3 w-3 text-primary-500" /> Max Nightly Rate
                 </label>
                 <select
                   id="home-search-budget"
@@ -122,9 +124,9 @@ export function HomePage() {
                   className="w-full cursor-pointer bg-transparent text-[15px] font-semibold text-slate-800 outline-none"
                 >
                   <option value="any">Any Budget</option>
-                  <option value="12000">Under ₹12,000</option>
-                  <option value="18000">Under ₹18,000</option>
-                  <option value="25000">Under ₹25,000</option>
+                  <option value="1200">Under ₹1,200</option>
+                  <option value="2000">Under ₹2,000</option>
+                  <option value="3500">Under ₹3,500</option>
                 </select>
               </div>
 

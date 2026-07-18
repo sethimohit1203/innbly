@@ -46,7 +46,7 @@ export function computeBookingTotal(input: BookingInput) {
   if (!property) return null
 
   const nights = Math.min(30, Math.max(1, Math.round(input.nights)))
-  const nightlyRate = Math.round(property.price / 30)
+  const nightlyRate = property.price
   const roomTotal = nightlyRate * nights
   const mealsCost = input.meals ? NIGHTLY_ADDON_PRICES.meals * nights : 0
   const acCost = input.ac ? NIGHTLY_ADDON_PRICES.ac * nights : 0

@@ -6,15 +6,16 @@ import { INDIAN_STATES } from '../data/states'
 import { PropertyCard } from '../components/PropertyCard'
 import { MapPlaceholder } from '../components/MapPlaceholder'
 import { PropertyTypeScroller } from '../components/PropertyTypeScroller'
+import { DateRangePicker } from '../components/DateRangePicker'
 import { usePageMeta } from '../hooks/usePageMeta'
 import type { PropertyType } from '../types'
 
 const cities = Array.from(new Set(properties.map((p) => p.city)))
 
 const budgetLimits: Record<string, number> = {
-  '12000': 12000,
-  '18000': 18000,
-  '25000': 25000,
+  '1200': 1200,
+  '2000': 2000,
+  '3500': 3500,
 }
 
 function SelectFilter({
@@ -48,78 +49,85 @@ function SelectFilter({
 }
 
 export function SearchResultsPage() {
-  usePageMeta('Search Stays', 'Search verified PGs, coliving spaces, and rentals by city, budget, room type, and amenities on innbly.')
+  usePageMeta('Search Stays', 'Search verified PGs, coliving spaces, and rentals by city, budget, guests, and amenities on innbly.')
   const [searchParams] = useSearchParams()
   const [city, setCity] = useState(searchParams.get('city') ?? 'all')
   const [state, setState] = useState('all')
-  const [roomType, setRoomType] = useState(searchParams.get('roomType') ?? 'all')
+  const [guests, setGuests] = useState(searchParams.get('guests') ?? 'all')
   const [budget, setBudget] = useState(searchParams.get('budget') ?? 'all')
   const [tenantPref, setTenantPref] = useState('all')
   const [propertyType, setPropertyType] = useState<PropertyType | 'all'>('all')
   const [verifiedOnly, setVerifiedOnly] = useState(false)
+  const [checkIn, setCheckIn] = useState<string | null>(null)
+  const [checkOut, setCheckOut] = useState<string | null>(null)
 
   const filtered = useMemo(() => {
     return properties.filter((p) => {
       if (city !== 'all' && p.city !== city) return false
       if (state !== 'all' && p.state !== state) return false
-      if (roomType !== 'all' && p.roomType !== roomType) return false
+      if (guests !== 'all' && p.maxGuests < Number(guests)) return false
       if (budget !== 'all' && p.price > budgetLimits[budget]) return false
       if (tenantPref !== 'all' && p.tenantPreference !== tenantPref) return false
       if (propertyType !== 'all' && p.propertyType !== propertyType) return false
       if (verifiedOnly && !p.verified) return false
       return true
     })
-  }, [city, state, roomType, budget, tenantPref, propertyType, verifiedOnly])
+  }, [city, state, guests, budget, tenantPref, propertyType, verifiedOnly])
 
   return (
-    <section className="flex h-[calc(100vh-80px)] flex-col">
+    <section>
       <h1 className="sr-only">Search PGs, coliving spaces, and rentals</h1>
-      <div className="space-y-3 border-b border-slate-200 bg-white px-4 py-4 sm:px-6">
+
+      {/* Sticky search & filter bar — stays fixed directly beneath the sticky brand header */}
+      <div className="sticky top-20 z-30 space-y-3 border-b border-slate-200 bg-white px-4 py-4 shadow-sm sm:px-6">
         <div className="mx-auto max-w-7xl">
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-2.5">
-              <span className="flex shrink-0 items-center gap-1.5 text-sm font-semibold text-slate-500">
-                <SlidersHorizontal className="h-4 w-4" /> Filters:
-              </span>
-              <SelectFilter label="📍 Any Location" value={city} onChange={setCity} options={cities.map((c) => ({ value: c, label: c }))} />
-              <SelectFilter
-                label="🗺️ Any State"
-                value={state}
-                onChange={setState}
-                options={INDIAN_STATES.map((s) => ({ value: s, label: s }))}
-              />
-              <SelectFilter
-                label="🛏️ Any Room Type"
-                value={roomType}
-                onChange={setRoomType}
-                options={[
-                  { value: 'Single', label: 'Single Room' },
-                  { value: 'Sharing', label: 'Sharing' },
-                ]}
-              />
-              <SelectFilter
-                label="💰 Any Budget"
-                value={budget}
-                onChange={setBudget}
-                options={[
-                  { value: '12000', label: 'Under ₹12,000/mo' },
-                  { value: '18000', label: 'Under ₹18,000/mo' },
-                  { value: '25000', label: 'Under ₹25,000/mo' },
-                ]}
-              />
-              <SelectFilter
-                label="👤 Any Tenant"
-                value={tenantPref}
-                onChange={setTenantPref}
-                options={[
-                  { value: 'Anyone', label: 'Co-ed / Anyone' },
-                  { value: 'Boys', label: 'Boys Only' },
-                  { value: 'Girls', label: 'Girls Only' },
-                  { value: 'Family', label: 'Family' },
-                ]}
-              />
+          <div className="mb-3 flex flex-wrap items-center gap-2.5">
+            <div className="w-full max-w-xs sm:w-56">
+              <DateRangePicker checkIn={checkIn} checkOut={checkOut} onChange={(a, b) => { setCheckIn(a); setCheckOut(b) }} />
             </div>
-            <div className="flex items-center gap-3">
+            <span className="flex shrink-0 items-center gap-1.5 text-sm font-semibold text-slate-500">
+              <SlidersHorizontal className="h-4 w-4" /> Filters:
+            </span>
+            <SelectFilter label="📍 Any Location" value={city} onChange={setCity} options={cities.map((c) => ({ value: c, label: c }))} />
+            <SelectFilter
+              label="🗺️ Any State"
+              value={state}
+              onChange={setState}
+              options={INDIAN_STATES.map((s) => ({ value: s, label: s }))}
+            />
+            <SelectFilter
+              label="🧑‍🤝‍🧑 Any Guests"
+              value={guests}
+              onChange={setGuests}
+              options={[
+                { value: '1', label: '1 Guest' },
+                { value: '2', label: '2 Guests' },
+                { value: '4', label: '4 Guests' },
+                { value: '6', label: '6+ Guests' },
+              ]}
+            />
+            <SelectFilter
+              label="💰 Any Budget"
+              value={budget}
+              onChange={setBudget}
+              options={[
+                { value: '1200', label: 'Under ₹1,200/night' },
+                { value: '2000', label: 'Under ₹2,000/night' },
+                { value: '3500', label: 'Under ₹3,500/night' },
+              ]}
+            />
+            <SelectFilter
+              label="👤 Any Tenant"
+              value={tenantPref}
+              onChange={setTenantPref}
+              options={[
+                { value: 'Anyone', label: 'Co-ed / Anyone' },
+                { value: 'Boys', label: 'Boys Only' },
+                { value: 'Girls', label: 'Girls Only' },
+                { value: 'Family', label: 'Family' },
+              ]}
+            />
+            <div className="ml-auto flex items-center gap-3">
               <span className="text-xs font-bold text-slate-500">Verified Only</span>
               <label className="relative inline-flex cursor-pointer items-center">
                 <input
@@ -136,8 +144,8 @@ export function SearchResultsPage() {
         </div>
       </div>
 
-      <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col overflow-hidden md:flex-row">
-        <div className="flex-1 overflow-y-auto px-4 py-5 sm:px-6 md:w-3/5 scrollbar-thin">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-5 sm:px-6 md:flex-row">
+        <div className="md:w-3/5">
           <p className="mb-4 text-sm font-semibold text-slate-500">{filtered.length} stays found</p>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             {filtered.map((p) => (
@@ -151,8 +159,10 @@ export function SearchResultsPage() {
           )}
         </div>
 
-        <div className="hidden shrink-0 border-l border-slate-200 p-4 md:block md:w-2/5">
-          <MapPlaceholder className="h-full w-full" label={`${filtered.length} pins on map`} />
+        <div className="hidden shrink-0 md:block md:w-2/5">
+          <div className="sticky top-52 h-[calc(100vh-14rem)]">
+            <MapPlaceholder className="h-full w-full" label={`${filtered.length} pins on map`} />
+          </div>
         </div>
       </div>
     </section>

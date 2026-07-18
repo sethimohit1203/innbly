@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Check, ImagePlus, UploadCloud } from 'lucide-react'
 import { Footer } from '../components/Footer'
+import { GuestCounter } from '../components/GuestCounter'
 import { usePageMeta } from '../hooks/usePageMeta'
 
 const ALL_AMENITIES = [
@@ -29,7 +30,7 @@ export function ListPropertyPage() {
   const [city, setCity] = useState('')
   const [rent, setRent] = useState('')
   const [deposit, setDeposit] = useState('')
-  const [roomType, setRoomType] = useState('Single')
+  const [maxGuests, setMaxGuests] = useState(2)
   const [amenities, setAmenities] = useState<string[]>([])
   const [photoCount, setPhotoCount] = useState(0)
 
@@ -106,13 +107,13 @@ export function ListPropertyPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="list-rent" className="mb-1 block text-sm font-medium text-slate-700">Monthly Rent (₹)</label>
+                <label htmlFor="list-rent" className="mb-1 block text-sm font-medium text-slate-700">Nightly Rate (₹)</label>
                 <input
                   id="list-rent"
                   type="number"
                   value={rent}
                   onChange={(e) => setRent(e.target.value)}
-                  placeholder="12500"
+                  placeholder="1800"
                   className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
                 />
               </div>
@@ -129,22 +130,8 @@ export function ListPropertyPage() {
               </div>
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">Room Type</label>
-              <div className="flex gap-2">
-                {['Single', 'Sharing'].map((rt) => (
-                  <button
-                    key={rt}
-                    onClick={() => setRoomType(rt)}
-                    className={`flex-1 rounded-xl border px-4 py-2.5 text-sm font-semibold transition ${
-                      roomType === rt
-                        ? 'border-primary-500 bg-primary-50 text-primary-700'
-                        : 'border-slate-300 text-slate-600 hover:border-slate-400'
-                    }`}
-                  >
-                    {rt}
-                  </button>
-                ))}
-              </div>
+              <label className="mb-1 block text-sm font-medium text-slate-700">Max Guests</label>
+              <GuestCounter value={maxGuests} onChange={setMaxGuests} />
             </div>
           </div>
         )}

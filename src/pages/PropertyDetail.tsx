@@ -20,10 +20,15 @@ import {
   Star,
   MessageCircle,
   CalendarCheck2,
+  Users,
+  Clock,
 } from 'lucide-react'
-import { getPropertyById } from '../data/properties'
+import { getPropertyById, properties } from '../data/properties'
 import { MapPlaceholder } from '../components/MapPlaceholder'
 import { Footer } from '../components/Footer'
+import { PropertyCard } from '../components/PropertyCard'
+import { DateRangePicker } from '../components/DateRangePicker'
+import { GuestCounter } from '../components/GuestCounter'
 import { useVisitModal } from '../context/VisitModalContext'
 import { useSavedProperties } from '../context/SavedPropertiesContext'
 import { usePageMeta } from '../hooks/usePageMeta'
@@ -56,13 +61,15 @@ export function PropertyDetailPage() {
   const [showAllPhotos, setShowAllPhotos] = useState(false)
   const [descExpanded, setDescExpanded] = useState(false)
   const [tenantType, setTenantType] = useState<TenantPreference>('Anyone')
-  const [moveIn, setMoveIn] = useState('')
+  const [checkIn, setCheckIn] = useState<string | null>(null)
+  const [checkOut, setCheckOut] = useState<string | null>(null)
+  const [guests, setGuests] = useState(1)
   const saved = property ? isSaved(property.id) : false
 
   usePageMeta(
     property ? `${property.title} for Rent in ${property.neighborhood}, ${property.city}` : 'Property not found',
     property
-      ? `${property.title} — ₹${property.price.toLocaleString('en-IN')}/month ${property.roomType} stay in ${property.neighborhood}, ${property.city}. ${property.verified ? 'Verified property.' : ''} Schedule a free visit today.`
+      ? `${property.title} — ₹${property.price.toLocaleString('en-IN')}/night stay for up to ${property.maxGuests} guests in ${property.neighborhood}, ${property.city}. ${property.verified ? 'Verified property.' : ''} Schedule a free visit today.`
       : undefined,
   )
 
@@ -80,6 +87,9 @@ export function PropertyDetailPage() {
   const whatsappUrl = `https://wa.me/${property.ownerPhone.replace('+', '')}?text=${encodeURIComponent(
     `Hi ${property.ownerName}, I'm interested in "${property.title}" listed on innbly. Could you share more details?`,
   )}`
+
+  const nearby = properties.filter((p) => p.id !== property.id && p.city === property.city)
+  const recommendations = (nearby.length >= 3 ? nearby : properties.filter((p) => p.id !== property.id)).slice(0, 4)
 
   return (
     <>
@@ -162,8 +172,8 @@ export function PropertyDetailPage() {
                 <Sofa className="h-3.5 w-3.5" /> Fully Furnished
               </span>
             )}
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-              {property.roomType}
+            <span className="flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+              <Users className="h-3.5 w-3.5" /> Up to {property.maxGuests} guests
             </span>
             <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
               For {property.tenantPreference}
@@ -230,6 +240,23 @@ export function PropertyDetailPage() {
               ))}
             </div>
           </div>
+
+          {/* Host Profile */}
+          <div className="mt-8 border-t border-slate-200 pt-6">
+            <h2 className="mb-4 text-lg font-bold text-slate-900">Meet your host</h2>
+            <div className="flex items-start gap-4 rounded-2xl border border-slate-200 p-5">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xl font-bold text-primary-700">
+                {property.ownerName.charAt(0)}
+              </div>
+              <div>
+                <p className="font-bold text-slate-900">{property.ownerName}</p>
+                <p className="mt-0.5 flex items-center gap-1.5 text-xs font-semibold text-accent-700">
+                  <Clock className="h-3.5 w-3.5" /> {property.hostResponseTime}
+                </p>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">{property.hostBio}</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* RIGHT COLUMN 35% - sticky booking card */}
@@ -240,7 +267,7 @@ export function PropertyDetailPage() {
                 <span className="text-3xl font-extrabold text-slate-900">
                   ₹{property.price.toLocaleString('en-IN')}
                 </span>
-                <span className="text-slate-500"> /month</span>
+                <span className="text-slate-500"> /night</span>
               </div>
               <div className="flex items-center gap-1 text-sm font-semibold text-amber-500">
                 <Star className="h-4 w-4 fill-amber-400 text-amber-400" /> {property.rating}
@@ -270,14 +297,12 @@ export function PropertyDetailPage() {
             </fieldset>
 
             <div className="mt-4">
-              <label htmlFor="property-move-in-date" className="mb-1.5 block text-xs font-semibold text-slate-600">Select Move-in Date</label>
-              <input
-                id="property-move-in-date"
-                type="date"
-                value={moveIn}
-                onChange={(e) => setMoveIn(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-              />
+              <span className="mb-1.5 block text-xs font-semibold text-slate-600">Check-in — Check-out</span>
+              <DateRangePicker checkIn={checkIn} checkOut={checkOut} onChange={(a, b) => { setCheckIn(a); setCheckOut(b) }} />
+            </div>
+
+            <div className="mt-4">
+              <GuestCounter value={guests} onChange={setGuests} max={property.maxGuests} />
             </div>
 
             <button
@@ -355,6 +380,15 @@ export function PropertyDetailPage() {
         </div>
       </div>
 
+      {/* More Places Nearby */}
+      <div className="mt-12 border-t border-slate-200 pt-8">
+        <h2 className="mb-6 text-2xl font-bold text-slate-900">More Places Nearby</h2>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {recommendations.map((p) => (
+            <PropertyCard key={p.id} property={p} />
+          ))}
+        </div>
+      </div>
     </div>
     <Footer />
     </>

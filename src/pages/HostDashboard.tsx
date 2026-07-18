@@ -71,7 +71,7 @@ export function HostDashboardPage() {
               <div>
                 <p className="font-semibold text-slate-800">{p.title}</p>
                 <p className="text-sm text-slate-500">
-                  {p.neighborhood}, {p.city} · ₹{p.price.toLocaleString('en-IN')}/mo
+                  {p.neighborhood}, {p.city} · ₹{p.price.toLocaleString('en-IN')}/night
                 </p>
               </div>
             </Link>

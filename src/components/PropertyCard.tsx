@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { MapPin, BadgeCheck, Star } from 'lucide-react'
+import { MapPin, BadgeCheck, Star, Users } from 'lucide-react'
 import type { Property } from '../types'
 
 export function PropertyCard({ property }: { property: Property }) {
@@ -14,8 +14,8 @@ export function PropertyCard({ property }: { property: Property }) {
           alt={property.title}
           className="h-full w-full object-cover transition-all duration-300 group-hover:scale-105"
         />
-        <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3.5 py-1.5 text-xs font-extrabold text-slate-900 shadow-sm backdrop-blur-md">
-          {property.roomType}
+        <span className="absolute left-4 top-4 flex items-center gap-1 rounded-full bg-white/90 px-3.5 py-1.5 text-xs font-extrabold text-slate-900 shadow-sm backdrop-blur-md">
+          <Users className="h-3 w-3" /> {property.maxGuests}
         </span>
         {property.verified && (
           <span className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-slate-900/80 px-3 py-1.5 text-xs font-bold text-accent-400 backdrop-blur-md">
@@ -48,7 +48,7 @@ export function PropertyCard({ property }: { property: Property }) {
         <div className="mt-auto flex items-end justify-between border-t border-slate-50 pt-4">
           <div>
             <span className="text-xl font-extrabold text-slate-900">₹{property.price.toLocaleString('en-IN')}</span>
-            <span className="block text-xs font-semibold text-slate-400"> / month</span>
+            <span className="block text-xs font-semibold text-slate-400"> / night</span>
           </div>
           <span className="rounded-xl bg-primary-50 px-4 py-2.5 text-xs font-bold text-primary-700 transition group-hover:bg-primary-100">
             Check Room

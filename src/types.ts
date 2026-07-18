@@ -1,5 +1,4 @@
 export type TenantPreference = 'Boys' | 'Girls' | 'Family' | 'Anyone'
-export type RoomType = 'Single' | 'Sharing'
 
 export const PROPERTY_TYPES = [
   'Hotels',
@@ -40,7 +39,7 @@ export interface Property {
   address: string
   price: number
   deposit: number
-  roomType: RoomType
+  maxGuests: number
   tenantPreference: TenantPreference
   amenities: string[]
   images: string[]
@@ -51,6 +50,8 @@ export interface Property {
   description: string
   ownerName: string
   ownerPhone: string
+  hostResponseTime: string
+  hostBio: string
   landmarks: { name: string; distanceM: number; walkMin: number }[]
   ratingBreakdown: { label: string; score: number }[]
   reviews: {
