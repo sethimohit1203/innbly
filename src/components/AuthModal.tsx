@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Home as HomeIcon, Building2 } from 'lucide-react'
+import { X, Building2 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { submitToSheet } from '../lib/backend'
@@ -9,7 +9,9 @@ import type { UserRole } from '../types'
 export function AuthModal() {
   const { isModalOpen, closeAuthModal, login } = useAuth()
   const { showToast } = useToast()
-  const [role, setRole] = useState<UserRole | null>(null)
+  // Default assumption: anyone opening this modal came here to book a stay.
+  // Hosting is a single opt-in toggle, not a forced upfront choice.
+  const [role, setRole] = useState<UserRole>('tenant')
   const [mode, setMode] = useState<'signup' | 'login'>('signup')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -18,14 +20,14 @@ export function AuthModal() {
   if (!isModalOpen) return null
 
   const reset = () => {
-    setRole(null)
+    setRole('tenant')
     setName('')
     setEmail('')
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!role || submitting) return
+    if (submitting) return
 
     const finalName = name || 'Guest User'
     const finalEmail = email || 'guest@innbly.com'
@@ -44,11 +46,6 @@ export function AuthModal() {
   }
 
   const handleGoogleSuccess = async (profile: { name: string; email: string }) => {
-    if (!role) {
-      showToast('Pick "Rent a Space" or "List My Property" first', 'error')
-      return
-    }
-
     setSubmitting(true)
     const result = await submitToSheet('signup', { name: profile.name, email: profile.email, role, method: 'google' })
     setSubmitting(false)
@@ -83,35 +80,30 @@ export function AuthModal() {
           {mode === 'signup' ? 'Tell us who you are to get started.' : 'Log in to continue.'}
         </p>
 
-        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <button
-            type="button"
-            onClick={() => setRole('tenant')}
-            className={`group flex flex-col items-center gap-3 rounded-2xl border-2 p-6 text-center transition ${
-              role === 'tenant'
-                ? 'border-primary-500 bg-primary-50 shadow-card'
-                : 'border-slate-200 hover:border-primary-300 hover:bg-slate-50'
+        <button
+          type="button"
+          onClick={() => setRole((r) => (r === 'host' ? 'tenant' : 'host'))}
+          className={`mt-6 flex w-full items-center justify-between gap-3 rounded-2xl border-2 p-4 text-left transition ${
+            role === 'host'
+              ? 'border-accent-500 bg-accent-50'
+              : 'border-dashed border-slate-200 hover:border-accent-300 hover:bg-slate-50'
+          }`}
+        >
+          <span className="flex items-center gap-3">
+            <Building2 className={`h-6 w-6 ${role === 'host' ? 'text-accent-600' : 'text-slate-400'}`} />
+            <span>
+              <span className="block font-semibold text-slate-800">List a property instead</span>
+              <span className="block text-xs text-slate-500">Become a host and reach verified tenants</span>
+            </span>
+          </span>
+          <span
+            className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${
+              role === 'host' ? 'bg-accent-500 text-white' : 'bg-slate-100 text-slate-500'
             }`}
           >
-            <HomeIcon className={`h-8 w-8 ${role === 'tenant' ? 'text-primary-600' : 'text-slate-400 group-hover:text-primary-500'}`} />
-            <span className="font-semibold text-slate-800">I want to Rent a Space</span>
-            <span className="text-xs text-slate-500">Find PGs, coliving & rentals</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setRole('host')}
-            className={`group flex flex-col items-center gap-3 rounded-2xl border-2 p-6 text-center transition ${
-              role === 'host'
-                ? 'border-accent-500 bg-accent-50 shadow-card'
-                : 'border-slate-200 hover:border-accent-300 hover:bg-slate-50'
-            }`}
-          >
-            <Building2 className={`h-8 w-8 ${role === 'host' ? 'text-accent-600' : 'text-slate-400 group-hover:text-accent-500'}`} />
-            <span className="font-semibold text-slate-800">I want to List My Property</span>
-            <span className="text-xs text-slate-500">Reach verified tenants fast</span>
-          </button>
-        </div>
+            {role === 'host' ? 'Hosting' : 'Off'}
+          </span>
+        </button>
 
         <div className="mt-6">
           <GoogleSignInButton onSuccess={handleGoogleSuccess} />
@@ -142,7 +134,7 @@ export function AuthModal() {
           />
           <button
             type="submit"
-            disabled={!role || submitting}
+            disabled={submitting}
             className="w-full rounded-xl bg-accent-500 px-4 py-3 text-sm font-semibold text-white shadow-card transition hover:bg-accent-600 hover:shadow-card-hover disabled:cursor-not-allowed disabled:opacity-40"
           >
             {submitting ? 'Please wait…' : mode === 'signup' ? 'Create account' : 'Log in'}

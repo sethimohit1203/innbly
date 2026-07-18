@@ -5,7 +5,6 @@ test.describe('Auth and visit scheduling', () => {
     await page.goto('/')
     await page.getByRole('button', { name: 'Sign In', exact: true }).click()
 
-    await page.getByRole('button', { name: /Rent a Space/i }).click()
     await page.getByPlaceholder('Full name').fill('Playwright Tester')
     await page.getByPlaceholder('Email address').fill('playwright-tester@example.com')
     await page.getByRole('button', { name: 'Create account' }).click()

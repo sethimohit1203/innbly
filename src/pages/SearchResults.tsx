@@ -16,10 +16,65 @@ import type { PropertyType } from '../types'
 const cities = Array.from(new Set(properties.map((p) => p.city)))
 const ALL_AMENITIES = ['Wi-Fi', 'AC', 'Meals', 'Housekeeping', 'Parking', 'Gym', 'Pool', 'Power Backup']
 
-const budgetLimits: Record<string, number> = {
-  '1200': 1200,
-  '2000': 2000,
-  '3500': 3500,
+const MAX_BUDGET = 10000
+
+function BudgetSlider({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  return (
+    <div className="flex min-w-[11rem] items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+      <label htmlFor="budget-slider" className="shrink-0 text-xs font-bold text-slate-500">
+        💰 ≤ ₹{value === MAX_BUDGET ? `${MAX_BUDGET}+` : value.toLocaleString('en-IN')}
+      </label>
+      <input
+        id="budget-slider"
+        type="range"
+        min={500}
+        max={MAX_BUDGET}
+        step={100}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="w-24 accent-primary-600"
+      />
+    </div>
+  )
+}
+
+function MultiSelectFilter({
+  label,
+  values,
+  options,
+  onToggle,
+}: {
+  label: string
+  values: string[]
+  options: string[]
+  onToggle: (v: string) => void
+}) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-100"
+      >
+        {values.length ? `🛎️ ${values.length} Amenities` : label}
+        <ChevronDown className="h-3 w-3 text-slate-400" />
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
+          <div className="absolute left-0 top-full z-40 mt-2 w-48 rounded-xl border border-slate-200 bg-white p-2 shadow-card-hover">
+            {options.map((o) => (
+              <label key={o} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                <input type="checkbox" checked={values.includes(o)} onChange={() => onToggle(o)} className="accent-primary-600" />
+                {o}
+              </label>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  )
 }
 
 function SelectFilter({
@@ -61,10 +116,11 @@ export function SearchResultsPage() {
   const [city, setCity] = useState(searchParams.get('city') ?? 'all')
   const [state, setState] = useState('all')
   const [guests, setGuests] = useState(searchParams.get('guests') ?? 'all')
-  const [budget, setBudget] = useState(searchParams.get('budget') ?? 'all')
+  const [budget, setBudget] = useState(Number(searchParams.get('budget')) || MAX_BUDGET)
   const [tenantPref, setTenantPref] = useState('all')
   const [propertyType, setPropertyType] = useState<PropertyType | 'all'>('all')
-  const [amenity, setAmenity] = useState('all')
+  const [amenities, setAmenities] = useState<string[]>([])
+  const toggleAmenity = (a: string) => setAmenities((prev) => (prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]))
   const [stayDuration, setStayDuration] = useState('all')
   const [verifiedOnly, setVerifiedOnly] = useState(false)
   const [checkIn, setCheckIn] = useState<string | null>(searchParams.get('checkIn'))
@@ -83,10 +139,10 @@ export function SearchResultsPage() {
       if (city !== 'all' && p.city !== city) return false
       if (state !== 'all' && p.state !== state) return false
       if (guests !== 'all' && p.maxGuests < Number(guests)) return false
-      if (budget !== 'all' && p.price > budgetLimits[budget]) return false
+      if (budget < MAX_BUDGET && p.price > budget) return false
       if (tenantPref !== 'all' && p.tenantPreference !== tenantPref) return false
       if (propertyType !== 'all' && p.propertyType !== propertyType) return false
-      if (amenity !== 'all' && !p.amenities.includes(amenity)) return false
+      if (amenities.length > 0 && !amenities.every((a) => p.amenities.includes(a))) return false
       if (stayDuration === 'short' && p.minStayNights > 6) return false
       if (stayDuration === 'weekly' && (p.minStayNights < 7 || p.minStayNights > 29)) return false
       if (stayDuration === 'monthly' && p.minStayNights < 30) return false
@@ -94,13 +150,13 @@ export function SearchResultsPage() {
       if (collection && !collection.predicate(p)) return false
       return true
     })
-  }, [city, state, guests, budget, tenantPref, propertyType, amenity, stayDuration, verifiedOnly, collection, freeTextQuery])
+  }, [city, state, guests, budget, tenantPref, propertyType, amenities, stayDuration, verifiedOnly, collection, freeTextQuery])
 
   const handleSaveSearch = () => {
     const parts = [
       city !== 'all' ? city : null,
       guests !== 'all' ? `${guests}+ guests` : null,
-      budget !== 'all' ? `under ₹${budgetLimits[budget]}` : null,
+      budget < MAX_BUDGET ? `under ₹${budget}` : null,
       collection ? collection.label : null,
     ].filter(Boolean)
     addSavedSearch({
@@ -149,16 +205,7 @@ export function SearchResultsPage() {
                 { value: '6', label: '6+ Guests' },
               ]}
             />
-            <SelectFilter
-              label="💰 Any Budget"
-              value={budget}
-              onChange={setBudget}
-              options={[
-                { value: '1200', label: 'Under ₹1,200/night' },
-                { value: '2000', label: 'Under ₹2,000/night' },
-                { value: '3500', label: 'Under ₹3,500/night' },
-              ]}
-            />
+            <BudgetSlider value={budget} onChange={setBudget} />
             <SelectFilter
               label="👤 Any Tenant"
               value={tenantPref}
@@ -170,12 +217,7 @@ export function SearchResultsPage() {
                 { value: 'Family', label: 'Family' },
               ]}
             />
-            <SelectFilter
-              label="🛎️ Any Amenity"
-              value={amenity}
-              onChange={setAmenity}
-              options={ALL_AMENITIES.map((a) => ({ value: a, label: a }))}
-            />
+            <MultiSelectFilter label="🛎️ Any Amenity" values={amenities} options={ALL_AMENITIES} onToggle={toggleAmenity} />
             <SelectFilter
               label="📅 Any Stay Length"
               value={stayDuration}
