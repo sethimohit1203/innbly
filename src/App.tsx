@@ -2,7 +2,6 @@ import { Routes, Route } from 'react-router-dom'
 import { Navbar } from './components/Navbar'
 import { TopBanner } from './components/TopBanner'
 import { AuthModal } from './components/AuthModal'
-import { ScheduleVisitModal } from './components/ScheduleVisitModal'
 import { HomePage } from './pages/Home'
 import { SearchResultsPage } from './pages/SearchResults'
 import { PropertyDetailPage } from './pages/PropertyDetail'
@@ -12,7 +11,6 @@ import { ContactPage } from './pages/Contact'
 import { PrivacyPage } from './pages/Privacy'
 import { TermsPage } from './pages/Terms'
 import { SavedPropertiesPage } from './pages/SavedProperties'
-import { MyVisitsPage } from './pages/MyVisits'
 import { HostOnlyRoute } from './components/HostOnlyRoute'
 import { EnterpriseHomePage } from './pages/enterprise/EnterpriseHome'
 import { EnterpriseSearchPage } from './pages/enterprise/EnterpriseSearch'
@@ -50,7 +48,6 @@ export default function App() {
             }
           />
           <Route path="/saved" element={<SavedPropertiesPage />} />
-          <Route path="/my-visits" element={<MyVisitsPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/privacy-policy" element={<PrivacyPage />} />
           <Route path="/terms" element={<TermsPage />} />
@@ -63,7 +60,6 @@ export default function App() {
         </Routes>
       </main>
       <AuthModal />
-      <ScheduleVisitModal />
       <MobileBottomNav />
       <QuickMatchAssistant />
     </div>

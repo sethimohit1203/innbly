@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Search, Heart, CalendarClock, User } from 'lucide-react'
+import { Search, Heart, User } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
 export function MobileBottomNav() {
@@ -9,7 +9,6 @@ export function MobileBottomNav() {
   const items = [
     { to: '/search', label: 'Search', icon: Search },
     { to: '/saved', label: 'Wishlist', icon: Heart },
-    { to: '/my-visits', label: 'Bookings', icon: CalendarClock },
   ]
 
   return (
@@ -31,7 +30,7 @@ export function MobileBottomNav() {
       })}
       {user ? (
         <Link
-          to={user.role === 'host' ? '/dashboard' : '/my-visits'}
+          to={user.role === 'host' ? '/dashboard' : '/saved'}
           className={`flex flex-col items-center gap-0.5 px-3 py-1 text-[10px] font-semibold ${
             pathname === '/dashboard' ? 'text-primary-600' : 'text-slate-500'
           }`}

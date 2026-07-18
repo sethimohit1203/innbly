@@ -9,10 +9,10 @@ test.describe('Nightly pricing & guest-based booking', () => {
     await expect(page.getByText('Sharing', { exact: true })).toHaveCount(0)
   })
 
-  test('search page has a Guests filter instead of Room Type, with nightly budget tiers', async ({ page }) => {
+  test('search page has a Guests filter and a nightly budget slider, no Room Type', async ({ page }) => {
     await page.goto('/search')
     await expect(page.locator('select').filter({ hasText: 'Any Guests' })).toBeVisible()
-    await expect(page.locator('select').filter({ hasText: 'Any Budget' })).toBeVisible()
+    await expect(page.getByLabel(/≤ ₹/)).toBeVisible()
     await expect(page.locator('select').filter({ hasText: 'Any Room Type' })).toHaveCount(0)
   })
 

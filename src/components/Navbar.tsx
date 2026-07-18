@@ -9,7 +9,6 @@ import {
   Menu,
   X,
   ChevronDown,
-  CalendarClock,
   Heart,
   LogOut,
   PlusCircle,
@@ -111,13 +110,6 @@ export function Navbar() {
                   <div className="fixed inset-0 z-10" onClick={() => setAvatarOpen(false)} />
                   <div className="absolute right-0 top-full z-20 mt-2 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-card-hover">
                     <Link
-                      to="/my-visits"
-                      onClick={() => setAvatarOpen(false)}
-                      className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-                    >
-                      <CalendarClock className="h-4 w-4 text-slate-400" /> My Scheduled Visits
-                    </Link>
-                    <Link
                       to="/saved"
                       onClick={() => setAvatarOpen(false)}
                       className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
@@ -179,14 +171,9 @@ export function Navbar() {
           )}
 
           {isTenant && (
-            <>
-              <Link to="/my-visits" onClick={() => setMobileOpen(false)} className="block text-base font-semibold text-slate-700 hover:text-primary-600">
-                My Scheduled Visits
-              </Link>
-              <Link to="/saved" onClick={() => setMobileOpen(false)} className="block text-base font-semibold text-slate-700 hover:text-primary-600">
-                Saved Properties
-              </Link>
-            </>
+            <Link to="/saved" onClick={() => setMobileOpen(false)} className="block text-base font-semibold text-slate-700 hover:text-primary-600">
+              Saved Properties
+            </Link>
           )}
 
           {!user && (
