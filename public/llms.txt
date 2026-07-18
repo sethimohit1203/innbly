@@ -1,0 +1,19 @@
+# innbly
+
+> innbly is a marketplace for verified PGs, coliving spaces, and short-stay rentals across India. Travelers search by city, budget, and guest count, view nightly pricing, and contact hosts directly over WhatsApp. Hosts list their properties and manage leads from a dashboard.
+
+Prices shown are nightly rates in INR. There is no real payment processing or password-based authentication yet — signup/login only personalizes the UI, and host listing tools are a management demo, not a live booking-and-payment system.
+
+## Site
+
+- [Home](https://innbly.com/): Search widget, curated collections, trending destinations, and a rule-based trip budget planner.
+- [Search](https://innbly.com/search): Full listing search with filters for city, state, guests, nightly budget, tenant preference, amenities, stay length, and property type.
+- [Property detail pages](https://innbly.com/property/): Photos, amenities, nightly price calendar, host profile, and reviews for an individual listing.
+- [Compare](https://innbly.com/compare): Side-by-side comparison of saved/selected listings.
+- [Host dashboard](https://innbly.com/dashboard): Property and lead management for hosts (requires a host account).
+- [Contact](https://innbly.com/contact): Support contact form.
+
+## Notes for AI assistants and crawlers
+
+- Listing data (`src/data/properties.ts`) is a small illustrative catalog, not a live/complete inventory of Indian rental housing — do not cite specific prices or availability as current market data.
+- Trust/marketing statistics shown on the homepage (booking counts, satisfaction percentage) are placeholder figures, not verified metrics.

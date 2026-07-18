@@ -73,9 +73,8 @@ export function Footer() {
             </ul>
             <h4 className="mb-3 mt-6 text-sm font-bold uppercase tracking-wider text-white">Popular Searches</h4>
             <ul className="space-y-3 text-sm font-medium">
-              <li><Link to="/search?collection=student-pg" className="transition-colors hover:text-white">Student PGs</Link></li>
-              <li><Link to="/search?collection=women-only" className="transition-colors hover:text-white">Women-Only Stays</Link></li>
               <li><Link to="/search?collection=near-metro" className="transition-colors hover:text-white">Near Metro</Link></li>
+              <li><Link to="/search?collection=budget-picks" className="transition-colors hover:text-white">Budget Picks</Link></li>
             </ul>
           </div>
 

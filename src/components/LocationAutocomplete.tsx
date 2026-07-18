@@ -28,7 +28,7 @@ export function LocationAutocomplete({ value, onChange, placeholder }: LocationA
         onChange={(e) => onChange(e.target.value)}
         onFocus={() => setFocused(true)}
         onBlur={() => setTimeout(() => setFocused(false), 150)}
-        placeholder={placeholder ?? 'Any Area / City'}
+        placeholder={placeholder ?? 'Area / City'}
         className="w-full cursor-text bg-transparent text-[15px] font-semibold text-slate-800 outline-none placeholder:text-slate-400"
       />
       {focused && matches.length > 0 && (

@@ -11,14 +11,14 @@ test.describe('Nightly pricing & guest-based booking', () => {
 
   test('search page has a Guests filter and a nightly budget slider, no Room Type', async ({ page }) => {
     await page.goto('/search')
-    await expect(page.locator('select').filter({ hasText: 'Any Guests' })).toBeVisible()
+    await expect(page.locator('select').filter({ hasText: 'Guests' })).toBeVisible()
     await expect(page.getByLabel(/≤ ₹/)).toBeVisible()
     await expect(page.locator('select').filter({ hasText: 'Any Room Type' })).toHaveCount(0)
   })
 
   test('search filter bar stays visible while scrolling the results', async ({ page }) => {
     await page.goto('/search')
-    const filterBar = page.locator('select').filter({ hasText: 'Any Guests' })
+    const filterBar = page.locator('select').filter({ hasText: 'Guests' })
     await expect(filterBar).toBeVisible()
     await page.mouse.wheel(0, 800)
     await expect(filterBar).toBeVisible()

@@ -103,9 +103,11 @@ export function HomePage() {
       <StickyHomeSearchBar onSearchClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} />
 
       {/* Hero */}
-      <section className="hero-gradient relative overflow-hidden pb-20 pt-16 md:pb-28 md:pt-20">
-        <div className="pointer-events-none absolute right-[-10%] top-20 -z-10 h-96 w-96 rounded-full bg-primary-500/10 blur-3xl" />
-        <div className="pointer-events-none absolute bottom-10 left-[-10%] -z-10 h-96 w-96 rounded-full bg-accent-500/5 blur-3xl" />
+      <section className="hero-gradient relative pb-20 pt-16 md:pb-28 md:pt-20">
+        <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+          <div className="absolute right-[-10%] top-20 h-96 w-96 rounded-full bg-primary-500/10 blur-3xl" />
+          <div className="absolute bottom-10 left-[-10%] h-96 w-96 rounded-full bg-accent-500/5 blur-3xl" />
+        </div>
 
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
@@ -151,7 +153,7 @@ export function HomePage() {
                   onChange={(e) => setGuests(e.target.value)}
                   className="w-full cursor-pointer bg-transparent text-[15px] font-semibold text-slate-800 outline-none"
                 >
-                  <option value="all">Any Number of Guests</option>
+                  <option value="all">Number of Guests</option>
                   <option value="1">1 Guest</option>
                   <option value="2">2 Guests</option>
                   <option value="4">4 Guests</option>
@@ -169,7 +171,7 @@ export function HomePage() {
                   onChange={(e) => setBudget(e.target.value)}
                   className="w-full cursor-pointer bg-transparent text-[15px] font-semibold text-slate-800 outline-none"
                 >
-                  <option value="any">Any Budget</option>
+                  <option value="any">Budget</option>
                   <option value="1200">Under ₹1,200</option>
                   <option value="2000">Under ₹2,000</option>
                   <option value="3500">Under ₹3,500</option>

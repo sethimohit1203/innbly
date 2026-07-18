@@ -85,8 +85,8 @@ export function DateRangePicker({ checkIn, checkOut, onChange }: DateRangePicker
 
       {open && (
         <>
-          <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
-          <div className="absolute left-0 top-full z-40 mt-2 w-80 rounded-2xl border border-slate-200 bg-white p-4 shadow-card-hover">
+          <div className="fixed inset-0 z-50" onClick={() => setOpen(false)} />
+          <div className="absolute left-0 top-full z-[60] mt-2 w-80 rounded-2xl border border-slate-200 bg-white p-4 shadow-card-hover">
             <div className="mb-3 flex items-center justify-between">
               <button
                 type="button"

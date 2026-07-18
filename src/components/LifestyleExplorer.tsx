@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
 
 const LIFESTYLES: { label: string; emoji: string; slug: string }[] = [
-  { label: 'Student Living', emoji: '👨‍🎓', slug: 'student-pg' },
   { label: 'Digital Nomad', emoji: '💻', slug: 'digital-nomad' },
   { label: 'Family', emoji: '👨‍👩‍👧', slug: 'family-stay' },
   { label: 'Corporate', emoji: '👔', slug: 'corporate' },

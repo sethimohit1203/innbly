@@ -187,15 +187,15 @@ export function SearchResultsPage() {
             <span className="flex shrink-0 items-center gap-1.5 text-sm font-semibold text-slate-500">
               <SlidersHorizontal className="h-4 w-4" /> Filters:
             </span>
-            <SelectFilter label="📍 Any Location" value={city} onChange={setCity} options={cities.map((c) => ({ value: c, label: c }))} />
+            <SelectFilter label="📍 Location" value={city} onChange={setCity} options={cities.map((c) => ({ value: c, label: c }))} />
             <SelectFilter
-              label="🗺️ Any State"
+              label="🗺️ State"
               value={state}
               onChange={setState}
               options={INDIAN_STATES.map((s) => ({ value: s, label: s }))}
             />
             <SelectFilter
-              label="🧑‍🤝‍🧑 Any Guests"
+              label="🧑‍🤝‍🧑 Guests"
               value={guests}
               onChange={setGuests}
               options={[
@@ -207,7 +207,7 @@ export function SearchResultsPage() {
             />
             <BudgetSlider value={budget} onChange={setBudget} />
             <SelectFilter
-              label="👤 Any Tenant"
+              label="👤 Tenant"
               value={tenantPref}
               onChange={setTenantPref}
               options={[
@@ -217,9 +217,9 @@ export function SearchResultsPage() {
                 { value: 'Family', label: 'Family' },
               ]}
             />
-            <MultiSelectFilter label="🛎️ Any Amenity" values={amenities} options={ALL_AMENITIES} onToggle={toggleAmenity} />
+            <MultiSelectFilter label="🛎️ Amenity" values={amenities} options={ALL_AMENITIES} onToggle={toggleAmenity} />
             <SelectFilter
-              label="📅 Any Stay Length"
+              label="📅 Stay Length"
               value={stayDuration}
               onChange={setStayDuration}
               options={[

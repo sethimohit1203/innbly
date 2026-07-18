@@ -1,19 +1,17 @@
 import { Link } from 'react-router-dom'
-import { TrainFront, Gem, GraduationCap, Briefcase, Mountain, Waves, Laptop, Heart, PartyPopper, ShieldCheck, Dog, Wallet } from 'lucide-react'
+import { TrainFront, Gem, Briefcase, Mountain, Waves, Laptop, Heart, PartyPopper, Dog, Wallet } from 'lucide-react'
 
 const CATEGORIES = [
   { label: 'Near Metro', icon: TrainFront, slug: 'near-metro' },
   { label: 'Luxury', icon: Gem, slug: 'luxury' },
-  { label: 'Student Living', icon: GraduationCap, slug: 'student-pg' },
   { label: 'Executive', icon: Briefcase, slug: 'executive' },
   { label: 'Mountain', icon: Mountain, slug: 'mountain-nature' },
   { label: 'Beach', icon: Waves, slug: 'beach' },
   { label: 'Work Friendly', icon: Laptop, slug: 'work-friendly' },
   { label: 'Couples', icon: Heart, slug: 'couples' },
   { label: 'Weekend', icon: PartyPopper, slug: 'weekend' },
-  { label: 'Women Only', icon: ShieldCheck, slug: 'women-only' },
   { label: 'Pet Friendly', icon: Dog, slug: 'pet-friendly' },
-  { label: 'Under ₹1000', icon: Wallet, slug: 'under-1000' },
+  { label: 'Under ₹2000', icon: Wallet, slug: 'under-2000' },
 ]
 
 export function CategoryScroller() {

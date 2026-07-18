@@ -6,9 +6,7 @@ const COLLECTIONS: { label: string; slug: string; image: string }[] = [
   { label: 'Budget Picks', slug: 'budget-picks', image: 'https://picsum.photos/seed/coll-budget/400/300' },
   { label: 'Luxury', slug: 'luxury', image: 'https://picsum.photos/seed/coll-luxury/400/300' },
   { label: 'Weekend Escape', slug: 'weekend', image: 'https://picsum.photos/seed/coll-weekend/400/300' },
-  { label: 'Women Only', slug: 'women-only', image: 'https://picsum.photos/seed/coll-women/400/300' },
   { label: 'Corporate', slug: 'corporate', image: 'https://picsum.photos/seed/coll-corp/400/300' },
-  { label: 'Students', slug: 'students', image: 'https://picsum.photos/seed/coll-students/400/300' },
   { label: 'Near Metro', slug: 'near-metro', image: 'https://picsum.photos/seed/coll-metro/400/300' },
   { label: 'New Listings', slug: 'new-listings', image: 'https://picsum.photos/seed/coll-new/400/300' },
 ]

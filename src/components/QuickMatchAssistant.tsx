@@ -8,7 +8,7 @@ const BUDGET_OPTIONS = [
   { label: 'Under ₹1,200', value: '1200' },
   { label: 'Under ₹2,000', value: '2000' },
   { label: 'Under ₹3,500', value: '3500' },
-  { label: 'Any budget', value: 'any' },
+  { label: 'No budget limit', value: 'any' },
 ]
 
 const cities = Array.from(new Set(properties.map((p) => p.city)))
@@ -111,7 +111,7 @@ export function QuickMatchAssistant() {
                 onClick={() => { setCity(null); setStep(2) }}
                 className="rounded-full border border-slate-200 px-3.5 py-2 text-xs font-bold text-slate-500 transition hover:border-primary-400"
               >
-                Any city
+                All cities
               </button>
             </div>
           </div>

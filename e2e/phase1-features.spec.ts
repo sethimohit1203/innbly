@@ -11,9 +11,9 @@ test.describe('Phase 1 discovery & booking features', () => {
 
   test('category scroller and collections grid link into filtered search results', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('link', { name: 'Women Only' }).first().click()
-    await expect(page).toHaveURL(/collection=women-only/)
-    await expect(page.getByText(/Green Nest PG/i)).toBeVisible()
+    await page.getByRole('link', { name: 'Corporate' }).first().click()
+    await expect(page).toHaveURL(/collection=corporate/)
+    await expect(page.getByText(/Sunrise Coliving/i)).toBeVisible()
   })
 
   test('wishlist heart on a property card persists to the saved properties page', async ({ page }) => {
@@ -58,8 +58,8 @@ test.describe('Phase 1 discovery & booking features', () => {
     await page.goto('/')
     await page.getByRole('button', { name: /Quick Match/i }).click()
     const panel = page.getByTestId('quick-match-panel')
-    await panel.getByRole('button', { name: 'Any budget' }).click()
-    await panel.getByRole('button', { name: 'Any city' }).click()
+    await panel.getByRole('button', { name: 'No budget limit' }).click()
+    await panel.getByRole('button', { name: 'All cities' }).click()
     await panel.getByRole('button', { name: '1 guest' }).click()
     await panel.getByRole('button', { name: 'Anyone' }).click()
     await expect(panel.getByText(/matches found/i)).toBeVisible()

@@ -1,6 +1,5 @@
 import { Routes, Route } from 'react-router-dom'
 import { Navbar } from './components/Navbar'
-import { TopBanner } from './components/TopBanner'
 import { AuthModal } from './components/AuthModal'
 import { HomePage } from './pages/Home'
 import { SearchResultsPage } from './pages/SearchResults'
@@ -24,7 +23,6 @@ import { QuickMatchAssistant } from './components/QuickMatchAssistant'
 export default function App() {
   return (
     <div className="flex min-h-screen flex-col bg-slate-50">
-      <TopBanner />
       <Navbar />
       <main className="flex-1 pb-16 md:pb-0">
         <Routes>
