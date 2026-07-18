@@ -19,7 +19,6 @@ import {
   Dumbbell,
   Star,
   MessageCircle,
-  CalendarCheck2,
   Users,
   Clock,
   TrainFront,
@@ -41,7 +40,6 @@ import { PropertyCard } from '../components/PropertyCard'
 import { DateRangePicker } from '../components/DateRangePicker'
 import { GuestCounter } from '../components/GuestCounter'
 import { PriceCalendar } from '../components/PriceCalendar'
-import { useVisitModal } from '../context/VisitModalContext'
 import { useSavedProperties } from '../context/SavedPropertiesContext'
 import { useRecentlyViewed } from '../context/RecentlyViewedContext'
 import { useToast } from '../context/ToastContext'
@@ -91,7 +89,6 @@ const amenityGroups: Record<string, string[]> = {
 export function PropertyDetailPage() {
   const { id } = useParams()
   const property = id ? getPropertyById(id) : undefined
-  const { openVisitModal } = useVisitModal()
   const { isSaved, toggleSaved } = useSavedProperties()
   const { addRecentlyViewed } = useRecentlyViewed()
   const { showToast } = useToast()
@@ -405,17 +402,11 @@ export function PropertyDetailPage() {
               <PriceCalendar propertyId={property.id} />
             </div>
 
-            <button
-              onClick={() => openVisitModal({ propertyId: property.id, propertyTitle: property.title })}
-              className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-4 py-3.5 text-sm font-bold text-white shadow-card transition hover:bg-accent-600 hover:shadow-card-hover"
-            >
-              <CalendarCheck2 className="h-4 w-4" /> Schedule a Free Visit
-            </button>
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-primary-400 hover:bg-primary-50 hover:text-primary-700"
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-4 py-3.5 text-sm font-bold text-white shadow-card transition hover:bg-accent-600 hover:shadow-card-hover"
             >
               <MessageCircle className="h-4 w-4" /> Chat with Host
             </a>

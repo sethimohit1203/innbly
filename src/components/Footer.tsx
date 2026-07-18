@@ -93,7 +93,6 @@ export function Footer() {
           <div>
             <h4 className="mb-6 text-sm font-bold uppercase tracking-wider text-white">Help & Support</h4>
             <ul className="space-y-3 text-sm font-medium">
-              <li><Link to="/search" className="transition-colors hover:text-white">Schedule Visit</Link></li>
               <li><Link to="/dashboard" className="transition-colors hover:text-white">Host Dashboard</Link></li>
               <li><Link to="/contact" className="transition-colors hover:text-white">Contact Support</Link></li>
               <li><Link to="/terms" className="transition-colors hover:text-white">Cancellation Policy</Link></li>

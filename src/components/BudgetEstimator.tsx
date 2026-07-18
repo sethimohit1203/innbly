@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { SlidersHorizontal, UtensilsCrossed, Snowflake, ShieldCheck, Receipt, Loader2 } from 'lucide-react'
-import { useVisitModal } from '../context/VisitModalContext'
 import { useServerPrice } from '../hooks/useServerPrice'
 
 type RoomConfig = 'Single' | 'Double' | 'Triple'
@@ -26,7 +26,6 @@ interface EstimatorTotal {
 }
 
 export function BudgetEstimator() {
-  const { openVisitModal } = useVisitModal()
   const [roomType, setRoomType] = useState<RoomConfig>('Single')
   const [meals, setMeals] = useState(false)
   const [ac, setAc] = useState(false)
@@ -174,12 +173,12 @@ export function BudgetEstimator() {
               </div>
             </div>
 
-            <button
-              onClick={() => openVisitModal()}
-              className="relative z-10 mt-6 w-full rounded-2xl bg-accent-500 py-4 text-[15px] font-extrabold text-stone-950 shadow-lg transition-all hover:bg-accent-400 active:scale-[0.98]"
+            <Link
+              to="/search"
+              className="relative z-10 mt-6 flex w-full items-center justify-center rounded-2xl bg-accent-500 py-4 text-[15px] font-extrabold text-stone-950 shadow-lg transition-all hover:bg-accent-400 active:scale-[0.98]"
             >
-              Secure This Space Now
-            </button>
+              Browse Stays Like This
+            </Link>
           </div>
         </div>
       </div>
