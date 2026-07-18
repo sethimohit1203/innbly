@@ -62,7 +62,10 @@ export function QuickMatchAssistant() {
   }
 
   return (
-    <div className="fixed bottom-20 right-4 z-40 w-[calc(100%-2rem)] max-w-sm rounded-3xl border border-slate-200 bg-white shadow-2xl md:bottom-6 md:right-6">
+    <div
+      data-testid="quick-match-panel"
+      className="fixed bottom-20 right-4 z-40 w-[calc(100%-2rem)] max-w-sm rounded-3xl border border-slate-200 bg-white shadow-2xl md:bottom-6 md:right-6"
+    >
       <div className="flex items-center justify-between border-b border-slate-100 p-4">
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-accent-500" />

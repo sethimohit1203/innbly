@@ -31,6 +31,8 @@ import {
   Plane,
   MapPinned,
   ThumbsUp,
+  PlayCircle,
+  Rotate3d,
 } from 'lucide-react'
 import { getPropertyById, properties } from '../data/properties'
 import { MapPlaceholder } from '../components/MapPlaceholder'
@@ -42,6 +44,7 @@ import { PriceCalendar } from '../components/PriceCalendar'
 import { useVisitModal } from '../context/VisitModalContext'
 import { useSavedProperties } from '../context/SavedPropertiesContext'
 import { useRecentlyViewed } from '../context/RecentlyViewedContext'
+import { useToast } from '../context/ToastContext'
 import { usePageMeta } from '../hooks/usePageMeta'
 import type { LandmarkType, TenantPreference } from '../types'
 
@@ -91,6 +94,7 @@ export function PropertyDetailPage() {
   const { openVisitModal } = useVisitModal()
   const { isSaved, toggleSaved } = useSavedProperties()
   const { addRecentlyViewed } = useRecentlyViewed()
+  const { showToast } = useToast()
   const [showAllPhotos, setShowAllPhotos] = useState(false)
   const [descExpanded, setDescExpanded] = useState(false)
   const [tenantType, setTenantType] = useState<TenantPreference>('Anyone')
@@ -175,6 +179,23 @@ export function PropertyDetailPage() {
           className="absolute bottom-4 right-4 flex items-center gap-1.5 rounded-full bg-white/95 px-4 py-2 text-sm font-semibold text-slate-800 shadow-card-hover transition hover:bg-white"
         >
           <Images className="h-4 w-4" /> View all photos
+        </button>
+      </div>
+
+      {/* Media: video tour / 360 walkthrough — honest placeholder, no fabricated media */}
+      <div className="mb-8 flex flex-wrap items-center gap-3 rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 px-5 py-4">
+        <span className="text-sm font-semibold text-slate-500">Want more than photos?</span>
+        <button
+          onClick={() => showToast('Video tour coming soon for this property — check back later.')}
+          className="flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-3.5 py-1.5 text-xs font-bold text-slate-600 transition hover:border-primary-400 hover:text-primary-700"
+        >
+          <PlayCircle className="h-4 w-4" /> Video Tour — Coming Soon
+        </button>
+        <button
+          onClick={() => showToast('360° virtual walkthrough coming soon for this property.')}
+          className="flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-3.5 py-1.5 text-xs font-bold text-slate-600 transition hover:border-primary-400 hover:text-primary-700"
+        >
+          <Rotate3d className="h-4 w-4" /> 360° Tour — Coming Soon
         </button>
       </div>
 

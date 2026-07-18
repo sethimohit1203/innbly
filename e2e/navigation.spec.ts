@@ -4,7 +4,7 @@ test.describe('Core navigation & pages', () => {
   test('home page loads with hero and property grid', async ({ page }) => {
     await page.goto('/')
     await expect(page.getByRole('heading', { name: /Find Your Perfect Space/i })).toBeVisible()
-    await expect(page.getByText(/Sunrise Coliving/i)).toBeVisible()
+    await expect(page.getByText(/Sunrise Coliving/i).first()).toBeVisible()
   })
 
   test('home search widget navigates to /search with query params', async ({ page }) => {

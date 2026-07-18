@@ -4,6 +4,7 @@ import { Search, MapPin, Users, Wallet } from 'lucide-react'
 import { properties } from '../data/properties'
 import { PropertyCard } from '../components/PropertyCard'
 import { BudgetEstimator } from '../components/BudgetEstimator'
+import { AIBudgetPlanner } from '../components/AIBudgetPlanner'
 import { Benefits } from '../components/Benefits'
 import { Testimonials } from '../components/Testimonials'
 import { Footer } from '../components/Footer'
@@ -281,6 +282,7 @@ export function HomePage() {
         </div>
       </section>
 
+      <AIBudgetPlanner />
       <BudgetEstimator />
       <Benefits />
       <Testimonials />
