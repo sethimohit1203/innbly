@@ -24,7 +24,7 @@ function loadDotEnv() {
 }
 loadDotEnv()
 
-const PORT = Number(process.env.API_PORT ?? 8787)
+const PORT = Number(process.env.API_PORT ?? 8797)
 
 const ROUTES: Record<string, () => Promise<{ default: (req: ApiRequest, res: ApiResponse) => unknown }>> = {
   '/api/leads': () => import('../api/leads'),

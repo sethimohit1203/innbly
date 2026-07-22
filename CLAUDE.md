@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run dev            # Vite client (5173) + local API server (8787) together, via concurrently
+npm run dev            # Vite client (5183) + local API server (8797) together, via concurrently
 npm run dev:client      # Vite only
 npm run dev:api         # Local API server only (tsx watch scripts/dev-api-server.ts)
 npm run build           # tsc -b (typecheck src/) && vite build
