@@ -1,12 +1,13 @@
 import { useParams, Link } from 'react-router-dom'
 import { BadgeCheck, Clock, TrendingUp, Calendar, Languages } from 'lucide-react'
-import { properties } from '../data/properties'
 import { PropertyCard } from '../components/PropertyCard'
 import { Footer } from '../components/Footer'
+import { useProperties } from '../context/PropertiesContext'
 import { usePageMeta } from '../hooks/usePageMeta'
 
 export function HostProfilePage() {
   const { id } = useParams()
+  const { properties } = useProperties()
   const ownerName = id ? decodeURIComponent(id) : ''
   const listings = properties.filter((p) => p.ownerName === ownerName)
   const host = listings[0]

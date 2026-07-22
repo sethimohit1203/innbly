@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { ChevronDown, SlidersHorizontal, BellPlus, SearchX } from 'lucide-react'
-import { properties } from '../data/properties'
 import { INDIAN_STATES } from '../data/states'
 import { PropertyCard } from '../components/PropertyCard'
 import { MapPlaceholder } from '../components/MapPlaceholder'
@@ -11,10 +10,10 @@ import { Reveal } from '../components/Reveal'
 import { getQuickFilter } from '../data/quickFilters'
 import { useSavedSearch } from '../context/SavedSearchContext'
 import { useToast } from '../context/ToastContext'
+import { useProperties } from '../context/PropertiesContext'
 import { usePageMeta } from '../hooks/usePageMeta'
 import type { PropertyType } from '../types'
 
-const cities = Array.from(new Set(properties.map((p) => p.city)))
 const ALL_AMENITIES = ['Wi-Fi', 'AC', 'Meals', 'Housekeeping', 'Parking', 'Gym', 'Pool', 'Power Backup']
 
 const MAX_BUDGET = 10000
@@ -113,6 +112,8 @@ export function SearchResultsPage() {
   const [searchParams] = useSearchParams()
   const { addSavedSearch } = useSavedSearch()
   const { showToast } = useToast()
+  const { properties } = useProperties()
+  const cities = useMemo(() => Array.from(new Set(properties.map((p) => p.city))), [properties])
 
   const [city, setCity] = useState(searchParams.get('city') ?? 'all')
   const [state, setState] = useState('all')
@@ -151,7 +152,7 @@ export function SearchResultsPage() {
       if (collection && !collection.predicate(p)) return false
       return true
     })
-  }, [city, state, guests, budget, tenantPref, propertyType, amenities, stayDuration, verifiedOnly, collection, freeTextQuery])
+  }, [properties, city, state, guests, budget, tenantPref, propertyType, amenities, stayDuration, verifiedOnly, collection, freeTextQuery])
 
   const handleSaveSearch = () => {
     const parts = [

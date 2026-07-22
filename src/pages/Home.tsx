@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Search, MapPin, Users, Wallet } from 'lucide-react'
-import { properties } from '../data/properties'
 import { PropertyCard } from '../components/PropertyCard'
 import { BudgetEstimator } from '../components/BudgetEstimator'
 import { AIBudgetPlanner } from '../components/AIBudgetPlanner'
@@ -24,12 +23,11 @@ import { FAQAccordion } from '../components/FAQAccordion'
 import { Reveal } from '../components/Reveal'
 import { useSavedProperties } from '../context/SavedPropertiesContext'
 import { useRecentlyViewed } from '../context/RecentlyViewedContext'
+import { useProperties } from '../context/PropertiesContext'
 import { usePageMeta } from '../hooks/usePageMeta'
 import type { Property } from '../types'
 
 const HERO_IMAGE = 'https://picsum.photos/seed/innbly-hero-villa/1920/1080'
-
-const cities = Array.from(new Set(properties.map((p) => p.city)))
 
 type Category = 'all' | 'Solo' | 'Group' | 'Verified'
 
@@ -68,6 +66,8 @@ export function HomePage() {
     'Search verified PGs, coliving spaces, and rentals across India. Schedule a free visit and chat with hosts instantly on innbly.',
   )
   const navigate = useNavigate()
+  const { properties } = useProperties()
+  const cities = useMemo(() => Array.from(new Set(properties.map((p) => p.city))), [properties])
   const { savedIds } = useSavedProperties()
   const { recentIds } = useRecentlyViewed()
   const [locationQuery, setLocationQuery] = useState('')
@@ -100,9 +100,9 @@ export function HomePage() {
       if (activeCategory === 'Verified') return p.verified
       return true
     })
-  }, [activeCategory])
+  }, [activeCategory, properties])
 
-  const recommended = useMemo(() => getRecommended(properties, savedIds, recentIds), [savedIds, recentIds])
+  const recommended = useMemo(() => getRecommended(properties, savedIds, recentIds), [properties, savedIds, recentIds])
 
   return (
     <div>

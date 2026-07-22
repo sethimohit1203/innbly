@@ -6,19 +6,22 @@ import { SavedPropertiesProvider } from './SavedPropertiesContext'
 import { RecentlyViewedProvider } from './RecentlyViewedContext'
 import { CompareProvider } from './CompareContext'
 import { SavedSearchProvider } from './SavedSearchContext'
+import { PropertiesProvider } from './PropertiesContext'
 
 export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <ToastProvider>
       <AuthProvider>
         <LeadsProvider>
-          <SavedPropertiesProvider>
-            <RecentlyViewedProvider>
-              <CompareProvider>
-                <SavedSearchProvider>{children}</SavedSearchProvider>
-              </CompareProvider>
-            </RecentlyViewedProvider>
-          </SavedPropertiesProvider>
+          <PropertiesProvider>
+            <SavedPropertiesProvider>
+              <RecentlyViewedProvider>
+                <CompareProvider>
+                  <SavedSearchProvider>{children}</SavedSearchProvider>
+                </CompareProvider>
+              </RecentlyViewedProvider>
+            </SavedPropertiesProvider>
+          </PropertiesProvider>
         </LeadsProvider>
       </AuthProvider>
     </ToastProvider>

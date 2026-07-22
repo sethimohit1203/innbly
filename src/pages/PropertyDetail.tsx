@@ -39,7 +39,6 @@ import {
   PartyPopper,
   CalendarX2,
 } from 'lucide-react'
-import { getPropertyById, properties } from '../data/properties'
 import { MapPlaceholder } from '../components/MapPlaceholder'
 import { Footer } from '../components/Footer'
 import { PropertyCard } from '../components/PropertyCard'
@@ -51,6 +50,7 @@ import { FAQAccordion } from '../components/FAQAccordion'
 import { useSavedProperties } from '../context/SavedPropertiesContext'
 import { useRecentlyViewed } from '../context/RecentlyViewedContext'
 import { useToast } from '../context/ToastContext'
+import { useProperties } from '../context/PropertiesContext'
 import { usePageMeta } from '../hooks/usePageMeta'
 import type { LandmarkType, TenantPreference } from '../types'
 
@@ -96,6 +96,7 @@ const amenityGroups: Record<string, string[]> = {
 
 export function PropertyDetailPage() {
   const { id } = useParams()
+  const { properties, getPropertyById } = useProperties()
   const property = id ? getPropertyById(id) : undefined
   const { isSaved, toggleSaved } = useSavedProperties()
   const { addRecentlyViewed } = useRecentlyViewed()

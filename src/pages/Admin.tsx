@@ -1,6 +1,27 @@
 import { useEffect, useState } from 'react'
-import { Lock, Users, CalendarCheck, Mail, MessageSquare, LogOut, CreditCard, RefreshCw, Home } from 'lucide-react'
+import { Lock, Users, CalendarCheck, Mail, MessageSquare, LogOut, CreditCard, RefreshCw, Home, Check, X, Clock } from 'lucide-react'
 import { usePageMeta } from '../hooks/usePageMeta'
+
+interface HostSubmission {
+  id: string
+  created_at: string
+  status: 'pending' | 'approved' | 'rejected'
+  owner_name: string
+  owner_email: string
+  owner_phone: string
+  property_title: string
+  property_type: string
+  description: string
+  city: string
+  neighborhood: string
+  address: string
+  max_guests: number
+  price_per_night: number
+  security_deposit: number
+  amenities: string[]
+  photo_urls: string[]
+  document_urls: string[]
+}
 
 interface Stats {
   configured: boolean
@@ -34,6 +55,10 @@ export function AdminPage() {
   const [loginError, setLoginError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeSection, setActiveSection] = useState<keyof Stats['counts']>('leads')
+  const [submissions, setSubmissions] = useState<HostSubmission[] | null>(null)
+  const [submissionsConfigured, setSubmissionsConfigured] = useState(true)
+  const [submissionsMessage, setSubmissionsMessage] = useState<string | null>(null)
+  const [decidingId, setDecidingId] = useState<string | null>(null)
 
   const loadStats = async () => {
     setLoading(true)
@@ -50,8 +75,34 @@ export function AdminPage() {
     setLoading(false)
   }
 
+  const loadSubmissions = async () => {
+    const res = await fetch('/api/admin/host-listings')
+    if (res.status === 401) {
+      setNeedsAuth(true)
+      return
+    }
+    if (res.ok) {
+      const data = await res.json()
+      setSubmissionsConfigured(data.configured !== false)
+      setSubmissionsMessage(data.message ?? null)
+      setSubmissions(data.submissions ?? [])
+    }
+  }
+
+  const decide = async (id: string, status: 'approved' | 'rejected' | 'pending') => {
+    setDecidingId(id)
+    const res = await fetch('/api/admin/host-listings', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, status }),
+    })
+    if (res.ok) await loadSubmissions()
+    setDecidingId(null)
+  }
+
   useEffect(() => {
     loadStats()
+    loadSubmissions()
   }, [])
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -68,12 +119,13 @@ export function AdminPage() {
       return
     }
     setPasscode('')
-    await loadStats()
+    await Promise.all([loadStats(), loadSubmissions()])
   }
 
   const handleLogout = async () => {
     await fetch('/api/admin/logout', { method: 'POST' })
     setStats(null)
+    setSubmissions(null)
     setNeedsAuth(true)
   }
 
@@ -118,7 +170,7 @@ export function AdminPage() {
         </div>
         <div className="flex gap-2">
           <button
-            onClick={loadStats}
+            onClick={() => { loadStats(); loadSubmissions() }}
             className="flex items-center gap-1.5 rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} /> Refresh
@@ -137,6 +189,80 @@ export function AdminPage() {
           {stats.message}
         </div>
       )}
+
+      {/* Property approvals — approving here makes a submission a live, publicly searchable listing */}
+      <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
+        <div className="mb-4 flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-500/10 text-primary-600">
+            <Home className="h-5 w-5" />
+          </div>
+          <div>
+            <h2 className="text-sm font-extrabold text-slate-900">Property Approvals</h2>
+            <p className="text-xs text-slate-500">Approving a submission makes it a live, publicly searchable listing.</p>
+          </div>
+        </div>
+
+        {!submissionsConfigured ? (
+          <p className="rounded-xl bg-amber-50 p-4 text-sm font-semibold text-amber-800">
+            {submissionsMessage ?? 'Connect Supabase (SUPABASE_SERVICE_ROLE_KEY) to review submissions here.'}
+          </p>
+        ) : submissions === null ? (
+          <p className="text-sm text-slate-400">Loading submissions…</p>
+        ) : submissions.length === 0 ? (
+          <p className="text-sm text-slate-400">No host submissions yet.</p>
+        ) : (
+          <div className="space-y-3">
+            {submissions.map((s) => (
+              <div key={s.id} className="flex flex-col gap-3 rounded-xl border border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="flex items-center gap-2 font-bold text-slate-900">
+                    {s.property_title}
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
+                        s.status === 'approved'
+                          ? 'bg-accent-50 text-accent-700'
+                          : s.status === 'rejected'
+                            ? 'bg-rose-50 text-rose-600'
+                            : 'bg-amber-50 text-amber-700'
+                      }`}
+                    >
+                      {s.status}
+                    </span>
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    {s.property_type} · {s.neighborhood}, {s.city} · ₹{s.price_per_night}/night · by {s.owner_name}
+                  </p>
+                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                  <button
+                    onClick={() => decide(s.id, 'approved')}
+                    disabled={decidingId === s.id || s.status === 'approved'}
+                    className="flex items-center gap-1.5 rounded-lg border border-accent-300 bg-accent-50 px-3 py-1.5 text-xs font-bold text-accent-700 transition hover:bg-accent-100 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <Check className="h-3.5 w-3.5" /> Approve
+                  </button>
+                  <button
+                    onClick={() => decide(s.id, 'rejected')}
+                    disabled={decidingId === s.id || s.status === 'rejected'}
+                    className="flex items-center gap-1.5 rounded-lg border border-rose-300 bg-rose-50 px-3 py-1.5 text-xs font-bold text-rose-600 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <X className="h-3.5 w-3.5" /> Reject
+                  </button>
+                  {s.status !== 'pending' && (
+                    <button
+                      onClick={() => decide(s.id, 'pending')}
+                      disabled={decidingId === s.id}
+                      className="flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-bold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      <Clock className="h-3.5 w-3.5" /> Reset
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {stats && (
         <>
