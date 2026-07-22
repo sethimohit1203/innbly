@@ -31,6 +31,7 @@ export const hostFormSchema = z.object({
 export type HostFormValues = z.infer<typeof hostFormSchema>
 
 async function uploadFiles(files: File[], prefix: string): Promise<string[]> {
+  if (!supabase) throw new Error('Listing submissions are temporarily unavailable. Please try again later.')
   const urls: string[] = []
   for (const file of files) {
     const path = `${prefix}/${Date.now()}-${crypto.randomUUID()}-${file.name}`
@@ -43,6 +44,8 @@ async function uploadFiles(files: File[], prefix: string): Promise<string[]> {
 }
 
 export async function submitHostListing(values: HostFormValues) {
+  if (!supabase) throw new Error('Listing submissions are temporarily unavailable. Please try again later.')
+
   const [photoUrls, documentUrls] = await Promise.all([
     uploadFiles(values.photos, 'photos'),
     uploadFiles(values.documents, 'documents'),
