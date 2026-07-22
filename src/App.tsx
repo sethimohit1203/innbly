@@ -1,30 +1,45 @@
+import { Suspense, lazy } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { Navbar } from './components/Navbar'
 import { AuthModal } from './components/AuthModal'
-import { HomePage } from './pages/Home'
-import { SearchResultsPage } from './pages/SearchResults'
-import { PropertyDetailPage } from './pages/PropertyDetail'
-import { HostDashboardPage } from './pages/HostDashboard'
-import { ListPropertyPage } from './pages/ListProperty'
-import { ContactPage } from './pages/Contact'
-import { PrivacyPage } from './pages/Privacy'
-import { TermsPage } from './pages/Terms'
-import { SavedPropertiesPage } from './pages/SavedProperties'
 import { HostOnlyRoute } from './components/HostOnlyRoute'
-import { EnterpriseHomePage } from './pages/enterprise/EnterpriseHome'
-import { EnterpriseSearchPage } from './pages/enterprise/EnterpriseSearch'
-import { EnterpriseDashboardPage } from './pages/enterprise/EnterpriseDashboard'
-import { AdminPage } from './pages/Admin'
-import { ComparePage } from './pages/Compare'
-import { HostProfilePage } from './pages/HostProfile'
 import { MobileBottomNav } from './components/MobileBottomNav'
 import { QuickMatchAssistant } from './components/QuickMatchAssistant'
+import { HomePage } from './pages/Home'
+
+// Everything below Home is lazy-loaded — Home is the most common landing
+// page and stays in the main bundle; every other route (including the
+// heavier react-hook-form/zod/Supabase-powered host form and the
+// self-contained /enterprise demo area) only downloads when visited.
+const SearchResultsPage = lazy(() => import('./pages/SearchResults').then((m) => ({ default: m.SearchResultsPage })))
+const PropertyDetailPage = lazy(() => import('./pages/PropertyDetail').then((m) => ({ default: m.PropertyDetailPage })))
+const HostDashboardPage = lazy(() => import('./pages/HostDashboard').then((m) => ({ default: m.HostDashboardPage })))
+const ListPropertyPage = lazy(() => import('./pages/ListProperty').then((m) => ({ default: m.ListPropertyPage })))
+const ContactPage = lazy(() => import('./pages/Contact').then((m) => ({ default: m.ContactPage })))
+const PrivacyPage = lazy(() => import('./pages/Privacy').then((m) => ({ default: m.PrivacyPage })))
+const TermsPage = lazy(() => import('./pages/Terms').then((m) => ({ default: m.TermsPage })))
+const SavedPropertiesPage = lazy(() => import('./pages/SavedProperties').then((m) => ({ default: m.SavedPropertiesPage })))
+const EnterpriseHomePage = lazy(() => import('./pages/enterprise/EnterpriseHome').then((m) => ({ default: m.EnterpriseHomePage })))
+const EnterpriseSearchPage = lazy(() => import('./pages/enterprise/EnterpriseSearch').then((m) => ({ default: m.EnterpriseSearchPage })))
+const EnterpriseDashboardPage = lazy(() => import('./pages/enterprise/EnterpriseDashboard').then((m) => ({ default: m.EnterpriseDashboardPage })))
+const AdminPage = lazy(() => import('./pages/Admin').then((m) => ({ default: m.AdminPage })))
+const ComparePage = lazy(() => import('./pages/Compare').then((m) => ({ default: m.ComparePage })))
+const HostProfilePage = lazy(() => import('./pages/HostProfile').then((m) => ({ default: m.HostProfilePage })))
+
+function RouteLoading() {
+  return (
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-primary-600" />
+    </div>
+  )
+}
 
 export default function App() {
   return (
     <div className="flex min-h-screen flex-col bg-slate-50">
       <Navbar />
       <main className="flex-1 pb-16 md:pb-0">
+        <Suspense fallback={<RouteLoading />}>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/search" element={<SearchResultsPage />} />
@@ -56,6 +71,7 @@ export default function App() {
           <Route path="/compare" element={<ComparePage />} />
           <Route path="/host/:id" element={<HostProfilePage />} />
         </Routes>
+        </Suspense>
       </main>
       <AuthModal />
       <MobileBottomNav />

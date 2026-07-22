@@ -13,6 +13,7 @@ test.describe('Phase 1 discovery & booking features', () => {
     await page.goto('/')
     await page.getByRole('link', { name: 'Corporate' }).first().click()
     await expect(page).toHaveURL(/collection=corporate/)
+    await expect(page.getByText('Showing: Corporate')).toBeVisible()
     await expect(page.getByText(/Sunrise Coliving/i)).toBeVisible()
   })
 
