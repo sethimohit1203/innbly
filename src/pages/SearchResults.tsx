@@ -1,22 +1,28 @@
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { ChevronDown, SlidersHorizontal, BellPlus, SearchX } from 'lucide-react'
+import { ChevronDown, SlidersHorizontal, BellPlus, SearchX, Map as MapIcon, List } from 'lucide-react'
 import { INDIAN_STATES } from '../data/states'
 import { PropertyCard } from '../components/PropertyCard'
 import { MapPlaceholder } from '../components/MapPlaceholder'
 import { PropertyTypeScroller } from '../components/PropertyTypeScroller'
 import { DateRangePicker } from '../components/DateRangePicker'
 import { Reveal } from '../components/Reveal'
-import { getQuickFilter } from '../data/quickFilters'
+import { SearchSummary } from '../components/SearchSummary'
+import { SortDropdown, type SortOption } from '../components/SortDropdown'
+import { QuickViewModal } from '../components/QuickViewModal'
+import { MobileFilterSheet } from '../components/MobileFilterSheet'
+import { getQuickFilter, QUICK_FILTERS } from '../data/quickFilters'
 import { useSavedSearch } from '../context/SavedSearchContext'
 import { useToast } from '../context/ToastContext'
 import { useProperties } from '../context/PropertiesContext'
 import { usePageMeta } from '../hooks/usePageMeta'
-import type { PropertyType } from '../types'
+import type { Property, PropertyType } from '../types'
 
 const ALL_AMENITIES = ['Wi-Fi', 'AC', 'Meals', 'Housekeeping', 'Parking', 'Gym', 'Pool', 'Power Backup']
 
 const MAX_BUDGET = 10000
+
+const SUGGESTED_FILTER_SLUGS = ['budget-picks', 'top-rated', 'near-metro', 'family-stay']
 
 function BudgetSlider({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   return (
@@ -108,7 +114,7 @@ function SelectFilter({
 }
 
 export function SearchResultsPage() {
-  usePageMeta('Search Stays', 'Search verified PGs, coliving spaces, and rentals by city, budget, guests, and amenities on innbly.')
+  usePageMeta('Search Stays', 'Search verified villas, farmhouses, PGs, and homestays by city, budget, guests, and amenities on innbly.')
   const [searchParams] = useSearchParams()
   const { addSavedSearch } = useSavedSearch()
   const { showToast } = useToast()
@@ -127,13 +133,17 @@ export function SearchResultsPage() {
   const [verifiedOnly, setVerifiedOnly] = useState(false)
   const [checkIn, setCheckIn] = useState<string | null>(searchParams.get('checkIn'))
   const [checkOut, setCheckOut] = useState<string | null>(searchParams.get('checkOut'))
-  const [collectionSlug] = useState(searchParams.get('collection'))
+  const [collectionSlug, setCollectionSlug] = useState(searchParams.get('collection'))
   const [freeTextQuery] = useState(searchParams.get('q') ?? '')
+  const [sort, setSort] = useState<SortOption>('recommended')
+  const [quickViewProperty, setQuickViewProperty] = useState<Property | null>(null)
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
+  const [mobileMapOpen, setMobileMapOpen] = useState(false)
 
   const collection = getQuickFilter(collectionSlug)
 
   const filtered = useMemo(() => {
-    return properties.filter((p) => {
+    const result = properties.filter((p) => {
       if (freeTextQuery) {
         const haystack = `${p.title} ${p.city} ${p.neighborhood}`.toLowerCase()
         if (!haystack.includes(freeTextQuery.toLowerCase())) return false
@@ -152,7 +162,20 @@ export function SearchResultsPage() {
       if (collection && !collection.predicate(p)) return false
       return true
     })
-  }, [properties, city, state, guests, budget, tenantPref, propertyType, amenities, stayDuration, verifiedOnly, collection, freeTextQuery])
+
+    switch (sort) {
+      case 'rating':
+        return [...result].sort((a, b) => b.rating - a.rating || b.reviewCount - a.reviewCount)
+      case 'price-low':
+        return [...result].sort((a, b) => a.price - b.price)
+      case 'price-high':
+        return [...result].sort((a, b) => b.price - a.price)
+      case 'luxury':
+        return [...result].sort((a, b) => b.price - a.price || b.rating - a.rating)
+      default:
+        return result
+    }
+  }, [properties, city, state, guests, budget, tenantPref, propertyType, amenities, stayDuration, verifiedOnly, collection, freeTextQuery, sort])
 
   const handleSaveSearch = () => {
     const parts = [
@@ -170,9 +193,94 @@ export function SearchResultsPage() {
     showToast('Search saved! You can manage alerts from your saved searches.')
   }
 
+  const clearAllFilters = () => {
+    setCity('all')
+    setState('all')
+    setGuests('all')
+    setBudget(MAX_BUDGET)
+    setTenantPref('all')
+    setPropertyType('all')
+    setAmenities([])
+    setStayDuration('all')
+    setVerifiedOnly(false)
+    setCollectionSlug(null)
+  }
+
+  const filterControls = (stacked: boolean) => (
+    <div className={stacked ? 'flex flex-col gap-4' : 'flex flex-wrap items-center gap-2.5'}>
+      <div className={stacked ? 'w-full' : 'w-full max-w-xs sm:w-56'}>
+        <DateRangePicker checkIn={checkIn} checkOut={checkOut} onChange={(a, b) => { setCheckIn(a); setCheckOut(b) }} />
+      </div>
+      {!stacked && (
+        <span className="flex shrink-0 items-center gap-1.5 text-sm font-semibold text-slate-500">
+          <SlidersHorizontal className="h-4 w-4" /> Filters:
+        </span>
+      )}
+      <SelectFilter label="📍 Location" value={city} onChange={setCity} options={cities.map((c) => ({ value: c, label: c }))} />
+      <SelectFilter label="🗺️ State" value={state} onChange={setState} options={INDIAN_STATES.map((s) => ({ value: s, label: s }))} />
+      <SelectFilter
+        label="🧑‍🤝‍🧑 Guests"
+        value={guests}
+        onChange={setGuests}
+        options={[
+          { value: '1', label: '1 Guest' },
+          { value: '2', label: '2 Guests' },
+          { value: '4', label: '4 Guests' },
+          { value: '6', label: '6+ Guests' },
+        ]}
+      />
+      <BudgetSlider value={budget} onChange={setBudget} />
+      <SelectFilter
+        label="👤 Tenant"
+        value={tenantPref}
+        onChange={setTenantPref}
+        options={[
+          { value: 'Anyone', label: 'Co-ed / Anyone' },
+          { value: 'Boys', label: 'Boys Only' },
+          { value: 'Girls', label: 'Girls Only' },
+          { value: 'Family', label: 'Family' },
+        ]}
+      />
+      <MultiSelectFilter label="🛎️ Amenity" values={amenities} options={ALL_AMENITIES} onToggle={toggleAmenity} />
+      <SelectFilter
+        label="📅 Stay Length"
+        value={stayDuration}
+        onChange={setStayDuration}
+        options={[
+          { value: 'short', label: 'Short Stay (< 1 week)' },
+          { value: 'weekly', label: 'Weekly' },
+          { value: 'monthly', label: 'Monthly+' },
+        ]}
+      />
+      <div className={stacked ? 'flex items-center justify-between' : 'ml-auto flex items-center gap-3'}>
+        {!stacked && (
+          <button
+            onClick={handleSaveSearch}
+            className="flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-600 transition hover:border-primary-300 hover:text-primary-700"
+          >
+            <BellPlus className="h-3.5 w-3.5" /> Save Search
+          </button>
+        )}
+        <span className="text-xs font-bold text-slate-500">Verified Only</span>
+        <label className="relative inline-flex cursor-pointer items-center">
+          <input type="checkbox" checked={verifiedOnly} onChange={(e) => setVerifiedOnly(e.target.checked)} className="peer sr-only" />
+          <div className="peer h-5 w-9 rounded-full bg-slate-200 transition-all after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:border after:border-slate-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white" />
+        </label>
+      </div>
+      {stacked && (
+        <button
+          onClick={handleSaveSearch}
+          className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 px-3 py-2.5 text-xs font-bold text-slate-600"
+        >
+          <BellPlus className="h-3.5 w-3.5" /> Save This Search
+        </button>
+      )}
+    </div>
+  )
+
   return (
     <section>
-      <h1 className="sr-only">Search PGs, coliving spaces, and rentals</h1>
+      <h1 className="sr-only">Search villas, farmhouses, PGs, and homestays</h1>
 
       {/* Sticky search & filter bar — stays fixed directly beneath the sticky brand header */}
       <div className="sticky top-20 z-30 space-y-3 border-b border-slate-200 bg-white px-4 py-4 shadow-sm sm:px-6">
@@ -182,84 +290,23 @@ export function SearchResultsPage() {
               Showing: {collection.label}
             </div>
           )}
-          <div className="mb-3 flex flex-wrap items-center gap-2.5">
-            <div className="w-full max-w-xs sm:w-56">
-              <DateRangePicker checkIn={checkIn} checkOut={checkOut} onChange={(a, b) => { setCheckIn(a); setCheckOut(b) }} />
-            </div>
-            <span className="flex shrink-0 items-center gap-1.5 text-sm font-semibold text-slate-500">
-              <SlidersHorizontal className="h-4 w-4" /> Filters:
-            </span>
-            <SelectFilter label="📍 Location" value={city} onChange={setCity} options={cities.map((c) => ({ value: c, label: c }))} />
-            <SelectFilter
-              label="🗺️ State"
-              value={state}
-              onChange={setState}
-              options={INDIAN_STATES.map((s) => ({ value: s, label: s }))}
-            />
-            <SelectFilter
-              label="🧑‍🤝‍🧑 Guests"
-              value={guests}
-              onChange={setGuests}
-              options={[
-                { value: '1', label: '1 Guest' },
-                { value: '2', label: '2 Guests' },
-                { value: '4', label: '4 Guests' },
-                { value: '6', label: '6+ Guests' },
-              ]}
-            />
-            <BudgetSlider value={budget} onChange={setBudget} />
-            <SelectFilter
-              label="👤 Tenant"
-              value={tenantPref}
-              onChange={setTenantPref}
-              options={[
-                { value: 'Anyone', label: 'Co-ed / Anyone' },
-                { value: 'Boys', label: 'Boys Only' },
-                { value: 'Girls', label: 'Girls Only' },
-                { value: 'Family', label: 'Family' },
-              ]}
-            />
-            <MultiSelectFilter label="🛎️ Amenity" values={amenities} options={ALL_AMENITIES} onToggle={toggleAmenity} />
-            <SelectFilter
-              label="📅 Stay Length"
-              value={stayDuration}
-              onChange={setStayDuration}
-              options={[
-                { value: 'short', label: 'Short Stay (< 1 week)' },
-                { value: 'weekly', label: 'Weekly' },
-                { value: 'monthly', label: 'Monthly+' },
-              ]}
-            />
-            <div className="ml-auto flex items-center gap-3">
-              <button
-                onClick={handleSaveSearch}
-                className="flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-600 transition hover:border-primary-300 hover:text-primary-700"
-              >
-                <BellPlus className="h-3.5 w-3.5" /> Save Search
-              </button>
-              <span className="text-xs font-bold text-slate-500">Verified Only</span>
-              <label className="relative inline-flex cursor-pointer items-center">
-                <input
-                  type="checkbox"
-                  checked={verifiedOnly}
-                  onChange={(e) => setVerifiedOnly(e.target.checked)}
-                  className="peer sr-only"
-                />
-                <div className="peer h-5 w-9 rounded-full bg-slate-200 transition-all after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:border after:border-slate-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white" />
-              </label>
+          <div className="mb-3 hidden sm:block">{filterControls(false)}</div>
+          <PropertyTypeScroller active={propertyType} onChange={setPropertyType} />
+          <div className="mt-3 flex items-center justify-between gap-3">
+            <SearchSummary properties={filtered} />
+            <div className="hidden shrink-0 items-center gap-2 sm:flex">
+              <SortDropdown value={sort} onChange={setSort} />
             </div>
           </div>
-          <PropertyTypeScroller active={propertyType} onChange={setPropertyType} />
         </div>
       </div>
 
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-5 sm:px-6 md:flex-row">
         <div className="md:w-3/5">
-          <p className="mb-4 text-sm font-semibold text-slate-500">{filtered.length} stays found</p>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             {filtered.map((p, i) => (
               <Reveal key={p.id} delay={(i % 4) * 0.05}>
-                <PropertyCard property={p} />
+                <PropertyCard property={p} onQuickView={setQuickViewProperty} />
               </Reveal>
             ))}
           </div>
@@ -272,6 +319,26 @@ export function SearchResultsPage() {
               <p className="mt-1 max-w-xs text-sm text-slate-400">
                 Try widening your budget, clearing an amenity, or choosing a nearby city.
               </p>
+              <button
+                onClick={clearAllFilters}
+                className="mt-5 rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-bold text-white shadow-card transition hover:bg-primary-700"
+              >
+                Clear all filters
+              </button>
+              <div className="mt-6 flex flex-wrap justify-center gap-2">
+                {QUICK_FILTERS.filter((f) => SUGGESTED_FILTER_SLUGS.includes(f.slug)).map((f) => (
+                  <button
+                    key={f.slug}
+                    onClick={() => {
+                      clearAllFilters()
+                      setCollectionSlug(f.slug)
+                    }}
+                    className="rounded-full border border-slate-200 px-3.5 py-1.5 text-xs font-bold text-slate-600 transition hover:border-primary-300 hover:text-primary-700"
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </div>
@@ -282,6 +349,47 @@ export function SearchResultsPage() {
           </div>
         </div>
       </div>
+
+      {/* Mobile: floating filter + map toggle, above the bottom nav bar */}
+      <div className="fixed bottom-20 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 sm:hidden">
+        <button
+          onClick={() => setMobileFiltersOpen(true)}
+          className="flex items-center gap-1.5 rounded-full bg-slate-900 px-5 py-3 text-xs font-bold text-white shadow-xl"
+        >
+          <SlidersHorizontal className="h-3.5 w-3.5" /> Filters
+        </button>
+        <button
+          onClick={() => setMobileMapOpen(true)}
+          className="flex items-center gap-1.5 rounded-full bg-white px-5 py-3 text-xs font-bold text-slate-800 shadow-xl ring-1 ring-slate-200"
+        >
+          <MapIcon className="h-3.5 w-3.5" /> Map
+        </button>
+      </div>
+
+      <MobileFilterSheet open={mobileFiltersOpen} onClose={() => setMobileFiltersOpen(false)} resultCount={filtered.length}>
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-xs font-bold text-slate-500">Sort by</span>
+          <SortDropdown value={sort} onChange={setSort} />
+        </div>
+        {filterControls(true)}
+      </MobileFilterSheet>
+
+      {mobileMapOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col bg-white sm:hidden">
+          <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+            <span className="text-sm font-extrabold text-slate-900">{filtered.length} stays on map</span>
+            <button
+              onClick={() => setMobileMapOpen(false)}
+              className="flex items-center gap-1.5 rounded-full bg-slate-900 px-4 py-2 text-xs font-bold text-white"
+            >
+              <List className="h-3.5 w-3.5" /> List
+            </button>
+          </div>
+          <MapPlaceholder className="flex-1" label={`${filtered.length} pins on map`} />
+        </div>
+      )}
+
+      <QuickViewModal property={quickViewProperty} onClose={() => setQuickViewProperty(null)} />
     </section>
   )
 }

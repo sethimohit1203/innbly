@@ -18,7 +18,7 @@ test.describe('Core navigation & pages', () => {
     await page.goto('/search')
     await expect(page.getByText(/stays found/i)).toBeVisible()
     await page.getByRole('button', { name: 'Villas', exact: true }).click()
-    await expect(page.getByText('1 stays found')).toBeVisible()
+    await expect(page.getByText('1 stay found')).toBeVisible()
     await expect(page.getByText(/Palm Grove Villa/i)).toBeVisible()
   })
 

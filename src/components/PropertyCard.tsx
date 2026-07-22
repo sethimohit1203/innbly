@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { MapPin, BadgeCheck, Star, Users, Heart, Zap, Wifi, TrainFront, ShieldCheck, Scale, Crown } from 'lucide-react'
+import { MapPin, BadgeCheck, Star, Users, Heart, Zap, Wifi, TrainFront, ShieldCheck, Scale, Sparkles, Eye } from 'lucide-react'
 import type { Property } from '../types'
 import { useSavedProperties } from '../context/SavedPropertiesContext'
 import { useCompare } from '../context/CompareContext'
@@ -14,7 +14,7 @@ const AVAILABILITY_STYLES: Record<Property['availabilityStatus'], string> = {
 
 const MotionLink = motion(Link)
 
-export function PropertyCard({ property }: { property: Property }) {
+export function PropertyCard({ property, onQuickView }: { property: Property; onQuickView?: (p: Property) => void }) {
   const { isSaved, toggleSaved } = useSavedProperties()
   const { isComparing, toggleCompare, compareIds } = useCompare()
   const [imageIndex, setImageIndex] = useState(0)
@@ -22,7 +22,7 @@ export function PropertyCard({ property }: { property: Property }) {
 
   const previewImages = property.images.slice(0, 3)
   const nearestMetro = property.landmarks.find((l) => l.type === 'Metro')
-  const isSuperhost = property.rating >= 4.8 && property.reviewCount >= 100
+  const isGuestFavourite = property.rating >= 4.8 && property.reviewCount >= 100
 
   const startSlideshow = () => {
     if (previewImages.length <= 1) return
@@ -82,10 +82,22 @@ export function PropertyCard({ property }: { property: Property }) {
           <Heart className={`h-4 w-4 ${isSaved(property.id) ? 'fill-rose-500 text-rose-500' : 'text-slate-600'}`} />
         </button>
 
+        {onQuickView && (
+          <button
+            onClick={(e) => {
+              e.preventDefault()
+              onQuickView(property)
+            }}
+            className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-1.5 rounded-full bg-white/95 px-4 py-2 text-xs font-bold text-slate-800 opacity-0 shadow-lg backdrop-blur-md transition-all group-hover:opacity-100"
+          >
+            <Eye className="h-3.5 w-3.5" /> Quick View
+          </button>
+        )}
+
         <div className="absolute bottom-3 right-3 flex flex-col items-end gap-1.5">
-          {isSuperhost && (
+          {isGuestFavourite && (
             <span className="flex items-center gap-1 rounded-full bg-amber-500/95 px-3 py-1 text-[10px] font-bold text-white backdrop-blur-md">
-              <Crown className="h-3 w-3" /> Superhost
+              <Sparkles className="h-3 w-3" /> Guest Favourite
             </span>
           )}
           {property.verified && (
