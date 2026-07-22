@@ -28,7 +28,7 @@ test.describe('Nightly pricing & guest-based booking', () => {
     await page.goto('/property/p1')
 
     await expect(page.getByText('Up to 3 guests').first()).toBeVisible()
-    await expect(page.getByText('/night')).toBeVisible()
+    await expect(page.getByText('/night').first()).toBeVisible()
 
     await expect(page.getByRole('heading', { name: 'Meet your host' })).toBeVisible()
     await expect(page.getByText('Rahul Mehta').first()).toBeVisible()

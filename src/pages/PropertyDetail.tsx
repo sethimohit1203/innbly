@@ -38,6 +38,9 @@ import {
   Volume2,
   PartyPopper,
   CalendarX2,
+  Scale,
+  Lock,
+  Headset,
 } from 'lucide-react'
 import { MapPlaceholder } from '../components/MapPlaceholder'
 import { Footer } from '../components/Footer'
@@ -49,6 +52,7 @@ import { Reveal } from '../components/Reveal'
 import { FAQAccordion } from '../components/FAQAccordion'
 import { useSavedProperties } from '../context/SavedPropertiesContext'
 import { useRecentlyViewed } from '../context/RecentlyViewedContext'
+import { useCompare } from '../context/CompareContext'
 import { useToast } from '../context/ToastContext'
 import { useProperties } from '../context/PropertiesContext'
 import { usePageMeta } from '../hooks/usePageMeta'
@@ -100,6 +104,7 @@ export function PropertyDetailPage() {
   const property = id ? getPropertyById(id) : undefined
   const { isSaved, toggleSaved } = useSavedProperties()
   const { addRecentlyViewed } = useRecentlyViewed()
+  const { isComparing, toggleCompare, compareIds } = useCompare()
   const { showToast } = useToast()
   const [photoIndex, setPhotoIndex] = useState<number | null>(null)
   const [descExpanded, setDescExpanded] = useState(false)
@@ -148,6 +153,24 @@ export function PropertyDetailPage() {
     `Hi ${property.ownerName}, I'm interested in "${property.title}" listed on innbly. Could you share more details?`,
   )}`
 
+  const handleShare = async () => {
+    const shareData = { title: property.title, text: `Check out ${property.title} on innbly`, url: window.location.href }
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData)
+      } catch {
+        // User cancelled the native share sheet — not an error.
+      }
+      return
+    }
+    try {
+      await navigator.clipboard.writeText(window.location.href)
+      showToast('Link copied to clipboard')
+    } catch {
+      showToast('Could not copy the link — copy it from the address bar instead.', 'error')
+    }
+  }
+
   const nearby = properties.filter((p) => p.id !== property.id && p.city === property.city)
   const recommendations = (nearby.length >= 3 ? nearby : properties.filter((p) => p.id !== property.id)).slice(0, 4)
 
@@ -171,8 +194,20 @@ export function PropertyDetailPage() {
             <Heart className={`h-4 w-4 ${saved ? 'fill-rose-500 text-rose-500' : ''}`} />
             {saved ? 'Saved' : 'Save'}
           </button>
-          <button className="flex items-center gap-1.5 rounded-full border border-slate-300 px-3.5 py-1.5 text-sm font-medium text-slate-600 transition hover:border-slate-400">
+          <button
+            onClick={handleShare}
+            className="flex items-center gap-1.5 rounded-full border border-slate-300 px-3.5 py-1.5 text-sm font-medium text-slate-600 transition hover:border-slate-400"
+          >
             <Share2 className="h-4 w-4" /> Share
+          </button>
+          <button
+            onClick={() => toggleCompare(property.id)}
+            disabled={!isComparing(property.id) && compareIds.length >= 3}
+            className={`flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-40 ${
+              isComparing(property.id) ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-slate-300 text-slate-600 hover:border-slate-400'
+            }`}
+          >
+            <Scale className="h-4 w-4" /> {isComparing(property.id) ? 'Added to Compare' : 'Compare'}
           </button>
         </div>
       </div>
@@ -313,7 +348,7 @@ export function PropertyDetailPage() {
           </div>
 
           {/* Description */}
-          <div className="mt-6 border-t border-slate-200 pt-6">
+          <Reveal className="mt-6 border-t border-slate-200 pt-6">
             <h2 className="mb-2 text-lg font-bold text-slate-900">About this property</h2>
             <p className={`text-sm leading-relaxed text-slate-600 ${descExpanded ? '' : 'line-clamp-4'}`}>
               {property.description}
@@ -324,10 +359,10 @@ export function PropertyDetailPage() {
             >
               {descExpanded ? 'Show less' : 'Read More'}
             </button>
-          </div>
+          </Reveal>
 
           {/* Amenities */}
-          <div className="mt-8 border-t border-slate-200 pt-6">
+          <Reveal className="mt-8 border-t border-slate-200 pt-6">
             <h2 className="mb-4 text-lg font-bold text-slate-900">Amenities</h2>
             <div className="space-y-5">
               {Object.entries(amenityGroups).map(([group, items]) => {
@@ -351,10 +386,10 @@ export function PropertyDetailPage() {
                 )
               })}
             </div>
-          </div>
+          </Reveal>
 
           {/* Location */}
-          <div className="mt-8 border-t border-slate-200 pt-6">
+          <Reveal className="mt-8 border-t border-slate-200 pt-6">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-bold text-slate-900">Location & Proximity</h2>
               <span className="rounded-full bg-primary-50 px-3 py-1 text-xs font-bold text-primary-700">
@@ -380,10 +415,10 @@ export function PropertyDetailPage() {
                 </div>
               ))}
             </div>
-          </div>
+          </Reveal>
 
           {/* Host Profile */}
-          <div className="mt-8 border-t border-slate-200 pt-6">
+          <Reveal className="mt-8 border-t border-slate-200 pt-6">
             <h2 className="mb-4 text-lg font-bold text-slate-900">Meet your host</h2>
             <Link
               to={`/host/${encodeURIComponent(property.ownerName)}`}
@@ -404,10 +439,10 @@ export function PropertyDetailPage() {
                 <span className="mt-2 inline-block text-xs font-bold text-primary-600 hover:underline">View host profile →</span>
               </div>
             </Link>
-          </div>
+          </Reveal>
 
           {/* House Rules */}
-          <div className="mt-8 border-t border-slate-200 pt-6">
+          <Reveal className="mt-8 border-t border-slate-200 pt-6">
             <h2 className="mb-4 text-lg font-bold text-slate-900">House Rules</h2>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="flex items-center gap-2 text-sm text-slate-600">
@@ -431,10 +466,10 @@ export function PropertyDetailPage() {
                 </div>
               )}
             </div>
-          </div>
+          </Reveal>
 
           {/* Cancellation Policy */}
-          <div className="mt-8 border-t border-slate-200 pt-6">
+          <Reveal className="mt-8 border-t border-slate-200 pt-6">
             <h2 className="mb-4 text-lg font-bold text-slate-900">Cancellation Policy</h2>
             <div className="flex items-start gap-3 rounded-2xl border border-slate-200 p-5">
               <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${property.freeCancellation ? 'bg-accent-50 text-accent-600' : 'bg-slate-100 text-slate-500'}`}>
@@ -451,7 +486,45 @@ export function PropertyDetailPage() {
                 </p>
               </div>
             </div>
-          </div>
+          </Reveal>
+
+          {/* Trust & Safety */}
+          <Reveal className="mt-8 border-t border-slate-200 pt-6">
+            <h2 className="mb-4 text-lg font-bold text-slate-900">Trust & Safety</h2>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div className="flex items-start gap-2.5 rounded-2xl border border-slate-200 p-4">
+                <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${property.verified ? 'bg-accent-50 text-accent-600' : 'bg-slate-100 text-slate-400'}`}>
+                  <BadgeCheck className="h-4 w-4" />
+                </span>
+                <div>
+                  <p className="text-sm font-bold text-slate-900">{property.verified ? 'Verified Listing' : 'Pending Verification'}</p>
+                  <p className="mt-0.5 text-xs text-slate-500">
+                    {property.verified ? "Reviewed and approved by innbly's team." : 'This listing is awaiting a verification review.'}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2.5 rounded-2xl border border-slate-200 p-4">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-600">
+                  <Lock className="h-4 w-4" />
+                </span>
+                <div>
+                  <p className="text-sm font-bold text-slate-900">Secure Communication</p>
+                  <p className="mt-0.5 text-xs text-slate-500">Message the host directly — your phone number stays private.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2.5 rounded-2xl border border-slate-200 p-4">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500">
+                  <Headset className="h-4 w-4" />
+                </span>
+                <div>
+                  <p className="text-sm font-bold text-slate-900">Need Help?</p>
+                  <Link to="/contact" className="mt-0.5 block text-xs font-semibold text-primary-600 hover:underline">
+                    Contact innbly Support →
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </Reveal>
         </div>
 
         {/* RIGHT COLUMN 35% - sticky booking card */}
@@ -517,7 +590,7 @@ export function PropertyDetailPage() {
       </div>
 
       {/* Reviews */}
-      <div className="mt-12 border-t border-slate-200 pt-8">
+      <Reveal className="mt-12 border-t border-slate-200 pt-8">
         <h2 className="mb-6 text-2xl font-bold text-slate-900">Ratings & Reviews</h2>
         <div className="flex flex-col gap-10 lg:flex-row">
           <div className="lg:w-2/5">
@@ -579,10 +652,10 @@ export function PropertyDetailPage() {
             ))}
           </div>
         </div>
-      </div>
+      </Reveal>
 
       {/* Property FAQ */}
-      <div className="mt-12 border-t border-slate-200 pt-8">
+      <Reveal className="mt-12 border-t border-slate-200 pt-8">
         <h2 className="mb-6 text-2xl font-bold text-slate-900">Frequently Asked Questions</h2>
         <FAQAccordion
           items={[
@@ -604,19 +677,41 @@ export function PropertyDetailPage() {
             },
           ]}
         />
-      </div>
+      </Reveal>
 
       {/* More Places Nearby */}
-      <div className="mt-12 border-t border-slate-200 pt-8">
+      <Reveal className="mt-12 border-t border-slate-200 pt-8">
         <h2 className="mb-6 text-2xl font-bold text-slate-900">More Places Nearby</h2>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {recommendations.map((p) => (
             <PropertyCard key={p.id} property={p} />
           ))}
         </div>
+      </Reveal>
+    </div>
+
+    {/* Mobile sticky booking bar — the right-column card is desktop-only sticky, so
+        mobile gets its own compact bottom bar with the same primary action.
+        Offset above md:hidden so it stacks above the global MobileBottomNav
+        instead of overlapping it below the md breakpoint. */}
+    <div className="fixed inset-x-0 bottom-20 z-40 flex items-center justify-between gap-3 border-t border-slate-200 bg-white/95 px-4 py-3 shadow-[0_-4px_16px_rgba(0,0,0,0.06)] backdrop-blur-md md:bottom-0 lg:hidden">
+      <div>
+        <span className="text-lg font-extrabold text-slate-900">₹{property.price.toLocaleString('en-IN')}</span>
+        <span className="text-sm text-slate-500"> /night</span>
       </div>
+      <a
+        href={whatsappUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-1.5 rounded-xl bg-accent-500 px-5 py-2.5 text-sm font-bold text-white shadow-card transition hover:bg-accent-600"
+      >
+        <MessageCircle className="h-4 w-4" /> Chat with Host
+      </a>
     </div>
     <Footer />
+    {/* Spacer so the fixed mobile booking bar (and, below md, the bottom nav
+        beneath it) never covers the last bit of footer content */}
+    <div className="h-32 md:h-16 lg:hidden" />
     </>
   )
 }
