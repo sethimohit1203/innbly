@@ -27,12 +27,12 @@ test.describe('Nightly pricing & guest-based booking', () => {
   test('property detail shows nightly price, guest badge, host profile, and a working date calendar', async ({ page }) => {
     await page.goto('/property/p1')
 
-    await expect(page.getByText('Up to 3 guests')).toBeVisible()
+    await expect(page.getByText('Up to 3 guests').first()).toBeVisible()
     await expect(page.getByText('/night')).toBeVisible()
 
     await expect(page.getByRole('heading', { name: 'Meet your host' })).toBeVisible()
-    await expect(page.getByText('Rahul Mehta')).toBeVisible()
-    await expect(page.getByText(/Usually responds within/i)).toBeVisible()
+    await expect(page.getByText('Rahul Mehta').first()).toBeVisible()
+    await expect(page.getByText(/Usually responds within/i).first()).toBeVisible()
 
     await page.getByRole('button', { name: /Check-in.*Check-out/ }).click()
     await expect(page.getByText(/January|February|March|April|May|June|July|August|September|October|November|December/)).toBeVisible()

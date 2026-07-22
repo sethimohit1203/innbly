@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import {
   ChevronRight,
+  ChevronLeft,
   Heart,
   Share2,
   Images,
@@ -32,6 +33,11 @@ import {
   ThumbsUp,
   PlayCircle,
   Rotate3d,
+  X,
+  Ban,
+  Volume2,
+  PartyPopper,
+  CalendarX2,
 } from 'lucide-react'
 import { getPropertyById, properties } from '../data/properties'
 import { MapPlaceholder } from '../components/MapPlaceholder'
@@ -40,6 +46,8 @@ import { PropertyCard } from '../components/PropertyCard'
 import { DateRangePicker } from '../components/DateRangePicker'
 import { GuestCounter } from '../components/GuestCounter'
 import { PriceCalendar } from '../components/PriceCalendar'
+import { Reveal } from '../components/Reveal'
+import { FAQAccordion } from '../components/FAQAccordion'
 import { useSavedProperties } from '../context/SavedPropertiesContext'
 import { useRecentlyViewed } from '../context/RecentlyViewedContext'
 import { useToast } from '../context/ToastContext'
@@ -92,7 +100,7 @@ export function PropertyDetailPage() {
   const { isSaved, toggleSaved } = useSavedProperties()
   const { addRecentlyViewed } = useRecentlyViewed()
   const { showToast } = useToast()
-  const [showAllPhotos, setShowAllPhotos] = useState(false)
+  const [photoIndex, setPhotoIndex] = useState<number | null>(null)
   const [descExpanded, setDescExpanded] = useState(false)
   const [tenantType, setTenantType] = useState<TenantPreference>('Anyone')
   const [checkIn, setCheckIn] = useState<string | null>(null)
@@ -104,6 +112,18 @@ export function PropertyDetailPage() {
     if (property) addRecentlyViewed(property.id)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [property?.id])
+
+  useEffect(() => {
+    if (photoIndex === null || !property) return
+    const onKey = (e: KeyboardEvent) => {
+      const count = property.images.length
+      if (e.key === 'Escape') setPhotoIndex(null)
+      if (e.key === 'ArrowRight') setPhotoIndex((i) => (i === null ? i : (i + 1) % count))
+      if (e.key === 'ArrowLeft') setPhotoIndex((i) => (i === null ? i : (i - 1 + count) % count))
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [photoIndex, property])
 
   usePageMeta(
     property ? `${property.title} for Rent in ${property.neighborhood}, ${property.city}` : 'Property not found',
@@ -158,21 +178,23 @@ export function PropertyDetailPage() {
 
       {/* Hero media grid */}
       <div className="relative mb-8 grid h-[420px] grid-cols-5 grid-rows-2 gap-2 overflow-hidden rounded-2xl">
-        <img
-          src={property.images[0]}
-          alt={property.title}
-          className="col-span-3 row-span-2 h-full w-full object-cover transition hover:brightness-95"
-        />
-        {property.images.slice(1, 5).map((img, i) => (
+        <button
+          onClick={() => setPhotoIndex(0)}
+          className="col-span-3 row-span-2 h-full w-full overflow-hidden"
+        >
           <img
-            key={i}
-            src={img}
-            alt=""
-            className="col-span-1 h-full w-full object-cover transition hover:brightness-95"
+            src={property.images[0]}
+            alt={property.title}
+            className="h-full w-full object-cover transition hover:brightness-95"
           />
+        </button>
+        {property.images.slice(1, 5).map((img, i) => (
+          <button key={i} onClick={() => setPhotoIndex(i + 1)} className="col-span-1 h-full w-full overflow-hidden">
+            <img src={img} alt="" className="h-full w-full object-cover transition hover:brightness-95" />
+          </button>
         ))}
         <button
-          onClick={() => setShowAllPhotos(true)}
+          onClick={() => setPhotoIndex(0)}
           className="absolute bottom-4 right-4 flex items-center gap-1.5 rounded-full bg-white/95 px-4 py-2 text-sm font-semibold text-slate-800 shadow-card-hover transition hover:bg-white"
         >
           <Images className="h-4 w-4" /> View all photos
@@ -196,16 +218,48 @@ export function PropertyDetailPage() {
         </button>
       </div>
 
-      {showAllPhotos && (
+      {photoIndex !== null && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 p-4 animate-fade-in"
-          onClick={() => setShowAllPhotos(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/95 p-4 animate-fade-in"
+          onClick={() => setPhotoIndex(null)}
         >
-          <div className="grid max-h-full max-w-4xl grid-cols-2 gap-3 overflow-y-auto">
-            {property.images.map((img, i) => (
-              <img key={i} src={img} alt="" className="w-full rounded-xl object-cover" />
-            ))}
-          </div>
+          <button
+            onClick={() => setPhotoIndex(null)}
+            className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+          >
+            <X className="h-5 w-5" />
+          </button>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              setPhotoIndex((i) => (i === null ? i : (i - 1 + property.images.length) % property.images.length))
+            }}
+            className="absolute left-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 sm:left-8"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+
+          <img
+            src={property.images[photoIndex]}
+            alt=""
+            onClick={(e) => e.stopPropagation()}
+            className="max-h-[80vh] max-w-4xl rounded-xl object-contain"
+          />
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              setPhotoIndex((i) => (i === null ? i : (i + 1) % property.images.length))
+            }}
+            className="absolute right-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 sm:right-8"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+
+          <span className="absolute bottom-6 left-1/2 -translate-x-1/2 text-sm font-semibold text-white/80">
+            {photoIndex + 1} / {property.images.length}
+          </span>
         </div>
       )}
 
@@ -350,6 +404,53 @@ export function PropertyDetailPage() {
               </div>
             </Link>
           </div>
+
+          {/* House Rules */}
+          <div className="mt-8 border-t border-slate-200 pt-6">
+            <h2 className="mb-4 text-lg font-bold text-slate-900">House Rules</h2>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="flex items-center gap-2 text-sm text-slate-600">
+                <Clock className="h-4 w-4 shrink-0 text-slate-400" /> Check-in / check-out flexible with host
+              </div>
+              <div className="flex items-center gap-2 text-sm text-slate-600">
+                <Users className="h-4 w-4 shrink-0 text-slate-400" /> Up to {property.maxGuests} guest{property.maxGuests > 1 ? 's' : ''}
+              </div>
+              <div className="flex items-center gap-2 text-sm text-slate-600">
+                <Ban className="h-4 w-4 shrink-0 text-slate-400" /> No smoking indoors
+              </div>
+              <div className="flex items-center gap-2 text-sm text-slate-600">
+                <PartyPopper className="h-4 w-4 shrink-0 text-slate-400" /> No parties or events
+              </div>
+              <div className="flex items-center gap-2 text-sm text-slate-600">
+                <Volume2 className="h-4 w-4 shrink-0 text-slate-400" /> Quiet hours 10 PM – 7 AM
+              </div>
+              {property.tenantPreference !== 'Anyone' && (
+                <div className="flex items-center gap-2 text-sm text-slate-600">
+                  <ShieldCheck className="h-4 w-4 shrink-0 text-slate-400" /> This stay is for {property.tenantPreference.toLowerCase()}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Cancellation Policy */}
+          <div className="mt-8 border-t border-slate-200 pt-6">
+            <h2 className="mb-4 text-lg font-bold text-slate-900">Cancellation Policy</h2>
+            <div className="flex items-start gap-3 rounded-2xl border border-slate-200 p-5">
+              <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${property.freeCancellation ? 'bg-accent-50 text-accent-600' : 'bg-slate-100 text-slate-500'}`}>
+                {property.freeCancellation ? <ShieldCheck className="h-4.5 w-4.5" /> : <CalendarX2 className="h-4.5 w-4.5" />}
+              </span>
+              <div>
+                <p className="font-bold text-slate-900">
+                  {property.freeCancellation ? 'Free cancellation before check-in' : 'Non-refundable booking'}
+                </p>
+                <p className="mt-1 text-sm leading-relaxed text-slate-500">
+                  {property.freeCancellation
+                    ? 'Cancel before your check-in date for a full refund of the booking amount. The security deposit is refunded separately by the host at checkout, as agreed.'
+                    : 'This listing does not offer free cancellation. Reach out to the host directly before booking if your plans might change.'}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* RIGHT COLUMN 35% - sticky booking card */}
@@ -477,6 +578,31 @@ export function PropertyDetailPage() {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Property FAQ */}
+      <div className="mt-12 border-t border-slate-200 pt-8">
+        <h2 className="mb-6 text-2xl font-bold text-slate-900">Frequently Asked Questions</h2>
+        <FAQAccordion
+          items={[
+            {
+              q: 'What time is check-in and check-out?',
+              a: `Exact timing is coordinated directly with ${property.ownerName} once your stay is confirmed — message the host to arrange a time that works for you.`,
+            },
+            {
+              q: 'Is the security deposit refundable?',
+              a: `Yes — the ₹${property.deposit.toLocaleString('en-IN')} security deposit is refundable and returned by the host after checkout, provided the property is left in good condition.`,
+            },
+            {
+              q: 'How quickly will the host respond?',
+              a: `Based on past guest interactions, ${property.ownerName} has a ${property.hostResponseRate}% response rate and typically replies within ${property.hostResponseTime.replace(/^Usually responds within /i, '')}.`,
+            },
+            {
+              q: 'Can I bring more guests than listed?',
+              a: `This space is set up for up to ${property.maxGuests} guest${property.maxGuests > 1 ? 's' : ''}. Message the host before booking if you need to bring more.`,
+            },
+          ]}
+        />
       </div>
 
       {/* More Places Nearby */}

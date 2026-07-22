@@ -2,7 +2,12 @@ import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-const FAQS = [
+export interface FAQItem {
+  q: string
+  a: string
+}
+
+const DEFAULT_FAQS: FAQItem[] = [
   {
     q: 'Is booking on innbly really instant?',
     a: 'Listings marked "Instant Book" confirm immediately once you submit a request. Others require the host to accept your request first, usually within a few hours.',
@@ -25,12 +30,12 @@ const FAQS = [
   },
 ]
 
-export function FAQAccordion() {
+export function FAQAccordion({ items = DEFAULT_FAQS }: { items?: FAQItem[] }) {
   const [open, setOpen] = useState<number | null>(0)
 
   return (
     <div className="mx-auto max-w-3xl divide-y divide-slate-100 rounded-3xl border border-slate-100 bg-white shadow-card">
-      {FAQS.map((item, i) => {
+      {items.map((item, i) => {
         const isOpen = open === i
         return (
           <div key={item.q}>
