@@ -43,9 +43,13 @@ export function verifyAdminSession(req: ApiRequest): boolean {
 }
 
 export function checkPasscode(candidate: string): boolean {
-  const expected = process.env.ADMIN_PASSCODE
+  const expected = process.env.ADMIN_PASSCODE?.trim()
   if (!expected) return false
-  const a = Buffer.from(candidate)
+  // Trim the candidate too — a stray trailing space/newline (very easy to
+  // introduce when copy-pasting a passcode into a Vercel env var field or
+  // an input box) would otherwise make two "identical-looking" values
+  // fail the length check below and always report "incorrect passcode".
+  const a = Buffer.from(candidate.trim())
   const b = Buffer.from(expected)
   return a.length === b.length && timingSafeEqual(a, b)
 }
