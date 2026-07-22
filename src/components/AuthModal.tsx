@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { X, Building2 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
@@ -7,15 +8,21 @@ import { GoogleSignInButton } from './GoogleSignInButton'
 import type { UserRole } from '../types'
 
 export function AuthModal() {
-  const { isModalOpen, closeAuthModal, login } = useAuth()
+  const { isModalOpen, pendingRole, closeAuthModal, login } = useAuth()
   const { showToast } = useToast()
-  // Default assumption: anyone opening this modal came here to book a stay.
-  // Hosting is a single opt-in toggle, not a forced upfront choice.
+  const navigate = useNavigate()
+  // Default assumption: anyone opening this modal came here to book a stay,
+  // unless the caller requested a specific role (e.g. "List Your Property"
+  // opens this pre-set to host). Hosting is a single opt-in toggle otherwise.
   const [role, setRole] = useState<UserRole>('tenant')
   const [mode, setMode] = useState<'signup' | 'login'>('signup')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [submitting, setSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (isModalOpen) setRole(pendingRole)
+  }, [isModalOpen, pendingRole])
 
   if (!isModalOpen) return null
 
@@ -32,32 +39,34 @@ export function AuthModal() {
     const finalName = name || 'Guest User'
     const finalEmail = email || 'guest@innbly.com'
 
-    setSubmitting(true)
-    const result = await submitToSheet('signup', { name: finalName, email: finalEmail, role, method: 'email' })
-    setSubmitting(false)
-
-    if (!result.ok) {
-      showToast(result.error ?? 'Could not sign you up. Please try again.', 'error')
-      return
-    }
-
+    // Sign-in/up here is a local, fake session (see CLAUDE.md auth model) —
+    // it must never depend on the backend logging call succeeding. Log the
+    // signup to the sheet/admin best-effort, but don't block the user from
+    // getting in if that network call is slow or down.
     login({ name: finalName, email: finalEmail, role })
     reset()
+    if (role === 'host') navigate('/dashboard/list-property')
+
+    setSubmitting(true)
+    submitToSheet('signup', { name: finalName, email: finalEmail, role, method: 'email' })
+      .then((result) => {
+        if (!result.ok) showToast(result.error ?? "You're signed in, but we couldn't log this signup.", 'error')
+      })
+      .finally(() => setSubmitting(false))
   }
 
   const handleGoogleSuccess = async (profile: { name: string; email: string }) => {
-    setSubmitting(true)
-    const result = await submitToSheet('signup', { name: profile.name, email: profile.email, role, method: 'google' })
-    setSubmitting(false)
-
-    if (!result.ok) {
-      showToast(result.error ?? 'Could not sign you up. Please try again.', 'error')
-      return
-    }
-
     login({ name: profile.name, email: profile.email, role })
     showToast(`Welcome, ${profile.name.split(' ')[0]}!`)
     reset()
+    if (role === 'host') navigate('/dashboard/list-property')
+
+    setSubmitting(true)
+    submitToSheet('signup', { name: profile.name, email: profile.email, role, method: 'google' })
+      .then((result) => {
+        if (!result.ok) showToast(result.error ?? "You're signed in, but we couldn't log this signup.", 'error')
+      })
+      .finally(() => setSubmitting(false))
   }
 
   return (

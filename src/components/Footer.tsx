@@ -32,8 +32,8 @@ export function Footer() {
               <span className="text-lg font-extrabold tracking-tight text-white">innbly</span>
             </Link>
             <p className="text-sm font-medium leading-relaxed text-slate-400">
-              India's most trusted premium co-living network. Redefining modern stays and private homestays with
-              total price transparency.
+              India's most trusted premium stay & rental network. Redefining modern travel with verified villas,
+              homestays, and total price transparency.
             </p>
             <a
               href={`mailto:${SUPPORT_EMAIL}`}

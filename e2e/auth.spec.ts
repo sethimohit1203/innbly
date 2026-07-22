@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test'
 test.describe('Auth', () => {
   test('tenant signup logs in and unlocks tenant nav', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('button', { name: 'Sign In', exact: true }).click()
+    await page.getByRole('button', { name: 'Sign In / Sign Up', exact: true }).click()
 
     await page.getByPlaceholder('Full name').fill('Playwright Tester')
     await page.getByPlaceholder('Email address').fill('playwright-tester@example.com')

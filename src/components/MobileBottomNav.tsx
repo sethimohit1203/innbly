@@ -39,7 +39,7 @@ export function MobileBottomNav() {
           Profile
         </Link>
       ) : (
-        <button onClick={openAuthModal} className="flex flex-col items-center gap-0.5 px-3 py-1 text-[10px] font-semibold text-slate-500">
+        <button onClick={() => openAuthModal()} className="flex flex-col items-center gap-0.5 px-3 py-1 text-[10px] font-semibold text-slate-500">
           <User className="h-5 w-5" />
           Profile
         </button>

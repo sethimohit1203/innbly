@@ -44,7 +44,7 @@ async function uploadFiles(files: File[], prefix: string): Promise<string[]> {
   return urls
 }
 
-export async function submitHostListing(values: HostFormValues) {
+export async function submitHostListing(values: HostFormValues): Promise<string> {
   if (!supabase) throw new Error('Listing submissions are temporarily unavailable. Please try again later.')
 
   const [photoUrls, documentUrls] = await Promise.all([
@@ -52,7 +52,16 @@ export async function submitHostListing(values: HostFormValues) {
     uploadFiles(values.documents, 'documents'),
   ])
 
+  // Generated client-side (rather than left to the DB default) because the
+  // anon key can only INSERT into host_submissions, not SELECT — so we
+  // can't read back the row's generated id afterwards. Owning the id lets
+  // the host's browser remember "this is mine" (see src/lib/myListings.ts)
+  // without needing a SELECT policy that would otherwise let anyone read
+  // anyone else's submission just by guessing an email.
+  const id = crypto.randomUUID()
+
   const { error } = await supabase.from('host_submissions').insert({
+    id,
     owner_name: values.ownerName,
     owner_email: values.ownerEmail,
     owner_phone: values.ownerPhone,
@@ -92,4 +101,6 @@ export async function submitHostListing(values: HostFormValues) {
     photoUrls,
     documentUrls,
   }).catch(() => {})
+
+  return id
 }

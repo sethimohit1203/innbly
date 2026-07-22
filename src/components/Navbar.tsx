@@ -19,6 +19,11 @@ import { TranslateWidget } from './TranslateWidget'
 export function Navbar() {
   const { user, openAuthModal, logout } = useAuth()
   const navigate = useNavigate()
+
+  const goToListProperty = () => {
+    if (user?.role === 'host') navigate('/dashboard/list-property')
+    else openAuthModal('host')
+  }
   const [mobileOpen, setMobileOpen] = useState(false)
   const [avatarOpen, setAvatarOpen] = useState(false)
 
@@ -72,12 +77,12 @@ export function Navbar() {
           <TranslateWidget />
 
           {!isHost && (
-            <Link
-              to="/dashboard/list-property"
+            <button
+              onClick={goToListProperty}
               className="hidden items-center gap-1.5 rounded-xl bg-primary-600 px-5 py-2.5 text-[14px] font-semibold text-white shadow-lg shadow-primary-600/10 transition-all hover:bg-primary-700 hover:shadow-primary-600/20 active:scale-95 sm:inline-flex"
             >
               <PlusCircle className="h-4 w-4" /> List Your Property
-            </Link>
+            </button>
           )}
 
           {isHost && (
@@ -131,10 +136,10 @@ export function Navbar() {
 
           {!user && (
             <button
-              onClick={openAuthModal}
+              onClick={() => openAuthModal()}
               className="hidden items-center gap-1.5 rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-primary-400 hover:text-primary-700 sm:inline-flex"
             >
-              <User className="h-4 w-4" /> Sign In
+              <User className="h-4 w-4" /> Sign In / Sign Up
             </button>
           )}
 
@@ -184,7 +189,7 @@ export function Navbar() {
               }}
               className="block text-base font-semibold text-slate-700 transition-colors hover:text-primary-600"
             >
-              Sign In
+              Sign In / Sign Up
             </button>
           )}
 
@@ -201,13 +206,15 @@ export function Navbar() {
           )}
 
           {!isHost && (
-            <Link
-              to="/dashboard/list-property"
-              onClick={() => setMobileOpen(false)}
+            <button
+              onClick={() => {
+                goToListProperty()
+                setMobileOpen(false)
+              }}
               className="block w-full rounded-xl bg-primary-600 py-3 text-center font-semibold text-white shadow-lg transition-all hover:bg-primary-700"
             >
               List Your Property
-            </Link>
+            </button>
           )}
         </div>
       )}

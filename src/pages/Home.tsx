@@ -62,8 +62,8 @@ function getRecommended(all: Property[], savedIds: string[], recentIds: string[]
 
 export function HomePage() {
   usePageMeta(
-    'innbly — Verified PGs, Coliving & Rentals',
-    'Search verified PGs, coliving spaces, and rentals across India. Schedule a free visit and chat with hosts instantly on innbly.',
+    'innbly — Verified Villas, Homestays & Rentals',
+    'Search verified villas, farmhouses, PGs, and homestays across India. Book directly and chat with hosts instantly on innbly.',
   )
   const navigate = useNavigate()
   const { properties } = useProperties()
@@ -123,7 +123,7 @@ export function HomePage() {
             className="mx-auto max-w-3xl text-center"
           >
             <span className="mb-6 inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-accent-300 backdrop-blur-md">
-              ★ India's Premium Co-Living Network
+              ★ India's Premium Stay & Rental Network
             </span>
             <h1 className="mb-6 text-4xl font-extrabold leading-[1.1] tracking-tight sm:text-5xl md:text-6xl">
               Find Your Perfect Space. <br />
@@ -132,8 +132,8 @@ export function HomePage() {
               </span>
             </h1>
             <p className="mx-auto mb-2 max-w-2xl text-lg font-medium leading-relaxed text-slate-200">
-              Explore fully furnished, secure, and highly social co-living rooms and vacation homes across prime
-              metropolitan tech hubs.
+              Explore fully furnished, verified villas, farmhouses, PGs, and homestays across India's top
+              destinations and metropolitan hubs.
             </p>
           </motion.div>
 
@@ -250,7 +250,7 @@ export function HomePage() {
                   Discover Curated Properties
                 </h2>
                 <p className="font-medium text-slate-500">
-                  Verified homestays and premium student/executive co-living setups.
+                  Verified villas, homestays, and premium stays for every kind of trip.
                 </p>
               </div>
               <div className="mt-6 flex gap-2.5 overflow-x-auto pb-2 scrollbar-thin sm:pb-0 md:mt-0">

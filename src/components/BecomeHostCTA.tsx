@@ -1,6 +1,7 @@
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ArrowRight, IndianRupee, ShieldCheck, Clock } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
 
 const POINTS = [
   { icon: IndianRupee, text: 'Set your own nightly price and keep control of your calendar' },
@@ -9,6 +10,14 @@ const POINTS = [
 ]
 
 export function BecomeHostCTA() {
+  const { user, openAuthModal } = useAuth()
+  const navigate = useNavigate()
+
+  const goToListProperty = () => {
+    if (user?.role === 'host') navigate('/dashboard/list-property')
+    else openAuthModal('host')
+  }
+
   return (
     <section className="relative overflow-hidden bg-stone-950 py-20 text-white">
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
@@ -33,12 +42,12 @@ export function BecomeHostCTA() {
             Villas, farmhouses, PGs, coliving rooms — if it's stay-ready, it belongs on innbly. List your property and
             start receiving guest inquiries directly.
           </p>
-          <Link
-            to="/dashboard/list-property"
+          <button
+            onClick={goToListProperty}
             className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-accent-500 px-7 py-4 font-bold text-stone-950 shadow-lg transition-all hover:bg-accent-400 active:scale-[0.98]"
           >
             List Your Property <ArrowRight className="h-4 w-4" />
-          </Link>
+          </button>
         </motion.div>
 
         <motion.div

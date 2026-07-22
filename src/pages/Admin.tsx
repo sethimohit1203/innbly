@@ -50,7 +50,14 @@ const SECTIONS: { key: keyof Stats['counts']; label: string; icon: typeof Users;
 export function AdminPage() {
   usePageMeta('Admin Dashboard', 'innbly internal admin dashboard.')
   const [stats, setStats] = useState<Stats | null>(null)
-  const [needsAuth, setNeedsAuth] = useState(false)
+  // Fail closed: until the first auth check resolves, treat the session as
+  // unauthenticated rather than rendering dashboard chrome optimistically.
+  // Previously `needsAuth` defaulted to false and only flipped true on an
+  // exact 401, so a crashing/slow API left the dashboard (including the
+  // Property Approvals panel, which lived outside the `stats &&` guard)
+  // visible with no data and no login form.
+  const [needsAuth, setNeedsAuth] = useState(true)
+  const [authChecked, setAuthChecked] = useState(false)
   const [passcode, setPasscode] = useState('')
   const [loginError, setLoginError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -62,30 +69,37 @@ export function AdminPage() {
 
   const loadStats = async () => {
     setLoading(true)
-    const res = await fetch('/api/admin/stats')
-    if (res.status === 401) {
+    try {
+      const res = await fetch('/api/admin/stats')
+      if (res.ok) {
+        setStats(await res.json())
+        setNeedsAuth(false)
+      } else {
+        // Any non-2xx (401, 500, a crashed function, etc.) — fail closed.
+        setNeedsAuth(true)
+      }
+    } catch {
       setNeedsAuth(true)
+    } finally {
       setLoading(false)
-      return
+      setAuthChecked(true)
     }
-    if (res.ok) {
-      setStats(await res.json())
-      setNeedsAuth(false)
-    }
-    setLoading(false)
   }
 
   const loadSubmissions = async () => {
-    const res = await fetch('/api/admin/host-listings')
-    if (res.status === 401) {
-      setNeedsAuth(true)
-      return
-    }
-    if (res.ok) {
-      const data = await res.json()
-      setSubmissionsConfigured(data.configured !== false)
-      setSubmissionsMessage(data.message ?? null)
-      setSubmissions(data.submissions ?? [])
+    try {
+      const res = await fetch('/api/admin/host-listings')
+      if (res.ok) {
+        const data = await res.json()
+        setSubmissionsConfigured(data.configured !== false)
+        setSubmissionsMessage(data.message ?? null)
+        setSubmissions(data.submissions ?? [])
+      } else if (res.status === 401) {
+        setNeedsAuth(true)
+      }
+    } catch {
+      // Leave submissions null — the "Loading submissions…" state below
+      // covers this; loadStats' own error handling already fails closed.
     }
   }
 
@@ -127,6 +141,14 @@ export function AdminPage() {
     setStats(null)
     setSubmissions(null)
     setNeedsAuth(true)
+  }
+
+  if (!authChecked) {
+    return (
+      <div className="flex min-h-[70vh] items-center justify-center px-4">
+        <RefreshCw className="h-6 w-6 animate-spin text-slate-300" />
+      </div>
+    )
   }
 
   if (needsAuth) {

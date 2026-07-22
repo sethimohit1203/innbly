@@ -7,6 +7,7 @@ import { Footer } from '../components/Footer'
 import { GuestCounter } from '../components/GuestCounter'
 import { usePageMeta } from '../hooks/usePageMeta'
 import { hostFormSchema, submitHostListing, type HostFormValues } from '../lib/hostSubmission'
+import { addMyListingId } from '../lib/myListings'
 import { PROPERTY_TYPES } from '../types'
 
 const ALL_AMENITIES = [
@@ -136,7 +137,8 @@ export function ListPropertyPage() {
     setSubmitting(true)
     setSubmitError(null)
     try {
-      await submitHostListing(data)
+      const id = await submitHostListing(data)
+      addMyListingId(id)
       setDone(true)
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')

@@ -1,16 +1,26 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { PlusCircle, Users, Home, Phone, Calendar } from 'lucide-react'
+import { PlusCircle, Users, Home, Phone, Calendar, Clock } from 'lucide-react'
 import { useLeads } from '../context/LeadsContext'
-import { properties } from '../data/properties'
+import { useProperties } from '../context/PropertiesContext'
+import { getMyListingIds } from '../lib/myListings'
 import { Footer } from '../components/Footer'
 import { usePageMeta } from '../hooks/usePageMeta'
 
 export function HostDashboardPage() {
   usePageMeta('Host Dashboard', 'Manage your property listings and track incoming tenant leads on innbly.')
   const { leads } = useLeads()
-  const [myListings] = useState(properties.slice(0, 2))
+  const { properties } = useProperties()
   const { hash } = useLocation()
+
+  // There's no real per-host backend session (see CLAUDE.md), so "my
+  // listings" is this browser's own submitted IDs (src/lib/myListings.ts),
+  // cross-referenced against the public approved_listings view. An id
+  // submitted but not yet approved shows as "Pending Review" below rather
+  // than being silently missing.
+  const myListingIds = getMyListingIds()
+  const myLiveListings = properties.filter((p) => p.id.startsWith('host-') && myListingIds.includes(p.id.replace('host-', '')))
+  const pendingCount = myListingIds.length - myLiveListings.length
 
   useEffect(() => {
     if (!hash) return
@@ -41,42 +51,61 @@ export function HostDashboardPage() {
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
           <Home className="h-6 w-6 text-primary-600" />
-          <p className="mt-3 text-2xl font-extrabold text-slate-900">{myListings.length}</p>
-          <p className="text-sm text-slate-500">Active listings</p>
+          <p className="mt-3 text-2xl font-extrabold text-slate-900">{myLiveListings.length}</p>
+          <p className="text-sm text-slate-500">Live listings</p>
+        </div>
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
+          <Clock className="h-6 w-6 text-amber-500" />
+          <p className="mt-3 text-2xl font-extrabold text-slate-900">{pendingCount}</p>
+          <p className="text-sm text-slate-500">Pending review</p>
         </div>
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
           <Users className="h-6 w-6 text-accent-600" />
           <p className="mt-3 text-2xl font-extrabold text-slate-900">{leads.length}</p>
           <p className="text-sm text-slate-500">Incoming leads</p>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
-          <Calendar className="h-6 w-6 text-amber-500" />
-          <p className="mt-3 text-2xl font-extrabold text-slate-900">
-            {leads.filter((l) => new Date(l.visitDate.split(' · ')[0]) >= new Date(new Date().toDateString())).length}
-          </p>
-          <p className="text-sm text-slate-500">Upcoming visits</p>
-        </div>
       </div>
 
       <div id="listings" className="mt-10 scroll-mt-24">
         <h2 className="mb-4 text-lg font-bold text-slate-900">My Listings</h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {myListings.map((p) => (
-            <Link
-              key={p.id}
-              to={`/property/${p.id}`}
-              className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-card transition hover:shadow-card-hover"
-            >
-              <img src={p.images[0]} className="h-16 w-20 rounded-xl object-cover" alt={p.title} />
-              <div>
-                <p className="font-semibold text-slate-800">{p.title}</p>
-                <p className="text-sm text-slate-500">
-                  {p.neighborhood}, {p.city} · ₹{p.price.toLocaleString('en-IN')}/night
-                </p>
+        {myListingIds.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-slate-300 py-12 text-center text-slate-400">
+            <p className="font-semibold text-slate-600">You haven't listed a property yet.</p>
+            <p className="mt-1 text-sm">Submissions you make on this browser will show up here.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {myLiveListings.map((p) => (
+              <Link
+                key={p.id}
+                to={`/property/${p.id}`}
+                className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-card transition hover:shadow-card-hover"
+              >
+                <img src={p.images[0]} className="h-16 w-20 rounded-xl object-cover" alt={p.title} />
+                <div>
+                  <p className="font-semibold text-slate-800">{p.title}</p>
+                  <p className="text-sm text-slate-500">
+                    {p.neighborhood}, {p.city} · ₹{p.price.toLocaleString('en-IN')}/night
+                  </p>
+                </div>
+              </Link>
+            ))}
+            {Array.from({ length: pendingCount }).map((_, i) => (
+              <div
+                key={`pending-${i}`}
+                className="flex items-center gap-4 rounded-2xl border border-dashed border-amber-200 bg-amber-50/50 p-4"
+              >
+                <span className="flex h-16 w-20 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-500">
+                  <Clock className="h-6 w-6" />
+                </span>
+                <div>
+                  <p className="font-semibold text-slate-700">Pending Review</p>
+                  <p className="text-sm text-slate-500">An admin hasn't approved this submission yet.</p>
+                </div>
               </div>
-            </Link>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div id="leads" className="mt-10 scroll-mt-24">
