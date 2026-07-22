@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { MapPin, BadgeCheck, Star, Users, Heart, Zap, Wifi, TrainFront, ShieldCheck, Scale } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { MapPin, BadgeCheck, Star, Users, Heart, Zap, Wifi, TrainFront, ShieldCheck, Scale, Crown } from 'lucide-react'
 import type { Property } from '../types'
 import { useSavedProperties } from '../context/SavedPropertiesContext'
 import { useCompare } from '../context/CompareContext'
@@ -11,6 +12,8 @@ const AVAILABILITY_STYLES: Record<Property['availabilityStatus'], string> = {
   Booked: 'bg-slate-700 text-white',
 }
 
+const MotionLink = motion(Link)
+
 export function PropertyCard({ property }: { property: Property }) {
   const { isSaved, toggleSaved } = useSavedProperties()
   const { isComparing, toggleCompare, compareIds } = useCompare()
@@ -19,6 +22,7 @@ export function PropertyCard({ property }: { property: Property }) {
 
   const previewImages = property.images.slice(0, 3)
   const nearestMetro = property.landmarks.find((l) => l.type === 'Metro')
+  const isSuperhost = property.rating >= 4.8 && property.reviewCount >= 100
 
   const startSlideshow = () => {
     if (previewImages.length <= 1) return
@@ -35,22 +39,26 @@ export function PropertyCard({ property }: { property: Property }) {
   useEffect(() => () => stopSlideshow(), [])
 
   return (
-    <Link
+    <MotionLink
       to={`/property/${property.id}`}
       onMouseEnter={startSlideshow}
       onMouseLeave={stopSlideshow}
-      className="group flex flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-card transition-all hover:-translate-y-1 hover:shadow-card-hover"
+      whileHover={{ y: -6 }}
+      transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+      className="group flex flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-card transition-shadow hover:shadow-card-hover"
     >
       <div className="relative h-52 w-full overflow-hidden bg-slate-100">
-        {previewImages.map((src, i) => (
-          <img
-            key={src}
-            src={src}
-            alt={property.title}
-            className="absolute inset-0 h-full w-full object-cover transition-opacity duration-300"
-            style={{ opacity: i === imageIndex ? 1 : 0 }}
-          />
-        ))}
+        <motion.div whileHover={{ scale: 1.08 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }} className="absolute inset-0">
+          {previewImages.map((src, i) => (
+            <img
+              key={src}
+              src={src}
+              alt={property.title}
+              className="absolute inset-0 h-full w-full object-cover transition-opacity duration-300"
+              style={{ opacity: i === imageIndex ? 1 : 0 }}
+            />
+          ))}
+        </motion.div>
 
         {previewImages.length > 1 && (
           <div className="absolute bottom-2.5 left-1/2 flex -translate-x-1/2 gap-1">
@@ -75,6 +83,11 @@ export function PropertyCard({ property }: { property: Property }) {
         </button>
 
         <div className="absolute bottom-3 right-3 flex flex-col items-end gap-1.5">
+          {isSuperhost && (
+            <span className="flex items-center gap-1 rounded-full bg-amber-500/95 px-3 py-1 text-[10px] font-bold text-white backdrop-blur-md">
+              <Crown className="h-3 w-3" /> Superhost
+            </span>
+          )}
           {property.verified && (
             <span className="flex items-center gap-1 rounded-full bg-slate-900/80 px-3 py-1 text-[10px] font-bold text-accent-400 backdrop-blur-md">
               <BadgeCheck className="h-3 w-3" /> Audit Pass
@@ -154,6 +167,6 @@ export function PropertyCard({ property }: { property: Property }) {
           </div>
         </div>
       </div>
-    </Link>
+    </MotionLink>
   )
 }
