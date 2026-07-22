@@ -1,10 +1,11 @@
-type SubmissionType = 'lead' | 'signup' | 'newsletter' | 'contact'
+type SubmissionType = 'lead' | 'signup' | 'newsletter' | 'contact' | 'host-listing'
 
 const ENDPOINTS: Record<SubmissionType, string> = {
   lead: '/api/leads',
   signup: '/api/signup',
   newsletter: '/api/newsletter',
   contact: '/api/contact',
+  'host-listing': '/api/host-listing',
 }
 
 export interface SubmitResult {

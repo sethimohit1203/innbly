@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { supabase } from './supabase'
+import { submitToSheet } from './backend'
 
 export const hostFormSchema = z.object({
   ownerName: z.string().trim().min(2, 'Enter your full name'),
@@ -70,4 +71,25 @@ export async function submitHostListing(values: HostFormValues) {
   })
 
   if (error) throw new Error(error.message)
+
+  // Best-effort mirror to Google Sheets (+ email notification) — Supabase
+  // above is the source of truth, so a Sheets hiccup shouldn't fail the
+  // submission the host already sees as successful.
+  submitToSheet('host-listing', {
+    ownerName: values.ownerName,
+    ownerEmail: values.ownerEmail,
+    ownerPhone: values.ownerPhone,
+    propertyTitle: values.propertyTitle,
+    propertyType: values.propertyType,
+    description: values.description,
+    city: values.city,
+    neighborhood: values.neighborhood,
+    address: values.address,
+    maxGuests: values.maxGuests,
+    pricePerNight: values.pricePerNight,
+    securityDeposit: values.securityDeposit,
+    amenities: values.amenities,
+    photoUrls,
+    documentUrls,
+  }).catch(() => {})
 }

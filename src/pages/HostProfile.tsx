@@ -75,7 +75,7 @@ export function HostProfilePage() {
 
         <div className="mt-10">
           <h2 className="mb-4 text-lg font-bold text-slate-900">{ownerName}'s Listings</h2>
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {listings.map((p) => (
               <PropertyCard key={p.id} property={p} />
             ))}

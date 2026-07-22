@@ -1,9 +1,12 @@
 # innbly Google Sheets backend — setup
 
 This turns a Google Sheet you own into the storage backend for visit
-requests, signups, newsletter subscriptions, and contact messages. It also
-emails `innblysupport@gmail.com` whenever a visit request or contact message
-comes in. No paid services required.
+requests, signups, newsletter subscriptions, and contact messages, and a
+best-effort backup + email notification for host property listings (the
+primary store for listings is Supabase — see `supabase/host_submissions.sql`
+— this Sheet is a secondary copy plus a notification trigger). It also
+emails `innblysupport@gmail.com` whenever a visit request, contact message,
+or host listing comes in. No paid services required — no n8n, no Cloudinary.
 
 The site never talks to this Sheet directly from the browser — all
 submissions go through the site's own `/api/*` serverless functions first
@@ -14,7 +17,8 @@ Web App URL out of the public JS bundle entirely.
 
 1. Go to [sheets.google.com](https://sheets.google.com) and create a new blank spreadsheet.
 2. Name it something like **innbly Data**. You don't need to create any tabs —
-   the script creates `Leads`, `Signups`, `Newsletter`, and `Contact` tabs
+   the script creates `Leads`, `Signups`, `Newsletter`, `Contact`, and
+   `HostListings` tabs
    automatically the first time each type of submission comes in.
 
 ## 2. Add the script

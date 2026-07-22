@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Lock, Users, CalendarCheck, Mail, MessageSquare, LogOut, CreditCard, RefreshCw } from 'lucide-react'
+import { Lock, Users, CalendarCheck, Mail, MessageSquare, LogOut, CreditCard, RefreshCw, Home } from 'lucide-react'
 import { usePageMeta } from '../hooks/usePageMeta'
 
 interface Stats {
   configured: boolean
   message?: string
-  counts: { leads: number; signups: number; contact: number; newsletter: number }
-  recent: { leads: string[][]; signups: string[][]; contact: string[][]; newsletter: string[][] }
+  counts: { leads: number; signups: number; contact: number; newsletter: number; hostListing: number }
+  recent: { leads: string[][]; signups: string[][]; contact: string[][]; newsletter: string[][]; hostListing: string[][] }
 }
 
 const SECTIONS: { key: keyof Stats['counts']; label: string; icon: typeof Users; headers: string[] }[] = [
@@ -14,6 +14,16 @@ const SECTIONS: { key: keyof Stats['counts']; label: string; icon: typeof Users;
   { key: 'signups', label: 'Signups', icon: Users, headers: ['Time', 'Name', 'Email', 'Role', 'Method'] },
   { key: 'contact', label: 'Contact Messages', icon: MessageSquare, headers: ['Time', 'Name', 'Email', 'Phone', 'Message'] },
   { key: 'newsletter', label: 'Newsletter Subscribers', icon: Mail, headers: ['Time', 'Email'] },
+  {
+    key: 'hostListing',
+    label: 'Host Listings',
+    icon: Home,
+    headers: [
+      'Time', 'Owner', 'Email', 'Phone', 'Title', 'Type', 'Description',
+      'City', 'Neighborhood', 'Address', 'Guests', 'Price/Night', 'Deposit',
+      'Amenities', 'Photos', 'Documents',
+    ],
+  },
 ]
 
 export function AdminPage() {
@@ -130,7 +140,7 @@ export function AdminPage() {
 
       {stats && (
         <>
-          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
             {SECTIONS.map((s) => (
               <button
                 key={s.key}
@@ -158,7 +168,7 @@ export function AdminPage() {
               <tbody>
                 {stats.recent[activeSection].length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-5 py-8 text-center text-slate-400">
+                    <td colSpan={SECTIONS.find((s) => s.key === activeSection)!.headers.length} className="px-5 py-8 text-center text-slate-400">
                       No entries yet.
                     </td>
                   </tr>

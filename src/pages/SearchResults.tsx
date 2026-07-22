@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { ChevronDown, SlidersHorizontal, BellPlus } from 'lucide-react'
+import { ChevronDown, SlidersHorizontal, BellPlus, SearchX } from 'lucide-react'
 import { properties } from '../data/properties'
 import { INDIAN_STATES } from '../data/states'
 import { PropertyCard } from '../components/PropertyCard'
 import { MapPlaceholder } from '../components/MapPlaceholder'
 import { PropertyTypeScroller } from '../components/PropertyTypeScroller'
 import { DateRangePicker } from '../components/DateRangePicker'
+import { Reveal } from '../components/Reveal'
 import { getQuickFilter } from '../data/quickFilters'
 import { useSavedSearch } from '../context/SavedSearchContext'
 import { useToast } from '../context/ToastContext'
@@ -255,13 +256,21 @@ export function SearchResultsPage() {
         <div className="md:w-3/5">
           <p className="mb-4 text-sm font-semibold text-slate-500">{filtered.length} stays found</p>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-            {filtered.map((p) => (
-              <PropertyCard key={p.id} property={p} />
+            {filtered.map((p, i) => (
+              <Reveal key={p.id} delay={(i % 4) * 0.05}>
+                <PropertyCard property={p} />
+              </Reveal>
             ))}
           </div>
           {filtered.length === 0 && (
-            <div className="mt-16 text-center text-slate-400">
-              No properties match your filters. Try widening your search.
+            <div className="mt-12 flex flex-col items-center rounded-3xl border border-dashed border-slate-200 py-16 text-center">
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+                <SearchX className="h-6 w-6" />
+              </div>
+              <p className="font-bold text-slate-700">No stays match your filters</p>
+              <p className="mt-1 max-w-xs text-sm text-slate-400">
+                Try widening your budget, clearing an amenity, or choosing a nearby city.
+              </p>
             </div>
           )}
         </div>

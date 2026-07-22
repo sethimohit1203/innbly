@@ -32,6 +32,7 @@ const ROUTES: Record<string, () => Promise<{ default: (req: ApiRequest, res: Api
   '/api/newsletter': () => import('../api/newsletter'),
   '/api/contact': () => import('../api/contact'),
   '/api/price': () => import('../api/price'),
+  '/api/host-listing': () => import('../api/host-listing'),
   '/api/admin/login': () => import('../api/admin/login'),
   '/api/admin/logout': () => import('../api/admin/logout'),
   '/api/admin/stats': () => import('../api/admin/stats'),

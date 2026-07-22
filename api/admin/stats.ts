@@ -18,8 +18,8 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
     res.status(200).json({
       configured: false,
       message: 'Connect the Google Sheets backend (SHEETS_WEBAPP_URL + ADMIN_SHEETS_KEY) to see live data here.',
-      counts: { leads: 0, signups: 0, contact: 0, newsletter: 0 },
-      recent: { leads: [], signups: [], contact: [], newsletter: [] },
+      counts: { leads: 0, signups: 0, contact: 0, newsletter: 0, hostListing: 0 },
+      recent: { leads: [], signups: [], contact: [], newsletter: [], hostListing: [] },
     })
     return
   }

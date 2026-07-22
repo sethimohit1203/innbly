@@ -16,6 +16,7 @@ var SHEET_NAMES = {
   signup: 'Signups',
   newsletter: 'Newsletter',
   contact: 'Contact',
+  hostListing: 'HostListings',
 };
 
 var SHEET_HEADERS = {
@@ -23,6 +24,13 @@ var SHEET_HEADERS = {
   signup: ['Timestamp', 'Name', 'Email', 'Role', 'Method'],
   newsletter: ['Timestamp', 'Email'],
   contact: ['Timestamp', 'Name', 'Email', 'Phone', 'Message'],
+  hostListing: [
+    'Timestamp', 'Owner Name', 'Owner Email', 'Owner Phone',
+    'Property Title', 'Property Type', 'Description',
+    'City', 'Neighborhood', 'Address',
+    'Max Guests', 'Price/Night', 'Security Deposit', 'Amenities',
+    'Photo URLs', 'Document URLs',
+  ],
 };
 
 function doPost(e) {
@@ -37,7 +45,7 @@ function doPost(e) {
     var sheet = getOrCreateSheet(type);
     appendRow(sheet, type, data);
 
-    if (type === 'lead' || type === 'contact') {
+    if (type === 'lead' || type === 'contact' || type === 'hostListing') {
       sendNotificationEmail(type, data);
     }
 
@@ -62,7 +70,7 @@ function doGet(e) {
 }
 
 function buildStats() {
-  var types = ['lead', 'signup', 'newsletter', 'contact'];
+  var types = ['lead', 'signup', 'newsletter', 'contact', 'hostListing'];
   var counts = {};
   var recent = {};
 
@@ -111,6 +119,16 @@ function appendRow(sheet, type, data) {
     sheet.appendRow([now, data.email]);
   } else if (type === 'contact') {
     sheet.appendRow([now, data.name, data.email, data.phone || '', data.message]);
+  } else if (type === 'hostListing') {
+    sheet.appendRow([
+      now, data.ownerName, data.ownerEmail, data.ownerPhone,
+      data.propertyTitle, data.propertyType, data.description,
+      data.city, data.neighborhood, data.address,
+      data.maxGuests, data.pricePerNight, data.securityDeposit,
+      (data.amenities || []).join(', '),
+      (data.photoUrls || []).join(', '),
+      (data.documentUrls || []).join(', '),
+    ]);
   }
 }
 
@@ -124,6 +142,16 @@ function sendNotificationEmail(type, data) {
       'Property: ' + data.propertyTitle + '\n' +
       'Visit date: ' + data.visitDate + '\n' +
       'Slot: ' + (data.slot || 'N/A');
+  } else if (type === 'hostListing') {
+    subject = 'New host listing submitted — ' + data.propertyTitle;
+    body =
+      'Owner: ' + data.ownerName + ' (' + data.ownerEmail + ', ' + data.ownerPhone + ')\n' +
+      'Property: ' + data.propertyTitle + ' — ' + data.propertyType + '\n' +
+      'Location: ' + data.neighborhood + ', ' + data.city + '\n' +
+      'Price: Rs ' + data.pricePerNight + '/night, deposit Rs ' + data.securityDeposit + '\n' +
+      'Max guests: ' + data.maxGuests + '\n' +
+      'Photos: ' + ((data.photoUrls || []).length) + ', Documents: ' + ((data.documentUrls || []).length) + '\n\n' +
+      'Full record is in the HostListings sheet tab.';
   } else {
     subject = 'New contact message from ' + data.name;
     body =
