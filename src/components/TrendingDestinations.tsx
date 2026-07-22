@@ -17,12 +17,12 @@ export function TrendingDestinations() {
   })
 
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+    <div className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-2 scrollbar-thin sm:mx-0 sm:px-0">
       {stats.map((s) => (
         <Link
           key={s.city}
           to={`/search?city=${encodeURIComponent(s.city)}`}
-          className="group relative h-40 overflow-hidden rounded-2xl shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
+          className="group relative h-40 w-56 shrink-0 overflow-hidden rounded-2xl shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
         >
           <img src={cityImage(s.city)} alt={s.city} className="h-full w-full object-cover transition group-hover:scale-105" />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />

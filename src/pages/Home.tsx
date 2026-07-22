@@ -109,12 +109,11 @@ export function HomePage() {
       <StickyHomeSearchBar onSearchClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} />
 
       {/* Hero */}
-      <section className="relative overflow-hidden pb-32 pt-28 text-white sm:pb-40 md:pt-32">
-        <div className="absolute inset-0 -z-20">
-          <img src={HERO_IMAGE} alt="" className="h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/50 to-slate-950/80" />
-          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-slate-50" />
-        </div>
+      <section
+        className="relative overflow-hidden bg-slate-900 bg-cover bg-center pb-32 pt-28 text-white sm:pb-40 md:pt-32"
+        style={{ backgroundImage: `linear-gradient(to bottom, rgba(2,6,23,0.75), rgba(2,6,23,0.55) 45%, rgba(2,6,23,0.85)), url(${HERO_IMAGE})` }}
+      >
+        <div className="absolute inset-x-0 bottom-0 -z-10 h-32 bg-gradient-to-b from-transparent to-slate-50" />
 
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <motion.div

@@ -13,12 +13,12 @@ const COLLECTIONS: { label: string; slug: string; image: string }[] = [
 
 export function CollectionsGrid() {
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+    <div className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-2 scrollbar-thin sm:mx-0 sm:px-0">
       {COLLECTIONS.map((c) => (
         <Link
           key={c.slug}
           to={`/search?collection=${c.slug}`}
-          className="group relative h-32 overflow-hidden rounded-2xl shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
+          className="group relative h-32 w-44 shrink-0 overflow-hidden rounded-2xl shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
         >
           <img src={c.image} alt={c.label} className="h-full w-full object-cover transition group-hover:scale-105" />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/10 to-transparent" />
