@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { supabase } from './supabase'
+import { uploadToCloudinary } from './cloudinary'
 import { submitToSheet } from './backend'
 
 export const hostFormSchema = z.object({
@@ -31,15 +32,15 @@ export const hostFormSchema = z.object({
 
 export type HostFormValues = z.infer<typeof hostFormSchema>
 
-async function uploadFiles(files: File[], prefix: string): Promise<string[]> {
-  if (!supabase) throw new Error('Listing submissions are temporarily unavailable. Please try again later.')
+// Photos/documents go to Cloudinary rather than Supabase Storage — free-tier
+// storage there is only 1GB, easily eaten up by listing photos, whereas
+// Cloudinary's free tier is built for exactly this (public URLs, CDN,
+// ~25GB storage+bandwidth/month). Only the submission's metadata row still
+// lives in Supabase (host_submissions table).
+async function uploadFiles(files: File[], folder: string): Promise<string[]> {
   const urls: string[] = []
   for (const file of files) {
-    const path = `${prefix}/${Date.now()}-${crypto.randomUUID()}-${file.name}`
-    const { error } = await supabase.storage.from('host-uploads').upload(path, file)
-    if (error) throw new Error(`Failed to upload ${file.name}: ${error.message}`)
-    const { data } = supabase.storage.from('host-uploads').getPublicUrl(path)
-    urls.push(data.publicUrl)
+    urls.push(await uploadToCloudinary(file, folder))
   }
   return urls
 }

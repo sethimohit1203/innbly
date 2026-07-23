@@ -112,19 +112,26 @@ auto-synced).
 ### Supabase — the host-listing approval pipeline
 
 This is the one part of the app backed by a real database. Flow: host fills the multi-step form
-(`src/pages/ListProperty.tsx`) → `src/lib/hostSubmission.ts` uploads photos/documents to Supabase
-Storage and inserts a row into `host_submissions` (status `pending`) directly from the browser
-using the **anon key** → best-effort mirrors the same data to the Google Sheets backend (backup +
-email notification) → an admin reviews it in `/admin`'s "Property Approvals" panel and
-approves/rejects → approved rows become visible through the public `approved_listings` Postgres
-view → `PropertiesContext` picks them up and they appear everywhere a demo listing would.
+(`src/pages/ListProperty.tsx`) → `src/lib/hostSubmission.ts` uploads photos/documents to
+**Cloudinary** (see below) and inserts a row into `host_submissions` (status `pending`) directly
+from the browser using the **anon key** → best-effort mirrors the same data to the Google Sheets
+backend (backup + email notification) → an admin reviews it in `/admin`'s "Property Approvals"
+panel and approves/rejects → approved rows become visible through the public `approved_listings`
+Postgres view → `PropertiesContext` picks them up and they appear everywhere a demo listing would.
 
-- Two SQL files must be run once, in order, in the Supabase SQL Editor — they are **not** applied
-  automatically, there is no migration runner:
-  1. `supabase/host_submissions.sql` — creates `host_submissions` (RLS enabled, anon can only
-     INSERT, never SELECT/UPDATE/DELETE) and the `host-uploads` Storage bucket.
-  2. `supabase/host_submissions_approval.sql` — adds the `approved_listings` view (public SELECT,
-     owner_email deliberately excluded) that the site's public pages actually query.
+- One SQL file must be run once in the Supabase SQL Editor — it is **not** applied automatically,
+  there is no migration runner: `supabase/host_submissions.sql` creates `host_submissions` (RLS
+  enabled, anon can only INSERT, never SELECT/UPDATE/DELETE). It also creates a `host-uploads`
+  Storage bucket, which is unused now that uploads go to Cloudinary — left in place rather than
+  torn out, since dropping it isn't required for anything to work.
+  `supabase/host_submissions_approval.sql` — adds the `approved_listings` view (public SELECT,
+  owner_email deliberately excluded) that the site's public pages actually query.
+- `src/lib/cloudinary.ts` uploads photos/documents directly from the browser to Cloudinary via an
+  **unsigned upload preset** (`VITE_CLOUDINARY_CLOUD_NAME` + `VITE_CLOUDINARY_UPLOAD_PRESET`, both
+  client-exposed by design — an unsigned preset can only accept uploads into its own configured
+  folder, it can't read/list/delete anything, same trust model as the Supabase anon key). Chosen
+  over Supabase Storage because Supabase's free tier is only 1GB, easily exhausted by listing
+  photos, versus Cloudinary's free tier (~25GB storage+bandwidth/month) built for exactly this.
 - Three env vars, three different trust levels — don't mix them up:
   - `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` — client-exposed by design (anon key is meant
     to be public; RLS is what enforces access, not secrecy of this key).

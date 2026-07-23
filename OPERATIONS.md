@@ -44,9 +44,9 @@ straight into the listing form once you are.
    opens the sign-in modal pre-toggled to "host" — sign in there first, then you're redirected
    straight to the form.
 2. Fill out the multi-step form at `/dashboard/list-property` and submit.
-3. This uploads your photos/documents to **Supabase Storage** and inserts one row into the
-   **Supabase `host_submissions` table**, status `pending`. It also best-effort mirrors the
-   submission to Google Sheets if that's configured.
+3. This uploads your photos/documents to **Cloudinary** and inserts one row into the
+   **Supabase `host_submissions` table** (with the Cloudinary URLs, not the files themselves),
+   status `pending`. It also best-effort mirrors the submission to Google Sheets if that's configured.
 4. Your submission does **not** go live automatically. An admin has to approve it in `/admin`
    under "Property Approvals."
 5. Once approved, it becomes a real, publicly searchable listing (via the `approved_listings`
@@ -88,7 +88,7 @@ fails to the login form on any error.
 | Property catalog (built-in demo listings) | `src/data/properties.ts` (a file in the repo — not a database) | Anyone (public site) |
 | Approved host listings | Supabase `host_submissions` table, exposed via the `approved_listings` view | Anyone (public site, via anon key) |
 | Pending/rejected host submissions (with owner contact info) | Supabase `host_submissions` table directly | Only the admin API, via `SUPABASE_SERVICE_ROLE_KEY` |
-| Uploaded listing photos/documents | Supabase Storage bucket `host-uploads` | Public URLs once uploaded (needed so the site can display them) |
+| Uploaded listing photos/documents | Cloudinary (public URLs stored in the `host_submissions` row) | Public URLs once uploaded (needed so the site can display them) |
 | Signups, leads, contact messages, newsletter subs | Google Sheets, if `SHEETS_WEBAPP_URL` is configured — see §7 | Whoever has access to that Google Sheet, plus the Admin dashboard's summary view |
 | Tenant/host "login" session | Your own browser's `localStorage` (`innbly_auth_user`) | Only you, only on that browser |
 | Saved properties / recently viewed / compare list / saved searches | Your own browser's `localStorage` | Only you, only on that browser |
@@ -114,6 +114,27 @@ Cloud project you own):
 
 Until this is set, the Google button either doesn't render or fails silently — email sign-in still
 works fully regardless.
+
+## 6a. Cloudinary setup (for listing photo/document uploads)
+
+Listing photos and documents upload to Cloudinary rather than Supabase Storage (Supabase's free
+tier is only 1GB — easy to blow through with photos; Cloudinary's free tier, ~25GB storage and
+bandwidth a month, is built for exactly this). Setup:
+
+1. Create a free account at [cloudinary.com](https://cloudinary.com).
+2. Your **Cloud Name** is shown on the dashboard homepage right after signup.
+3. Create an **unsigned upload preset**: Settings (gear icon) → **Upload** tab → **Upload presets**
+   → **Add upload preset** → set **Signing Mode** to **Unsigned** → Save. Note the preset name.
+   (Unsigned presets are safe to expose in the browser bundle — they can only accept uploads into
+   their own configured settings, not read, list, or delete anything, the same trust model as the
+   Supabase anon key.)
+4. In Vercel: **Settings → Environment Variables**, add:
+   - `VITE_CLOUDINARY_CLOUD_NAME` = your cloud name
+   - `VITE_CLOUDINARY_UPLOAD_PRESET` = your preset name
+   Redeploy.
+
+Until these are set, submitting the host form fails with "Listing submissions are temporarily
+unavailable" at the upload step.
 
 ## 7. Why "no mail, no Google Sheets, no data"
 
