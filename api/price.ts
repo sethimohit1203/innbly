@@ -1,7 +1,7 @@
-import type { ApiRequest, ApiResponse } from './_lib/http'
-import { getClientIp, readJsonBody } from './_lib/http'
-import { rateLimit } from './_lib/rateLimit'
-import { computeEstimatorTotal, computeBookingTotal, computeRoiEstimate, computeWeeklyCalendar } from './_lib/pricing'
+import type { ApiRequest, ApiResponse } from './_lib/http.js'
+import { getClientIp, readJsonBody } from './_lib/http.js'
+import { rateLimit } from './_lib/rateLimit.js'
+import { computeEstimatorTotal, computeBookingTotal, computeRoiEstimate, computeWeeklyCalendar } from './_lib/pricing.js'
 
 interface PriceRequest {
   kind: 'estimator' | 'booking' | 'roi' | 'calendar'

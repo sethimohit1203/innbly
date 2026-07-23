@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from 'node:crypto'
-import type { ApiRequest } from './http'
+import type { ApiRequest } from './http.js'
 
 const COOKIE_NAME = 'innbly_admin'
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000 // 12 hours

@@ -1,7 +1,7 @@
-import type { ApiRequest, ApiResponse } from './_lib/http'
-import { getClientIp, readJsonBody } from './_lib/http'
-import { rateLimit } from './_lib/rateLimit'
-import { forwardToSheet } from './_lib/sheets'
+import type { ApiRequest, ApiResponse } from './_lib/http.js'
+import { getClientIp, readJsonBody } from './_lib/http.js'
+import { rateLimit } from './_lib/rateLimit.js'
+import { forwardToSheet } from './_lib/sheets.js'
 
 interface HostListingPayload {
   ownerName?: string

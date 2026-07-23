@@ -1,4 +1,4 @@
-import { properties } from '../../src/data/properties'
+import { properties } from '../../src/data/properties.js'
 
 /** Authoritative pricing — the client only ever sends selections (room type,
  * add-ons, nights); every rupee amount shown to a user is computed here so

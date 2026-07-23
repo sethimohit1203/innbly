@@ -1,7 +1,7 @@
-import type { ApiRequest, ApiResponse } from '../_lib/http'
-import { getClientIp, readJsonBody } from '../_lib/http'
-import { rateLimit } from '../_lib/rateLimit'
-import { checkPasscode, createAdminSessionCookie } from '../_lib/adminAuth'
+import type { ApiRequest, ApiResponse } from '../_lib/http.js'
+import { getClientIp, readJsonBody } from '../_lib/http.js'
+import { rateLimit } from '../_lib/rateLimit.js'
+import { checkPasscode, createAdminSessionCookie } from '../_lib/adminAuth.js'
 
 export default async function handler(req: ApiRequest, res: ApiResponse) {
   if (req.method !== 'POST') {

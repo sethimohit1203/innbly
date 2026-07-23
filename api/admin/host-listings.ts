@@ -1,7 +1,7 @@
-import type { ApiRequest, ApiResponse } from '../_lib/http'
-import { readJsonBody } from '../_lib/http'
-import { verifyAdminSession } from '../_lib/adminAuth'
-import { getSupabaseAdmin } from '../_lib/supabaseAdmin'
+import type { ApiRequest, ApiResponse } from '../_lib/http.js'
+import { readJsonBody } from '../_lib/http.js'
+import { verifyAdminSession } from '../_lib/adminAuth.js'
+import { getSupabaseAdmin } from '../_lib/supabaseAdmin.js'
 
 interface UpdatePayload {
   id?: string

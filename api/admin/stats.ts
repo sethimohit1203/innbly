@@ -1,6 +1,6 @@
-import type { ApiRequest, ApiResponse } from '../_lib/http'
-import { verifyAdminSession } from '../_lib/adminAuth'
-import { fetchSheetStats } from '../_lib/sheets'
+import type { ApiRequest, ApiResponse } from '../_lib/http.js'
+import { verifyAdminSession } from '../_lib/adminAuth.js'
+import { fetchSheetStats } from '../_lib/sheets.js'
 
 export default async function handler(req: ApiRequest, res: ApiResponse) {
   if (req.method !== 'GET') {

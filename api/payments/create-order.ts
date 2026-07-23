@@ -1,6 +1,6 @@
-import type { ApiRequest, ApiResponse } from '../_lib/http'
-import { getClientIp, readJsonBody } from '../_lib/http'
-import { rateLimit } from '../_lib/rateLimit'
+import type { ApiRequest, ApiResponse } from '../_lib/http.js'
+import { getClientIp, readJsonBody } from '../_lib/http.js'
+import { rateLimit } from '../_lib/rateLimit.js'
 
 /**
  * Razorpay order creation scaffold. Disabled until RAZORPAY_KEY_ID and
