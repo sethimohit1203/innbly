@@ -236,24 +236,54 @@ export function AdminPage() {
           <div className="space-y-3">
             {submissions.map((s) => (
               <div key={s.id} className="flex flex-col gap-3 rounded-xl border border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="flex items-center gap-2 font-bold text-slate-900">
-                    {s.property_title}
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
-                        s.status === 'approved'
-                          ? 'bg-accent-50 text-accent-700'
-                          : s.status === 'rejected'
-                            ? 'bg-rose-50 text-rose-600'
-                            : 'bg-amber-50 text-amber-700'
-                      }`}
-                    >
-                      {s.status}
-                    </span>
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    {s.property_type} · {s.neighborhood}, {s.city} · ₹{s.price_per_night}/night · by {s.owner_name}
-                  </p>
+                <div className="flex items-center gap-3">
+                  {s.photo_urls?.length > 0 ? (
+                    <div className="flex shrink-0 -space-x-2">
+                      {s.photo_urls.slice(0, 3).map((url, i) => (
+                        <a
+                          key={url}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title={`View photo ${i + 1} of ${s.photo_urls.length}`}
+                        >
+                          <img
+                            src={url}
+                            alt=""
+                            className="h-12 w-12 rounded-lg border-2 border-white object-cover shadow-sm transition hover:scale-105 hover:z-10 relative"
+                          />
+                        </a>
+                      ))}
+                      {s.photo_urls.length > 3 && (
+                        <span className="flex h-12 w-12 items-center justify-center rounded-lg border-2 border-white bg-slate-100 text-xs font-bold text-slate-500">
+                          +{s.photo_urls.length - 3}
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-300">
+                      <Home className="h-5 w-5" />
+                    </div>
+                  )}
+                  <div>
+                    <p className="flex items-center gap-2 font-bold text-slate-900">
+                      {s.property_title}
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
+                          s.status === 'approved'
+                            ? 'bg-accent-50 text-accent-700'
+                            : s.status === 'rejected'
+                              ? 'bg-rose-50 text-rose-600'
+                              : 'bg-amber-50 text-amber-700'
+                        }`}
+                      >
+                        {s.status}
+                      </span>
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      {s.property_type} · {s.neighborhood}, {s.city} · ₹{s.price_per_night}/night · by {s.owner_name}
+                    </p>
+                  </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   <button
