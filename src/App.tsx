@@ -4,6 +4,7 @@ import { Navbar } from './components/Navbar'
 import { AuthModal } from './components/AuthModal'
 import { HostOnlyRoute } from './components/HostOnlyRoute'
 import { HostDashboardLayout } from './components/HostDashboardLayout'
+import { AdminLayout } from './components/AdminLayout'
 import { MobileBottomNav } from './components/MobileBottomNav'
 import { QuickMatchAssistant } from './components/QuickMatchAssistant'
 import { HomePage } from './pages/Home'
@@ -25,7 +26,10 @@ const SavedPropertiesPage = lazy(() => import('./pages/SavedProperties').then((m
 const EnterpriseHomePage = lazy(() => import('./pages/enterprise/EnterpriseHome').then((m) => ({ default: m.EnterpriseHomePage })))
 const EnterpriseSearchPage = lazy(() => import('./pages/enterprise/EnterpriseSearch').then((m) => ({ default: m.EnterpriseSearchPage })))
 const EnterpriseDashboardPage = lazy(() => import('./pages/enterprise/EnterpriseDashboard').then((m) => ({ default: m.EnterpriseDashboardPage })))
-const AdminPage = lazy(() => import('./pages/Admin').then((m) => ({ default: m.AdminPage })))
+const AdminOverviewPage = lazy(() => import('./pages/admin/AdminOverview').then((m) => ({ default: m.AdminOverviewPage })))
+const AdminPropertiesPage = lazy(() => import('./pages/admin/AdminProperties').then((m) => ({ default: m.AdminPropertiesPage })))
+const AdminLeadsPage = lazy(() => import('./pages/admin/AdminLeads').then((m) => ({ default: m.AdminLeadsPage })))
+const AdminMessagesPage = lazy(() => import('./pages/admin/AdminMessages').then((m) => ({ default: m.AdminMessagesPage })))
 const ComparePage = lazy(() => import('./pages/Compare').then((m) => ({ default: m.ComparePage })))
 const HostProfilePage = lazy(() => import('./pages/HostProfile').then((m) => ({ default: m.HostProfilePage })))
 
@@ -74,7 +78,12 @@ export default function App() {
           <Route path="/enterprise" element={<EnterpriseHomePage />} />
           <Route path="/enterprise/search" element={<EnterpriseSearchPage />} />
           <Route path="/enterprise/dashboard" element={<EnterpriseDashboardPage />} />
-          <Route path="/admin" element={<AdminPage />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminOverviewPage />} />
+            <Route path="properties" element={<AdminPropertiesPage />} />
+            <Route path="leads" element={<AdminLeadsPage />} />
+            <Route path="messages" element={<AdminMessagesPage />} />
+          </Route>
           <Route path="/compare" element={<ComparePage />} />
           <Route path="/host/:id" element={<HostProfilePage />} />
         </Routes>
