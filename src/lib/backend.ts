@@ -1,11 +1,15 @@
 type SubmissionType = 'lead' | 'signup' | 'newsletter' | 'contact' | 'host-listing'
 
-const ENDPOINTS: Record<SubmissionType, string> = {
-  lead: '/api/leads',
-  signup: '/api/signup',
-  newsletter: '/api/newsletter',
-  contact: '/api/contact',
-  'host-listing': '/api/host-listing',
+// api/submit.ts consolidates what used to be five separate route files
+// behind a `type` field (Vercel's Hobby plan caps a deployment at 12
+// serverless functions) — the Apps Script side keys its sheets by
+// 'hostListing' (camelCase), so that's the one name translated here.
+const SERVER_TYPE: Record<SubmissionType, string> = {
+  lead: 'lead',
+  signup: 'signup',
+  newsletter: 'newsletter',
+  contact: 'contact',
+  'host-listing': 'hostListing',
 }
 
 export interface SubmitResult {
@@ -18,10 +22,10 @@ export interface SubmitResult {
  * limit or validation errors instead of failing silently. */
 export async function submitToSheet(type: SubmissionType, payload: Record<string, unknown>): Promise<SubmitResult> {
   try {
-    const res = await fetch(ENDPOINTS[type], {
+    const res = await fetch('/api/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ type: SERVER_TYPE[type], ...payload }),
     })
 
     if (res.status === 429) {

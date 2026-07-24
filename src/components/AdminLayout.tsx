@@ -127,7 +127,7 @@ export function AdminLayout() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoginError(null)
-    const res = await fetch('/api/admin/login', {
+    const res = await fetch('/api/admin/session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ passcode }),
@@ -142,7 +142,7 @@ export function AdminLayout() {
   }
 
   const handleLogout = async () => {
-    await fetch('/api/admin/logout', { method: 'POST' })
+    await fetch('/api/admin/session', { method: 'DELETE' })
     setStats(null)
     setSubmissions(null)
     setNeedsAuth(true)

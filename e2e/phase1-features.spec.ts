@@ -45,6 +45,10 @@ test.describe('Phase 1 discovery & booking features', () => {
 
   test('recently viewed section appears on Home after visiting a property', async ({ page }) => {
     await page.goto('/property/p3')
+    // Wait for the property page to actually finish mounting (and its
+    // addRecentlyViewed effect to fire) before navigating away — otherwise
+    // a slow lazy-chunk load can race the localStorage write.
+    await expect(page.getByRole('heading', { name: 'Urban Stay Homes' })).toBeVisible()
     await page.goto('/')
     await expect(page.getByRole('heading', { name: 'Recently Viewed' })).toBeVisible()
   })

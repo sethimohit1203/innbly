@@ -27,14 +27,9 @@ loadDotEnv()
 const PORT = Number(process.env.API_PORT ?? 8797)
 
 const ROUTES: Record<string, () => Promise<{ default: (req: ApiRequest, res: ApiResponse) => unknown }>> = {
-  '/api/leads': () => import('../api/leads'),
-  '/api/signup': () => import('../api/signup'),
-  '/api/newsletter': () => import('../api/newsletter'),
-  '/api/contact': () => import('../api/contact'),
+  '/api/submit': () => import('../api/submit'),
   '/api/price': () => import('../api/price'),
-  '/api/host-listing': () => import('../api/host-listing'),
-  '/api/admin/login': () => import('../api/admin/login'),
-  '/api/admin/logout': () => import('../api/admin/logout'),
+  '/api/admin/session': () => import('../api/admin/session'),
   '/api/admin/stats': () => import('../api/admin/stats'),
   '/api/admin/host-listings': () => import('../api/admin/host-listings'),
   '/api/payments/create-order': () => import('../api/payments/create-order'),

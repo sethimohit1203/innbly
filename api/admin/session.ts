@@ -1,9 +1,18 @@
 import type { ApiRequest, ApiResponse } from '../_lib/http.js'
 import { getClientIp, readJsonBody } from '../_lib/http.js'
 import { rateLimit } from '../_lib/rateLimit.js'
-import { checkPasscode, createAdminSessionCookie } from '../_lib/adminAuth.js'
+import { checkPasscode, createAdminSessionCookie, clearAdminSessionCookie } from '../_lib/adminAuth.js'
 
+// Combines the former admin/login.ts + admin/logout.ts into one route (see
+// api/submit.ts for why — Vercel's Hobby plan caps a deployment at 12
+// serverless functions). POST logs in, DELETE logs out.
 export default async function handler(req: ApiRequest, res: ApiResponse) {
+  if (req.method === 'DELETE') {
+    res.setHeader('Set-Cookie', clearAdminSessionCookie())
+    res.status(200).json({ ok: true })
+    return
+  }
+
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' })
     return

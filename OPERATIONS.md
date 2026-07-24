@@ -28,7 +28,7 @@ behave like real auth.
    `localStorage` under the key `innbly_auth_user` and never expires until you log out or clear
    site data.
 
-This also fires a best-effort background call to `/api/signup` so the submission shows up in the
+This also fires a best-effort background call to `/api/submit` so the submission shows up in the
 Admin dashboard's "Signups" tab and (if configured) the Google Sheet — but as of this fix, **that
 call can fail without blocking your login**. If you see a toast like "you're signed in, but we
 couldn't log this signup," you're still logged in; only the record-keeping failed.

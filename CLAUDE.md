@@ -94,13 +94,24 @@ server-side (`api/_lib/adminAuth.ts`) against `ADMIN_PASSCODE`, with an HMAC-sig
 
 ### API (`api/`) — Google Sheets side
 
-Every write (leads, signups, newsletter, contact, host-listing backup) goes through `api/*.ts`
-instead of hitting an external Google Apps Script URL directly from the browser. This is
-deliberate: `SHEETS_WEBAPP_URL` and the admin secrets are server-only env vars (no `VITE_` prefix)
-so they never end up in the client bundle. See `google-apps-script/README.md` for the Sheets
-backend setup this all forwards to (`google-apps-script/Code.gs` is the actual Apps Script source —
-edit it there, then re-paste into the Apps Script editor and redeploy; this repo copy is not
-auto-synced).
+**Vercel's Hobby (free) plan caps a deployment at 12 serverless functions** — every `.ts`/`.js`
+file directly under `api/` (nested folders included) counts as one, except anything under an
+`_`-prefixed folder like `api/_lib/`. This has already been hit once: adding the booking flow's 3
+new routes pushed the count to 14 and every deployment failed at build time with "No more than 12
+Serverless Functions can be added to a Deployment on the Hobby plan" — silently, with production
+just staying pinned to the last successful build, which looked like "my push didn't deploy."
+Before adding a new top-level `api/*.ts` file, count the existing ones (`git ls-tree -r HEAD --
+name-only api/ | grep -v _lib` is quick) or fold the new endpoint into an existing file with a
+`type`/`kind` dispatch field instead (see `api/submit.ts` and `api/price.ts` for the pattern).
+
+Every write (leads, signups, newsletter, contact, host-listing backup) goes through one shared
+route, `api/submit.ts` (dispatched on a `type` field — see the file itself for why: it used to be
+five separate route files, consolidated for the function-count reason above), instead of hitting
+an external Google Apps Script URL directly from the browser. This is deliberate: `SHEETS_WEBAPP_URL`
+and the admin secrets are server-only env vars (no `VITE_` prefix) so they never end up in the
+client bundle. See `google-apps-script/README.md` for the Sheets backend setup this all forwards
+to (`google-apps-script/Code.gs` is the actual Apps Script source — edit it there, then re-paste
+into the Apps Script editor and redeploy; this repo copy is not auto-synced).
 
 - `api/_lib/pricing.ts` holds every pricing formula (nightly estimator, booking totals, ROI
   calculator, the 7-day price calendar). `api/price.ts` dispatches on a `kind` field. **All

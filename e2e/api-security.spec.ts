@@ -48,10 +48,10 @@ test.describe('API security', () => {
     // tests/browser traffic in the suite (which all resolve to the same
     // "unknown" bucket locally, since dev traffic has no x-forwarded-for header).
     const headers = { 'x-forwarded-for': '203.0.113.42' }
-    const payload = { name: 'Rate Test', phone: '9999999999', propertyTitle: 'Test Property', visitDate: '2026-01-01' }
+    const payload = { type: 'lead', name: 'Rate Test', phone: '9999999999', propertyTitle: 'Test Property', visitDate: '2026-01-01' }
     const results: number[] = []
     for (let i = 0; i < 8; i++) {
-      const res = await request.post('/api/leads', { data: payload, headers })
+      const res = await request.post('/api/submit', { data: payload, headers })
       results.push(res.status())
     }
     expect(results.some((s) => s === 429)).toBeTruthy()
