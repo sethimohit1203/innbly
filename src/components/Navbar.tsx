@@ -104,8 +104,12 @@ export function Navbar() {
                 onClick={() => setAvatarOpen((o) => !o)}
                 className="flex items-center gap-2 rounded-full border border-slate-200 py-1 pl-1 pr-3 transition hover:border-slate-300"
               >
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-700">
-                  {user!.name.charAt(0).toUpperCase()}
+                <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-primary-100 text-sm font-bold text-primary-700">
+                  {user!.avatarUrl ? (
+                    <img src={user!.avatarUrl} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    user!.name.charAt(0).toUpperCase()
+                  )}
                 </span>
                 <span className="text-sm font-semibold text-slate-700">{user!.name.split(' ')[0]}</span>
                 <ChevronDown className={`h-3.5 w-3.5 text-slate-400 transition ${avatarOpen ? 'rotate-180' : ''}`} />

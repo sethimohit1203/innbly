@@ -110,4 +110,5 @@ export interface AuthUser {
   email: string
   role: UserRole
   phone?: string
+  avatarUrl?: string
 }

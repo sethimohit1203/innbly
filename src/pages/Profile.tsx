@@ -1,12 +1,13 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Heart, Eye, Scale, BellRing, LogOut, User, Gift, LayoutDashboard } from 'lucide-react'
+import { Heart, Eye, Scale, BellRing, LogOut, User, Gift, LayoutDashboard, Camera, Loader2 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useSavedProperties } from '../context/SavedPropertiesContext'
 import { useRecentlyViewed } from '../context/RecentlyViewedContext'
 import { useCompare } from '../context/CompareContext'
 import { useSavedSearch } from '../context/SavedSearchContext'
 import { useToast } from '../context/ToastContext'
+import { uploadToCloudinary } from '../lib/cloudinary'
 import { Footer } from '../components/Footer'
 import { usePageMeta } from '../hooks/usePageMeta'
 
@@ -22,6 +23,8 @@ export function ProfilePage() {
   const [name, setName] = useState(user?.name ?? '')
   const [email, setEmail] = useState(user?.email ?? '')
   const [phone, setPhone] = useState(user?.phone ?? '')
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   if (!user) {
     return (
@@ -47,6 +50,22 @@ export function ProfilePage() {
     showToast('Profile updated')
   }
 
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    setUploadingAvatar(true)
+    try {
+      const url = await uploadToCloudinary(file, 'avatars')
+      updateProfile({ avatarUrl: url })
+      showToast('Profile photo updated')
+    } catch (err) {
+      showToast((err as Error).message ?? 'Could not upload photo', 'error')
+    } finally {
+      setUploadingAvatar(false)
+    }
+  }
+
   const stats = [
     { to: '/saved', label: 'Saved Properties', count: savedIds.length, icon: Heart },
     { to: '/compare', label: 'Comparing', count: compareIds.length, icon: Scale },
@@ -58,9 +77,27 @@ export function ProfilePage() {
     <>
       <section className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         <div className="flex items-center gap-4">
-          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-100 text-2xl font-bold text-primary-700">
-            {user.name.charAt(0).toUpperCase()}
-          </span>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploadingAvatar}
+            title="Change profile photo"
+            className="group relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-100 text-2xl font-bold text-primary-700"
+          >
+            {user.avatarUrl ? (
+              <img src={user.avatarUrl} alt="" className="h-full w-full object-cover" />
+            ) : (
+              user.name.charAt(0).toUpperCase()
+            )}
+            <span
+              className={`absolute inset-0 flex items-center justify-center bg-slate-900/50 text-white transition-opacity ${
+                uploadingAvatar ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+              }`}
+            >
+              {uploadingAvatar ? <Loader2 className="h-5 w-5 animate-spin" /> : <Camera className="h-5 w-5" />}
+            </span>
+          </button>
+          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" />
           <div>
             <h1 className="text-2xl font-extrabold text-slate-900">{user.name}</h1>
             <p className="text-sm text-slate-500">
