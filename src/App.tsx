@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom'
 import { Navbar } from './components/Navbar'
 import { AuthModal } from './components/AuthModal'
 import { HostOnlyRoute } from './components/HostOnlyRoute'
+import { HostDashboardLayout } from './components/HostDashboardLayout'
 import { MobileBottomNav } from './components/MobileBottomNav'
 import { QuickMatchAssistant } from './components/QuickMatchAssistant'
 import { HomePage } from './pages/Home'
@@ -13,7 +14,9 @@ import { HomePage } from './pages/Home'
 // self-contained /enterprise demo area) only downloads when visited.
 const SearchResultsPage = lazy(() => import('./pages/SearchResults').then((m) => ({ default: m.SearchResultsPage })))
 const PropertyDetailPage = lazy(() => import('./pages/PropertyDetail').then((m) => ({ default: m.PropertyDetailPage })))
-const HostDashboardPage = lazy(() => import('./pages/HostDashboard').then((m) => ({ default: m.HostDashboardPage })))
+const HostOverviewPage = lazy(() => import('./pages/host/HostOverview').then((m) => ({ default: m.HostOverviewPage })))
+const HostPropertiesPage = lazy(() => import('./pages/host/HostProperties').then((m) => ({ default: m.HostPropertiesPage })))
+const HostLeadsPage = lazy(() => import('./pages/host/HostLeads').then((m) => ({ default: m.HostLeadsPage })))
 const ListPropertyPage = lazy(() => import('./pages/ListProperty').then((m) => ({ default: m.ListPropertyPage })))
 const ContactPage = lazy(() => import('./pages/Contact').then((m) => ({ default: m.ContactPage })))
 const PrivacyPage = lazy(() => import('./pages/Privacy').then((m) => ({ default: m.PrivacyPage })))
@@ -48,10 +51,14 @@ export default function App() {
             path="/dashboard"
             element={
               <HostOnlyRoute>
-                <HostDashboardPage />
+                <HostDashboardLayout />
               </HostOnlyRoute>
             }
-          />
+          >
+            <Route index element={<HostOverviewPage />} />
+            <Route path="properties" element={<HostPropertiesPage />} />
+            <Route path="leads" element={<HostLeadsPage />} />
+          </Route>
           <Route
             path="/dashboard/list-property"
             element={

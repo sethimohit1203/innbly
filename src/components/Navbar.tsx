@@ -32,8 +32,8 @@ export function Navbar() {
 
   const hostLinks = [
     { to: '/dashboard', label: 'Dashboard Overview', icon: LayoutDashboard },
-    { to: '/dashboard#listings', label: 'Manage Properties', icon: Building2 },
-    { to: '/dashboard#leads', label: 'Leads Tracker', icon: Users },
+    { to: '/dashboard/properties', label: 'Manage Properties', icon: Building2 },
+    { to: '/dashboard/leads', label: 'Leads Tracker', icon: Users },
   ]
 
   const handleLogout = () => {
