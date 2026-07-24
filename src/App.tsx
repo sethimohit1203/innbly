@@ -23,6 +23,8 @@ const ContactPage = lazy(() => import('./pages/Contact').then((m) => ({ default:
 const PrivacyPage = lazy(() => import('./pages/Privacy').then((m) => ({ default: m.PrivacyPage })))
 const TermsPage = lazy(() => import('./pages/Terms').then((m) => ({ default: m.TermsPage })))
 const SavedPropertiesPage = lazy(() => import('./pages/SavedProperties').then((m) => ({ default: m.SavedPropertiesPage })))
+const ProfilePage = lazy(() => import('./pages/Profile').then((m) => ({ default: m.ProfilePage })))
+const InvitePage = lazy(() => import('./pages/Invite').then((m) => ({ default: m.InvitePage })))
 const EnterpriseHomePage = lazy(() => import('./pages/enterprise/EnterpriseHome').then((m) => ({ default: m.EnterpriseHomePage })))
 const EnterpriseSearchPage = lazy(() => import('./pages/enterprise/EnterpriseSearch').then((m) => ({ default: m.EnterpriseSearchPage })))
 const EnterpriseDashboardPage = lazy(() => import('./pages/enterprise/EnterpriseDashboard').then((m) => ({ default: m.EnterpriseDashboardPage })))
@@ -72,6 +74,8 @@ export default function App() {
             }
           />
           <Route path="/saved" element={<SavedPropertiesPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/invite" element={<InvitePage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/privacy-policy" element={<PrivacyPage />} />
           <Route path="/terms" element={<TermsPage />} />

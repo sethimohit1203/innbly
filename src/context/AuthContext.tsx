@@ -9,6 +9,7 @@ interface AuthContextValue {
   closeAuthModal: () => void
   login: (user: AuthUser) => void
   logout: () => void
+  updateProfile: (patch: Partial<Omit<AuthUser, 'role'>>) => void
 }
 
 const STORAGE_KEY = 'innbly_auth_user'
@@ -52,6 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setModalOpen(false)
         },
         logout: () => setUser(null),
+        updateProfile: (patch) => setUser((prev) => (prev ? { ...prev, ...patch } : prev)),
       }}
     >
       {children}
