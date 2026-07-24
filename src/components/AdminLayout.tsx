@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useOutletContext } from 'react-router-dom'
-import { Lock, LayoutDashboard, Home, Users, MessageSquare, LogOut, RefreshCw } from 'lucide-react'
+import { Lock, LayoutDashboard, Home, Users, MessageSquare, LogOut, RefreshCw, IndianRupee } from 'lucide-react'
 import { usePageMeta } from '../hooks/usePageMeta'
 
 export interface HostSubmission {
@@ -49,6 +49,7 @@ export function useAdminData() {
 const TABS = [
   { to: '/admin', label: 'Dashboard Overview', icon: LayoutDashboard, end: true },
   { to: '/admin/properties', label: 'Manage Properties', icon: Home, end: false },
+  { to: '/admin/bookings', label: 'Bookings & Payouts', icon: IndianRupee, end: false },
   { to: '/admin/leads', label: 'Leads Tracker', icon: Users, end: false },
   { to: '/admin/messages', label: 'Messages', icon: MessageSquare, end: false },
 ]

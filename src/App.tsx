@@ -32,6 +32,7 @@ const AdminOverviewPage = lazy(() => import('./pages/admin/AdminOverview').then(
 const AdminPropertiesPage = lazy(() => import('./pages/admin/AdminProperties').then((m) => ({ default: m.AdminPropertiesPage })))
 const AdminLeadsPage = lazy(() => import('./pages/admin/AdminLeads').then((m) => ({ default: m.AdminLeadsPage })))
 const AdminMessagesPage = lazy(() => import('./pages/admin/AdminMessages').then((m) => ({ default: m.AdminMessagesPage })))
+const AdminBookingsPage = lazy(() => import('./pages/admin/AdminBookings').then((m) => ({ default: m.AdminBookingsPage })))
 const ComparePage = lazy(() => import('./pages/Compare').then((m) => ({ default: m.ComparePage })))
 const HostProfilePage = lazy(() => import('./pages/HostProfile').then((m) => ({ default: m.HostProfilePage })))
 
@@ -85,6 +86,7 @@ export default function App() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminOverviewPage />} />
             <Route path="properties" element={<AdminPropertiesPage />} />
+            <Route path="bookings" element={<AdminBookingsPage />} />
             <Route path="leads" element={<AdminLeadsPage />} />
             <Route path="messages" element={<AdminMessagesPage />} />
           </Route>

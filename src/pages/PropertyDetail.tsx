@@ -50,12 +50,14 @@ import { GuestCounter } from '../components/GuestCounter'
 import { PriceCalendar } from '../components/PriceCalendar'
 import { Reveal } from '../components/Reveal'
 import { FAQAccordion } from '../components/FAQAccordion'
+import { BookingModal } from '../components/BookingModal'
 import { useSavedProperties } from '../context/SavedPropertiesContext'
 import { useRecentlyViewed } from '../context/RecentlyViewedContext'
 import { useCompare } from '../context/CompareContext'
 import { useToast } from '../context/ToastContext'
 import { useProperties } from '../context/PropertiesContext'
 import { usePageMeta } from '../hooks/usePageMeta'
+import { getPaidPropertyIds } from '../lib/myBookings'
 import type { LandmarkType, TenantPreference } from '../types'
 
 const landmarkIcons: Record<LandmarkType, JSX.Element> = {
@@ -112,6 +114,8 @@ export function PropertyDetailPage() {
   const [checkIn, setCheckIn] = useState<string | null>(null)
   const [checkOut, setCheckOut] = useState<string | null>(null)
   const [guests, setGuests] = useState(1)
+  const [showBookingModal, setShowBookingModal] = useState(false)
+  const [isPaid, setIsPaid] = useState(() => (property ? getPaidPropertyIds().includes(property.id) : false))
   const saved = property ? isSaved(property.id) : false
 
   useEffect(() => {
@@ -212,11 +216,12 @@ export function PropertyDetailPage() {
         </div>
       </div>
 
-      {/* Hero media grid */}
-      <div className="relative mb-8 grid h-[420px] grid-cols-5 grid-rows-2 gap-2 overflow-hidden rounded-2xl">
+      {/* Hero media grid — collapses to a single full-width photo on mobile instead of
+          cramming the 5-column desktop layout into tiny unusable strips */}
+      <div className="relative mb-8 grid h-64 grid-cols-1 gap-2 overflow-hidden rounded-2xl sm:h-[420px] sm:grid-cols-5 sm:grid-rows-2">
         <button
           onClick={() => setPhotoIndex(0)}
-          className="col-span-3 row-span-2 h-full w-full overflow-hidden"
+          className="h-full w-full overflow-hidden sm:col-span-3 sm:row-span-2"
         >
           <img
             src={property.images[0]}
@@ -225,7 +230,7 @@ export function PropertyDetailPage() {
           />
         </button>
         {property.images.slice(1, 5).map((img, i) => (
-          <button key={i} onClick={() => setPhotoIndex(i + 1)} className="col-span-1 h-full w-full overflow-hidden">
+          <button key={i} onClick={() => setPhotoIndex(i + 1)} className="hidden h-full w-full overflow-hidden sm:col-span-1 sm:block">
             <img src={img} alt="" className="h-full w-full object-cover transition hover:brightness-95" />
           </button>
         ))}
@@ -577,14 +582,23 @@ export function PropertyDetailPage() {
               <PriceCalendar propertyId={property.id} />
             </div>
 
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-4 py-3.5 text-sm font-bold text-white shadow-card transition hover:bg-accent-600 hover:shadow-card-hover"
-            >
-              <MessageCircle className="h-4 w-4" /> Chat with Host
-            </a>
+            {isPaid ? (
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-4 py-3.5 text-sm font-bold text-white shadow-card transition hover:bg-accent-600 hover:shadow-card-hover"
+              >
+                <MessageCircle className="h-4 w-4" /> Chat with Host
+              </a>
+            ) : (
+              <button
+                onClick={() => setShowBookingModal(true)}
+                className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-3.5 text-sm font-bold text-white shadow-card transition hover:bg-primary-700 hover:shadow-card-hover"
+              >
+                Reserve & Pay
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -699,19 +713,41 @@ export function PropertyDetailPage() {
         <span className="text-lg font-extrabold text-slate-900">₹{property.price.toLocaleString('en-IN')}</span>
         <span className="text-sm text-slate-500"> /night</span>
       </div>
-      <a
-        href={whatsappUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center gap-1.5 rounded-xl bg-accent-500 px-5 py-2.5 text-sm font-bold text-white shadow-card transition hover:bg-accent-600"
-      >
-        <MessageCircle className="h-4 w-4" /> Chat with Host
-      </a>
+      {isPaid ? (
+        <a
+          href={whatsappUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 rounded-xl bg-accent-500 px-5 py-2.5 text-sm font-bold text-white shadow-card transition hover:bg-accent-600"
+        >
+          <MessageCircle className="h-4 w-4" /> Chat with Host
+        </a>
+      ) : (
+        <button
+          onClick={() => setShowBookingModal(true)}
+          className="flex items-center gap-1.5 rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-bold text-white shadow-card transition hover:bg-primary-700"
+        >
+          Reserve & Pay
+        </button>
+      )}
     </div>
     <Footer />
     {/* Spacer so the fixed mobile booking bar (and, below md, the bottom nav
         beneath it) never covers the last bit of footer content */}
     <div className="h-32 md:h-16 lg:hidden" />
+    {showBookingModal && (
+      <BookingModal
+        property={property}
+        checkIn={checkIn}
+        checkOut={checkOut}
+        guests={guests}
+        onClose={() => setShowBookingModal(false)}
+        onBooked={() => {
+          setIsPaid(true)
+          setShowBookingModal(false)
+        }}
+      />
+    )}
     </>
   )
 }

@@ -93,9 +93,47 @@ fails to the login form on any error.
 | Tenant/host "login" session | Your own browser's `localStorage` (`innbly_auth_user`) | Only you, only on that browser |
 | Saved properties / recently viewed / compare list / saved searches | Your own browser's `localStorage` | Only you, only on that browser |
 | Admin session | An HMAC-signed cookie in your browser | Only you, only on that browser |
+| Confirmed bookings + payment IDs | Supabase `bookings` table | Only the admin API, via `SUPABASE_SERVICE_ROLE_KEY` — no public read at all |
+| "Have I paid for this stay" flag | Your own browser's `localStorage` (`innbly_paid_property_ids`) | Only you, only on that browser |
 
 There is no traditional application database like MySQL/Mongo for the marketplace itself — Supabase
-is used narrowly, just for the host-submission pipeline.
+is used narrowly, for the host-submission pipeline and now real bookings/payments (below).
+
+## 5a. Booking & payment flow (real money, via Razorpay)
+
+"Reserve & Pay" on a property page is a genuine payment flow, not a demo:
+
+1. Pick check-in/check-out dates and guests, then click **Reserve & Pay**. A price breakdown shows:
+   room subtotal, an 8% guest service fee, an estimated GST line, and the refundable security
+   deposit — all computed server-side (never trust what the browser displays for the actual charge).
+2. Paying opens Razorpay's real checkout widget (test-mode cards work fine with test keys — see
+   Razorpay's docs for test card numbers).
+3. On success, the server independently re-verifies the payment signature and re-computes the
+   price — it never trusts the browser's "payment succeeded" claim — then saves the booking.
+4. **The host's real WhatsApp/contact info only unlocks after payment** — before that, "Reserve &
+   Pay" is the only way to reach them through the site. This is intentional: it keeps innbly as the
+   transaction's system of record instead of tenants and hosts going around it.
+5. Admin, host, and tenant all get an email; check `/admin/bookings` to see what each host is owed.
+
+**Commission model:** host pays 2% of the room subtotal, guest pays an 8% service fee — both
+undercutting Airbnb's typical rates on purpose. GST is estimated (12%/18% based on nightly rate) for
+display only; confirm the real applicable slab and registration requirement with a tax advisor.
+
+**Payouts to hosts are manual for now.** Automatically splitting and transferring a host's share
+needs **Razorpay Route** — a separate marketplace product requiring each host to complete their own
+KYC as a "linked account," which is a business approval process with Razorpay, not something
+achievable with API keys alone. Until Route is set up: check `/admin/bookings` for what's owed,
+pay each host yourself (bank transfer/UPI), then click **Mark Paid Out**.
+
+**One-time setup required:**
+1. Run `supabase/bookings.sql` once in the Supabase SQL Editor (same pattern as the other SQL
+   files) — until you do, `/admin/bookings` will show a clear "table not found" error instead of
+   silently hanging.
+2. Set `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` as **server-only** Vercel environment variables
+   (no `VITE_` prefix — the key ID is also returned to the browser by `/api/bookings/create-order`
+   at request time so Razorpay's checkout widget can use it, but the secret never leaves the
+   server). Get test-mode keys free at [dashboard.razorpay.com/app/keys](https://dashboard.razorpay.com/app/keys)
+   with no business verification needed to start testing.
 
 ## 6. Google Sign-In setup (not yet configured)
 
@@ -206,8 +244,15 @@ npm run dev          # starts the Vite client (5173) + local API server (8787)
 |---|---|---|
 | `innbly.com` | Main marketplace site | Public |
 | `innbly.com/search` | Search/filter results | Public |
-| `innbly.com/dashboard` | Host dashboard (own listings + leads) | Requires a host session (fake auth, §1) |
+| `innbly.com/dashboard` | Host dashboard overview | Requires a host session (fake auth, §1) |
+| `innbly.com/dashboard/properties` | Host's own listings | Requires a host session |
+| `innbly.com/dashboard/leads` | Host's incoming leads | Requires a host session |
 | `innbly.com/dashboard/list-property` | Submit a new listing | Requires a host session |
-| `innbly.com/admin` | Admin approvals + data summary | Requires the real `ADMIN_PASSCODE` |
+| `innbly.com/admin` | Admin dashboard overview | Requires the real `ADMIN_PASSCODE` |
+| `innbly.com/admin/properties` | Property approvals | Requires admin passcode |
+| `innbly.com/admin/bookings` | Bookings & host payouts | Requires admin passcode |
+| `innbly.com/admin/leads` / `/admin/messages` | Visit requests / signups+contact+newsletter | Requires admin passcode |
 | `innbly.com/enterprise` | Enterprise PMS demo/pitch | Public, intentionally (§9) |
 | `innbly.com/saved` | Tenant's saved properties | Requires a tenant session |
+| `innbly.com/profile` | Edit account details, photo, quick-links | Requires a signed-in session (tenant or host) |
+| `innbly.com/invite` | Personal referral link | Requires a signed-in session |

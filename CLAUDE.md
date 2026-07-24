@@ -136,13 +136,53 @@ Postgres view → `PropertiesContext` picks them up and they appear everywhere a
   - `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` — client-exposed by design (anon key is meant
     to be public; RLS is what enforces access, not secrecy of this key).
   - `SUPABASE_SERVICE_ROLE_KEY` — server-only, no `VITE_` prefix, bypasses RLS entirely. Only ever
-    imported by `api/_lib/supabaseAdmin.ts`, only ever called from `api/admin/host-listings.ts`,
-    always gated behind `verifyAdminSession()`. Never import `supabaseAdmin.ts` from `src/`.
+    imported by `api/_lib/supabaseAdmin.ts`, called from `api/admin/host-listings.ts`,
+    `api/admin/bookings.ts`, and `api/bookings/verify.ts` (payment verification needs to both write
+    the `bookings` row and read `host_submissions.owner_email` for payout tracking) — every caller
+    gated behind `verifyAdminSession()` except `verify.ts`, which is instead gated behind its own
+    independent Razorpay signature check (see below). Never import `supabaseAdmin.ts` from `src/`.
 - `src/lib/supabase.ts` exports `supabase: SupabaseClient | null` — it's `null` (with a console
   warning) if the env vars are missing, specifically so a misconfigured/missing key degrades to
   "the host form doesn't work" rather than crashing the entire app at load (this happened once:
   `createClient()` throws synchronously on an empty URL, taking down `#root` for every visitor).
   Always keep this nullable/guarded pattern when touching this file.
+
+### Bookings & payments — Razorpay
+
+Tenant-facing "Reserve & Pay" on `PropertyDetail` (both static demo properties and approved host
+listings) is a real payment flow, not a stub — `api/_lib/stayBooking.ts` is the pricing engine
+(separate from `api/_lib/pricing.ts`'s `computeBookingTotal`, which is exclusively used by the
+unrelated `/enterprise` demo — don't conflate the two).
+
+- Commission model (a deliberate undercut of Airbnb's typical split-fee rates to compete on price):
+  host pays **2%** of the room subtotal, guest pays an **8%** service fee, plus an estimated GST
+  (12%/18% two-tier slab on the nightly rate — **this is a display estimate only**; confirm the
+  actual applicable slab and any GST-registration requirement with a tax advisor before relying on
+  it for compliance, nothing here files or remits GST). All of this is computed in
+  `computeStayBookingBreakdown()` and re-derived from scratch server-side in both
+  `api/bookings/create-order.ts` and `api/bookings/verify.ts` — never trust client-supplied amounts.
+- Flow: `create-order.ts` computes the price and opens a Razorpay order (test or live, based on
+  whatever `RAZORPAY_KEY_ID`/`RAZORPAY_KEY_SECRET` are set) → the browser opens Razorpay Checkout
+  (`src/lib/razorpay.ts`) → on success, `verify.ts` independently verifies the HMAC-SHA256 payment
+  signature (never trusts a client-reported "payment succeeded"), recomputes the price breakdown
+  again, and inserts into the `bookings` table using the service-role key. There's an idempotency
+  check on `razorpay_payment_id` so a retried verify call can't create duplicate bookings.
+- `supabase/bookings.sql` (run once, same one-time-SQL-Editor pattern as the other Supabase files)
+  creates the `bookings` table with RLS enabled and **zero policies** — unlike `host_submissions`,
+  there's no anon insert policy at all, since payment verification always happens server-side
+  anyway (see above), so there was never a reason to let the browser write directly.
+- **No automatic payout to hosts** — that requires Razorpay Route (a separate marketplace product
+  needing per-host KYC-verified linked accounts, a business approval process, not just API keys).
+  Until that's set up, `/admin/bookings` shows what each host is owed after commission and an admin
+  manually pays them (bank/UPI) and marks the booking `paid` there.
+- "Chat with Host" (the WhatsApp deep link) is gated behind a completed payment — `src/lib/
+  myBookings.ts` tracks paid property ids in localStorage (same pattern as `myListings.ts`) so the
+  host's real contact info isn't shown to a tenant who hasn't paid through the site yet.
+- Google Sheets mirroring for a confirmed booking happens directly from `verify.ts` (server-side),
+  unlike host-listing submissions which mirror from the browser — there's no client round-trip
+  needed since verification already runs server-side. `Code.gs`'s `sendBookingEmails()` notifies
+  admin, host, and tenant, each with only what they need (host gets the guest's contact + payout
+  amount, tenant gets a receipt).
 
 ### Testing
 

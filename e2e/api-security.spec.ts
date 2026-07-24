@@ -62,8 +62,25 @@ test.describe('API security', () => {
     expect(res.status()).toBe(401)
   })
 
-  test('payments endpoint safely reports not-configured without real Razorpay keys', async ({ request }) => {
+  test('payments endpoint either creates a real order or safely reports not-configured', async ({ request }) => {
+    // Whether this is 501 (no RAZORPAY_KEY_ID/SECRET set) or a real order
+    // depends on the environment running the suite — assert whichever
+    // outcome actually happens is internally consistent, not a fixed one.
     const res = await request.post('/api/payments/create-order', { data: { amountInPaise: 100000 } })
-    expect(res.status()).toBe(501)
+    if (res.status() === 501) return
+    expect(res.ok()).toBeTruthy()
+    const body = await res.json()
+    expect(body.orderId).toBeTruthy()
+  })
+
+  test('bookings order endpoint either creates a real order or safely reports not-configured', async ({ request }) => {
+    const res = await request.post('/api/bookings/create-order', {
+      data: { propertyId: 'p1', checkIn: '2026-08-01', checkOut: '2026-08-03', guests: 2 },
+    })
+    if (res.status() === 501) return
+    expect(res.ok()).toBeTruthy()
+    const body = await res.json()
+    expect(body.orderId).toBeTruthy()
+    expect(body.breakdown.guestTotal).toBe(body.breakdown.roomSubtotal + body.breakdown.guestServiceFee + body.breakdown.gstAmount + body.breakdown.securityDeposit)
   })
 })
