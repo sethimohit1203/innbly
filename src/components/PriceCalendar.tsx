@@ -23,9 +23,15 @@ export function PriceCalendar({ propertyId }: { propertyId: string }) {
       <div className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-400">
         {loading && <Loader2 className="h-3 w-3 animate-spin" />} Next 7 nights
       </div>
-      <div className="grid grid-cols-7 gap-1.5">
+      {/* Horizontally scrollable on narrow screens instead of forcing 7 cramped
+          columns into a card that can be as narrow as the phone itself — snaps
+          back to an even 7-column grid once there's room for it. */}
+      <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-thin sm:grid sm:grid-cols-7 sm:overflow-visible">
         {data.days.map((d) => (
-          <div key={d.date} className="rounded-xl border border-slate-200 bg-slate-50 p-2 text-center">
+          <div
+            key={d.date}
+            className="min-w-[60px] shrink-0 rounded-xl border border-slate-200 bg-slate-50 p-2 text-center sm:min-w-0 sm:shrink"
+          >
             <p className="text-[10px] font-bold uppercase text-slate-400">{d.label}</p>
             <p className={`mt-1 text-xs font-extrabold ${d.price === maxPrice && maxPrice > 0 ? 'text-accent-700' : 'text-slate-800'}`}>
               ₹{d.price.toLocaleString('en-IN')}

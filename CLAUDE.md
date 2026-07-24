@@ -74,6 +74,13 @@ static catalog + Google Sheets pattern described below.
 - `HostOnlyRoute` gates `/dashboard` and `/dashboard/list-property` client-side by
   `useAuth().user?.role === 'host'`. This is a UX guard, not real security — there is no backend
   session tied to it (see Auth model below).
+- Both the Host Dashboard and Admin Dashboard are nested-route layouts, not single pages with
+  anchor-scroll sections: `HostDashboardLayout`/`AdminLayout` render a shared header + tab nav and
+  a React Router `<Outlet>`, with each tab (`/dashboard`, `/dashboard/properties`,
+  `/dashboard/leads` and `/admin`, `/admin/properties`, `/admin/bookings`, `/admin/leads`,
+  `/admin/messages`) as its own lazy-loaded page component under `src/pages/host/` and
+  `src/pages/admin/`. `AdminLayout` owns all the auth/data-fetching state and passes it down via
+  `Outlet context` (`useAdminData()`) rather than each tab fetching independently.
 
 ### Auth model (important: this is not real authentication)
 
