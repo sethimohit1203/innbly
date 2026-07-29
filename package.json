@@ -7,6 +7,7 @@
     "dev": "concurrently -n client,api -c blue,green \"npm:dev:client\" \"npm:dev:api\"",
     "dev:client": "vite",
     "dev:api": "tsx watch scripts/dev-api-server.ts",
+    "prebuild": "tsx scripts/generate-sitemap.ts",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "typecheck:api": "tsc --noEmit -p api/tsconfig.json",

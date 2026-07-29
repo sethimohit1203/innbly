@@ -93,8 +93,10 @@ fails to the login form on any error.
 | Tenant/host "login" session | Your own browser's `localStorage` (`innbly_auth_user`) | Only you, only on that browser |
 | Saved properties / recently viewed / compare list / saved searches | Your own browser's `localStorage` | Only you, only on that browser |
 | Admin session | An HMAC-signed cookie in your browser | Only you, only on that browser |
-| Confirmed bookings + payment IDs | Supabase `bookings` table | Only the admin API, via `SUPABASE_SERVICE_ROLE_KEY` — no public read at all |
+| Confirmed bookings + payment IDs | Supabase `bookings` table | Host/tenant can read their own rows via `/api/bookings/mine` (matched by email — not a hardened check); full table only via `SUPABASE_SERVICE_ROLE_KEY` |
 | "Have I paid for this stay" flag | Your own browser's `localStorage` (`innbly_paid_property_ids`) | Only you, only on that browser |
+| Property reviews | Supabase `reviews` table | Anyone can read (public `SELECT` policy) — writes only via the service-role key in `api/submit.ts`, never directly from the browser |
+| "Have I seen this new booking" (host) | Your own browser's `localStorage` (`innbly_host_bookings_last_seen_<email>`) | Only you, only on that browser |
 
 There is no traditional application database like MySQL/Mongo for the marketplace itself — Supabase
 is used narrowly, for the host-submission pipeline and now real bookings/payments (below).
@@ -126,14 +128,25 @@ achievable with API keys alone. Until Route is set up: check `/admin/bookings` f
 pay each host yourself (bank transfer/UPI), then click **Mark Paid Out**.
 
 **One-time setup required:**
-1. Run `supabase/bookings.sql` once in the Supabase SQL Editor (same pattern as the other SQL
-   files) — until you do, `/admin/bookings` will show a clear "table not found" error instead of
-   silently hanging.
+1. Run `supabase/bookings.sql`, then `supabase/bookings_status.sql`, then `supabase/reviews.sql`
+   once each in the Supabase SQL Editor (same pattern as the other SQL files, run in that order —
+   `bookings_status.sql` adds a column to the table `bookings.sql` creates, and `reviews.sql`
+   references `bookings` via a foreign key) — until you do, `/admin/bookings` will show a clear
+   "table not found" error instead of silently hanging.
 2. Set `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` as **server-only** Vercel environment variables
    (no `VITE_` prefix — the key ID is also returned to the browser by `/api/bookings/create-order`
    at request time so Razorpay's checkout widget can use it, but the secret never leaves the
    server). Get test-mode keys free at [dashboard.razorpay.com/app/keys](https://dashboard.razorpay.com/app/keys)
    with no business verification needed to start testing.
+
+**Cancellations, host bookings view, and reviews** (added after the initial booking flow):
+- Hosts can see their own bookings at `/dashboard/bookings`, with a red badge for ones they haven't
+  viewed yet. Tenants can see theirs at `/bookings`, and can cancel an upcoming booking themselves
+  (so can hosts, so can admin from `/admin/bookings`) — cancelling is status-only, it does **not**
+  issue a refund automatically.
+- After a stay's check-out date passes, the tenant can leave a 1–5 star review from `/bookings` —
+  it's verified server-side against the real booking before being saved, and shows up on the
+  property's page immediately, no admin approval step.
 
 ## 6. Google Sign-In setup (not yet configured)
 
@@ -246,6 +259,7 @@ npm run dev          # starts the Vite client (5173) + local API server (8787)
 | `innbly.com/search` | Search/filter results | Public |
 | `innbly.com/dashboard` | Host dashboard overview | Requires a host session (fake auth, §1) |
 | `innbly.com/dashboard/properties` | Host's own listings | Requires a host session |
+| `innbly.com/dashboard/bookings` | Host's own bookings + payout status | Requires a host session |
 | `innbly.com/dashboard/leads` | Host's incoming leads | Requires a host session |
 | `innbly.com/dashboard/list-property` | Submit a new listing | Requires a host session |
 | `innbly.com/admin` | Admin dashboard overview | Requires the real `ADMIN_PASSCODE` |
@@ -254,5 +268,6 @@ npm run dev          # starts the Vite client (5173) + local API server (8787)
 | `innbly.com/admin/leads` / `/admin/messages` | Visit requests / signups+contact+newsletter | Requires admin passcode |
 | `innbly.com/enterprise` | Enterprise PMS demo/pitch | Public, intentionally (§9) |
 | `innbly.com/saved` | Tenant's saved properties | Requires a tenant session |
+| `innbly.com/bookings` | Tenant's own bookings, cancel + leave reviews | Requires a tenant session |
 | `innbly.com/profile` | Edit account details, photo, quick-links | Requires a signed-in session (tenant or host) |
 | `innbly.com/invite` | Personal referral link | Requires a signed-in session |

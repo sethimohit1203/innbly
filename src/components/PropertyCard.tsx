@@ -174,7 +174,7 @@ export function PropertyCard({ property, onQuickView }: { property: Property; on
               <Scale className="h-3.5 w-3.5" />
             </button>
             <span className="rounded-xl bg-primary-50 px-4 py-2.5 text-xs font-bold text-primary-700 transition group-hover:bg-primary-100">
-              Check Room
+              View Stay
             </span>
           </div>
         </div>

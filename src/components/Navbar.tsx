@@ -13,6 +13,7 @@ import {
   LogOut,
   PlusCircle,
   Gift,
+  Receipt,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { TranslateWidget } from './TranslateWidget'
@@ -127,6 +128,13 @@ export function Navbar() {
                       <User className="h-4 w-4 text-slate-400" /> My Profile
                     </Link>
                     <Link
+                      to="/bookings"
+                      onClick={() => setAvatarOpen(false)}
+                      className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                    >
+                      <Receipt className="h-4 w-4 text-slate-400" /> My Bookings
+                    </Link>
+                    <Link
                       to="/saved"
                       onClick={() => setAvatarOpen(false)}
                       className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
@@ -164,6 +172,8 @@ export function Navbar() {
 
           <button
             onClick={() => setMobileOpen((o) => !o)}
+            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={mobileOpen}
             className="p-2 text-slate-600 transition-colors hover:text-primary-600 md:hidden"
           >
             {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -198,6 +208,9 @@ export function Navbar() {
             <>
               <Link to="/profile" onClick={() => setMobileOpen(false)} className="block text-base font-semibold text-slate-700 hover:text-primary-600">
                 My Profile
+              </Link>
+              <Link to="/bookings" onClick={() => setMobileOpen(false)} className="block text-base font-semibold text-slate-700 hover:text-primary-600">
+                My Bookings
               </Link>
               <Link to="/saved" onClick={() => setMobileOpen(false)} className="block text-base font-semibold text-slate-700 hover:text-primary-600">
                 Saved Properties

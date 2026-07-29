@@ -237,7 +237,7 @@ export function ListPropertyPage() {
                   <input
                     id="propertyTitle"
                     {...register('propertyTitle')}
-                    placeholder="e.g. Sunrise Coliving — Koramangala"
+                    placeholder="e.g. Palm Grove Villa — Candolim"
                     className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
                   />
                   {errors.propertyTitle && <p className="mt-1 text-xs font-medium text-rose-600">{errors.propertyTitle.message}</p>}

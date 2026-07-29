@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import type { CountryCode } from 'libphonenumber-js/min'
-import { Mail, Phone, MapPin, Send } from 'lucide-react'
+import { Mail, Phone, MapPin, Send, Instagram, Facebook, Youtube } from 'lucide-react'
 import { Footer } from '../components/Footer'
 import { PhoneInput } from '../components/PhoneInput'
 import { useToast } from '../context/ToastContext'
 import { submitToSheet } from '../lib/backend'
 import { usePageMeta } from '../hooks/usePageMeta'
+import { SOCIAL_LINKS } from '../lib/seo'
 
 const SUPPORT_EMAIL = 'innblysupport@gmail.com'
 
@@ -81,6 +82,39 @@ export function ContactPage() {
               <div>
                 <p className="text-sm font-bold text-slate-900">Head office</p>
                 <p className="text-sm text-slate-500">Koramangala, Bengaluru, India</p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-card">
+              <p className="mb-3 text-sm font-bold text-slate-900">Follow us</p>
+              <div className="flex items-center gap-3">
+                <a
+                  href={SOCIAL_LINKS.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Innbly on Instagram"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600 transition hover:bg-primary-600 hover:text-white"
+                >
+                  <Instagram className="h-4.5 w-4.5" />
+                </a>
+                <a
+                  href={SOCIAL_LINKS.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Innbly on Facebook"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600 transition hover:bg-primary-600 hover:text-white"
+                >
+                  <Facebook className="h-4.5 w-4.5" />
+                </a>
+                <a
+                  href={SOCIAL_LINKS.youtube}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Innbly on YouTube"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600 transition hover:bg-primary-600 hover:text-white"
+                >
+                  <Youtube className="h-4.5 w-4.5" />
+                </a>
               </div>
             </div>
           </div>

@@ -1,20 +1,20 @@
-import { BadgeIndianRupee, BadgeCheck, CalendarRange, Zap, ShieldCheck, GraduationCap, Briefcase } from 'lucide-react'
+import { BadgeIndianRupee, BadgeCheck, CalendarRange, Zap, ShieldCheck, Users, Sparkles } from 'lucide-react'
 
 const benefits = [
   {
     icon: BadgeIndianRupee,
-    title: 'No Brokerage',
-    text: 'Book directly with verified hosts — zero brokerage or hidden agent fees, ever.',
+    title: 'Transparent Pricing',
+    text: 'Book directly with verified hosts — the price you see is the price you pay, with zero brokerage or hidden fees.',
   },
   {
     icon: BadgeCheck,
-    title: 'Verified Rooms',
-    text: 'Every listing is physical-audit checked, documented, and fully photographed by our team.',
+    title: 'Verified Properties',
+    text: 'Every villa, cottage, and farmhouse is physically audited, documented, and fully photographed by our team before it goes live.',
   },
   {
     icon: CalendarRange,
-    title: 'Flexible Stay',
-    text: 'From a single night to long-term stays — choose the duration that fits your plans.',
+    title: 'Flexible Stays',
+    text: 'From a weekend getaway to an extended holiday — choose check-in and check-out dates that fit your trip.',
   },
   {
     icon: Zap,
@@ -23,18 +23,18 @@ const benefits = [
   },
   {
     icon: ShieldCheck,
-    title: 'Secure Deposit',
-    text: 'Refundable security deposits are tracked transparently and returned hassle-free.',
+    title: 'Secure Booking',
+    text: 'Refundable security deposits and payments are tracked transparently, with clear cancellation policies on every listing.',
   },
   {
-    icon: GraduationCap,
-    title: 'Student Friendly',
-    text: 'Verified PGs and hostels near colleges, with flexible move-in dates for the academic year.',
+    icon: Users,
+    title: 'Trusted Hosts',
+    text: 'Real hosts with verified response rates and guest reviews — chat directly before and during your stay.',
   },
   {
-    icon: Briefcase,
-    title: 'Corporate Friendly',
-    text: 'Furnished coliving and serviced apartments built for working professionals on relocation.',
+    icon: Sparkles,
+    title: 'Curated Experiences',
+    text: 'Handpicked villas, cabins, and farmhouses in India\'s most-loved getaway destinations — not a generic listings dump.',
   },
 ]
 
@@ -47,10 +47,10 @@ export function Benefits() {
             Our Standards
           </span>
           <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 md:text-4xl">
-            Why Choose innbly
+            Why Choose Innbly
           </h2>
           <p className="mt-4 font-medium text-slate-500">
-            We bridge the gap between high-end professional hospitality and authentic homestay comfort.
+            We bridge the gap between high-end professional hospitality and authentic vacation-home comfort.
           </p>
         </div>
 

@@ -7,14 +7,18 @@ export interface FAQItem {
   a: string
 }
 
-const DEFAULT_FAQS: FAQItem[] = [
+export const DEFAULT_FAQS: FAQItem[] = [
   {
-    q: 'Is booking on innbly really instant?',
+    q: 'What kind of properties does Innbly list?',
+    a: 'Innbly lists verified villas, holiday homes, cabins, cottages, farmhouses, and apartments for short getaways and vacations across India — not shared rooms, PGs, or coliving spaces.',
+  },
+  {
+    q: 'Is booking on Innbly really instant?',
     a: 'Listings marked "Instant Book" confirm immediately once you submit a request. Others require the host to accept your request first, usually within a few hours.',
   },
   {
     q: 'How does the security deposit work?',
-    a: 'Each listing shows its refundable security deposit upfront in the price breakdown. Deposits are collected and refunded directly by the host — innbly does not hold funds in escrow today.',
+    a: 'Each listing shows its refundable security deposit upfront in the price breakdown. Deposits are collected and refunded directly by the host — Innbly does not hold funds in escrow today.',
   },
   {
     q: 'What does "Verified" mean on a listing?',
@@ -22,11 +26,27 @@ const DEFAULT_FAQS: FAQItem[] = [
   },
   {
     q: 'Can I cancel a booking?',
-    a: 'Listings tagged "Free Cancellation" allow you to cancel without penalty up to the window stated on the property page. Other listings follow the host\'s own cancellation policy shown on checkout.',
+    a: 'Listings tagged "Free Cancellation" allow you to cancel without penalty up to the window stated on the property page. Other listings follow the host\'s own cancellation policy shown at checkout.',
   },
   {
-    q: 'How do I become a host?',
-    a: 'Tap "List Your Property" in the navigation, tell us about your space, and submit it for review. Once approved, your listing goes live and guest inquiries reach you directly.',
+    q: 'How do I pay for a stay on Innbly?',
+    a: 'Reserve & Pay opens a secure Razorpay checkout showing the full price breakdown — room rate, service fee, taxes, and deposit — before you confirm.',
+  },
+  {
+    q: 'Can I contact the host before booking?',
+    a: 'Yes — every listing shows the host\'s response rate and typical response time, and you can message them with questions before you commit to a stay.',
+  },
+  {
+    q: 'Are prices per night or per month?',
+    a: 'All prices on Innbly are nightly rates, shown upfront with no hidden charges — ideal for weekend trips and short vacations, not long-term renting.',
+  },
+  {
+    q: 'How do I become a host on Innbly?',
+    a: 'Tap "List Your Property" in the navigation, tell us about your villa, cabin, or holiday home, and submit it for review. Once approved, your listing goes live and guest inquiries reach you directly.',
+  },
+  {
+    q: 'Which destinations does Innbly cover?',
+    a: 'Innbly features stays across India\'s most popular getaway destinations, including Goa, Manali, Shimla, Jaipur, Udaipur, Mussoorie, Coorg, Ooty, and Rishikesh, with more destinations added regularly.',
   },
 ]
 

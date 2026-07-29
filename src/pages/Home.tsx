@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Search, MapPin, Users, Wallet } from 'lucide-react'
 import { PropertyCard } from '../components/PropertyCard'
@@ -19,15 +19,42 @@ import { DateRangePicker } from '../components/DateRangePicker'
 import { LocationAutocomplete } from '../components/LocationAutocomplete'
 import { StickyHomeSearchBar } from '../components/StickyHomeSearchBar'
 import { BecomeHostCTA } from '../components/BecomeHostCTA'
-import { FAQAccordion } from '../components/FAQAccordion'
+import { FAQAccordion, DEFAULT_FAQS } from '../components/FAQAccordion'
 import { Reveal } from '../components/Reveal'
 import { useSavedProperties } from '../context/SavedPropertiesContext'
 import { useRecentlyViewed } from '../context/RecentlyViewedContext'
 import { useProperties } from '../context/PropertiesContext'
 import { usePageMeta } from '../hooks/usePageMeta'
+import { useJsonLd } from '../hooks/useJsonLd'
+import { faqSchema, webPageSchema } from '../lib/seo'
+import { DESTINATIONS } from '../data/destinations'
 import type { Property } from '../types'
 
-const HERO_IMAGE = 'https://picsum.photos/seed/innbly-hero-villa/1920/1080'
+// Kept at 1280x720 (not 1920x1080) and preloaded (see index.html) — this is
+// the page's LCP element. A CSS background-image is invisible to the
+// browser's preload scanner (only discovered after CSSOM is built), so
+// without the explicit <link rel="preload"> in index.html this image starts
+// downloading late no matter how small it is. picsum.photos is a demo/
+// placeholder image host — swap for a real, CDN-optimized (WebP/AVIF) hero
+// photo before shipping to production; that alone will cut payload further.
+const HERO_IMAGE = 'https://picsum.photos/seed/innbly-hero-villa/1280/720'
+
+const PROPERTY_TYPE_EXPLORE: { label: string; propertyType: string; image: string }[] = [
+  { label: 'Villas', propertyType: 'Villas', image: 'https://picsum.photos/seed/explore-villas/600/450' },
+  { label: 'Apartments', propertyType: 'Apartments', image: 'https://picsum.photos/seed/explore-apartments/600/450' },
+  { label: 'Cabins', propertyType: 'Cabins', image: 'https://picsum.photos/seed/explore-cabins/600/450' },
+  { label: 'Cottages', propertyType: 'Cottages', image: 'https://picsum.photos/seed/explore-cottages/600/450' },
+  { label: 'Farmhouses', propertyType: 'Farm Stays', image: 'https://picsum.photos/seed/explore-farmhouses/600/450' },
+  { label: 'Holiday Homes', propertyType: 'Holiday Homes', image: 'https://picsum.photos/seed/explore-holiday-homes/600/450' },
+  { label: 'Luxury Homes', propertyType: 'Country Houses', image: 'https://picsum.photos/seed/explore-luxury/600/450' },
+]
+
+const HOW_IT_WORKS = [
+  { step: '1', title: 'Search', text: 'Enter your destination, dates, and guest count to see verified villas, cabins, cottages, and farmhouses available for those dates.' },
+  { step: '2', title: 'Explore', text: 'Compare photos, amenities, nearby attractions, and host reviews across shortlisted properties before deciding.' },
+  { step: '3', title: 'Book', text: 'Reserve instantly on eligible listings or message the host directly — pay securely with a full price breakdown shown upfront.' },
+  { step: '4', title: 'Enjoy Your Stay', text: 'Check in, relax, and reach your host directly over WhatsApp for anything you need during the trip.' },
+]
 
 type Category = 'all' | 'Solo' | 'Group' | 'Verified'
 
@@ -62,9 +89,17 @@ function getRecommended(all: Property[], savedIds: string[], recentIds: string[]
 
 export function HomePage() {
   usePageMeta(
-    'innbly — Verified Villas, Homestays & Rentals',
-    'Search verified villas, farmhouses, PGs, and homestays across India. Book directly and chat with hosts instantly on innbly.',
+    'Verified Villas, Holiday Homes & Vacation Rentals in India',
+    'Book verified villas, holiday homes, cabins, cottages and farmhouses across India\'s top getaway destinations. Transparent pricing, real hosts, instant booking.',
   )
+  useJsonLd('home-schema', [
+    webPageSchema({
+      name: 'Verified Villas, Holiday Homes & Vacation Rentals in India | Innbly',
+      description: 'Book verified villas, holiday homes, cabins, cottages and farmhouses across India\'s top getaway destinations on Innbly.',
+      path: '/',
+    }),
+    faqSchema(DEFAULT_FAQS),
+  ])
   const navigate = useNavigate()
   const { properties } = useProperties()
   const cities = useMemo(() => Array.from(new Set(properties.map((p) => p.city))), [properties])
@@ -123,17 +158,17 @@ export function HomePage() {
             className="mx-auto max-w-3xl text-center"
           >
             <span className="mb-6 inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-accent-300 backdrop-blur-md">
-              ★ India's Premium Stay & Rental Network
+              ★ India's Verified Vacation Rental Network
             </span>
             <h1 className="mb-6 text-4xl font-extrabold leading-[1.1] tracking-tight sm:text-5xl md:text-6xl">
-              Find Your Perfect Space. <br />
+              Verified Villas, Holiday Homes <br />
               <span className="bg-gradient-to-r from-primary-300 to-accent-300 bg-clip-text text-transparent">
-                Feels Just Like Home.
+                & Vacation Rentals in India.
               </span>
             </h1>
             <p className="mx-auto mb-2 max-w-2xl text-lg font-medium leading-relaxed text-slate-200">
-              Explore fully furnished, verified villas, farmhouses, PGs, and homestays across India's top
-              destinations and metropolitan hubs.
+              Book fully furnished, verified villas, cabins, cottages, and farmhouses across India's most-loved
+              getaway destinations — transparent pricing, real hosts, no brokerage.
             </p>
           </motion.div>
 
@@ -280,18 +315,70 @@ export function HomePage() {
           </div>
           {filtered.length === 0 && (
             <div className="py-16 text-center text-slate-400">
-              <p className="text-lg font-bold text-slate-600">No rooms match your specific filters</p>
+              <p className="text-lg font-bold text-slate-600">No stays match your specific filters</p>
               <p className="text-sm">Try selecting "All Stays".</p>
             </div>
           )}
         </div>
       </section>
 
+      {/* Explore by property type */}
       <section className="bg-white py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Reveal>
-            <h2 className="mb-6 text-2xl font-bold text-slate-900">Trending Destinations</h2>
+            <h2 className="mb-2 text-2xl font-bold text-slate-900">Explore By Property Type</h2>
+            <p className="mb-6 text-sm font-medium text-slate-500">
+              Every stay on Innbly falls into one of these categories — pick the kind of space that fits your trip.
+            </p>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-7">
+              {PROPERTY_TYPE_EXPLORE.map((t) => (
+                <button
+                  key={t.label}
+                  onClick={() => navigate(`/search?type=${encodeURIComponent(t.propertyType)}`)}
+                  className="group overflow-hidden rounded-2xl border border-slate-100 text-left shadow-card transition hover:-translate-y-0.5 hover:shadow-card-hover"
+                >
+                  <div className="h-24 w-full overflow-hidden">
+                    <img src={t.image} alt={t.label} className="h-full w-full object-cover transition group-hover:scale-105" />
+                  </div>
+                  <p className="px-3 py-2 text-sm font-bold text-slate-800">{t.label}</p>
+                </button>
+              ))}
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="bg-slate-50/60 py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <h2 className="mb-2 text-2xl font-bold text-slate-900">Trending Destinations</h2>
+            <p className="mb-6 text-sm font-medium text-slate-500">Where guests are booking the most stays right now.</p>
             <TrendingDestinations />
+          </Reveal>
+        </div>
+      </section>
+
+      {/* Popular destinations — full directory, links to dedicated destination guides */}
+      <section className="bg-white py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <h2 className="mb-2 text-2xl font-bold text-slate-900">Popular Destinations</h2>
+            <p className="mb-6 text-sm font-medium text-slate-500">
+              Destination guides with best-time-to-visit advice, attractions, food, and featured stays.
+            </p>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+              {DESTINATIONS.filter((d) => d.slug !== 'lonavala').map((d) => (
+                <Link
+                  key={d.slug}
+                  to={`/${d.slug}`}
+                  className="group relative h-32 overflow-hidden rounded-2xl shadow-card transition hover:-translate-y-0.5 hover:shadow-card-hover"
+                >
+                  <img src={d.heroImage} alt={d.name} className="h-full w-full object-cover transition group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/10 to-transparent" />
+                  <p className="absolute bottom-2 left-3 text-sm font-extrabold text-white">{d.name}</p>
+                </Link>
+              ))}
+            </div>
           </Reveal>
         </div>
       </section>
@@ -327,8 +414,62 @@ export function HomePage() {
       <AIBudgetPlanner />
       <BudgetEstimator />
       <Benefits />
+
+      {/* How It Works */}
+      <section className="bg-slate-50/60 py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <div className="mx-auto mb-12 max-w-2xl text-center">
+              <span className="rounded-full bg-primary-100 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-primary-700">
+                Simple Process
+              </span>
+              <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 md:text-4xl">How It Works</h2>
+            </div>
+          </Reveal>
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {HOW_IT_WORKS.map((s, i) => (
+              <Reveal key={s.title} delay={i * 0.05}>
+                <div className="rounded-3xl border border-slate-100 bg-white p-6 text-center shadow-card">
+                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-600 text-lg font-extrabold text-white">
+                    {s.step}
+                  </div>
+                  <h3 className="mb-2 text-lg font-bold text-slate-900">{s.title}</h3>
+                  <p className="text-sm leading-relaxed text-slate-500">{s.text}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <Testimonials />
       <BecomeHostCTA />
+
+      {/* About Innbly — plain-language business context for both readers and
+          AI/search crawlers (see public/llms.txt for the same positioning
+          aimed specifically at AI assistants). */}
+      <section className="bg-white py-20">
+        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
+          <Reveal>
+            <span className="rounded-full bg-primary-100 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-primary-700">
+              About Innbly
+            </span>
+            <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 md:text-4xl">
+              India's Verified Vacation Rental Marketplace
+            </h2>
+            <p className="mx-auto mt-6 max-w-3xl text-left leading-relaxed text-slate-600 sm:text-center">
+              Innbly is a vacation rental and unique-stays marketplace built for travelers planning short getaways
+              across India — not a long-term rental, PG, or coliving platform. Every listing on Innbly is a
+              short-stay property: a private villa, a mountain cabin, a heritage haveli, or a working farmhouse,
+              bookable by the night rather than by the month. Our team physically audits and photographs each
+              property before it goes live, hosts set their own nightly pricing with no brokerage cut, and guests
+              can message a host directly before booking. Innbly currently features stays across Goa, Manali,
+              Shimla, Jaipur, Udaipur, Mussoorie, Coorg, Ooty, Rishikesh, and Lonavala, with new destinations added
+              regularly as more verified hosts join the platform.
+            </p>
+          </Reveal>
+        </div>
+      </section>
 
       <section className="bg-slate-50/60 py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

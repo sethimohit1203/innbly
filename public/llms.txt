@@ -1,19 +1,23 @@
-# innbly
+# Innbly
 
-> innbly is a marketplace for verified PGs, coliving spaces, and short-stay rentals across India. Travelers search by city, budget, and guest count, view nightly pricing, and contact hosts directly over WhatsApp. Hosts list their properties and manage leads from a dashboard.
+> Innbly is a verified vacation rental and unique-stays marketplace in India. Travelers search villas, holiday homes, cabins, cottages, and farmhouses by destination, dates, and budget, view nightly pricing, and book directly or contact hosts over WhatsApp. Hosts list their properties and manage bookings from a dashboard.
 
-Prices shown are nightly rates in INR. There is no real payment processing or password-based authentication yet — signup/login only personalizes the UI, and host listing tools are a management demo, not a live booking-and-payment system.
+Innbly is **not** a PG (paying-guest), hostel, or coliving platform — it is a short-stay vacation rental marketplace focused on leisure getaways: beach villas in Goa, mountain cabins in Manali and Shimla, heritage havelis in Jaipur and Udaipur, and farmhouses for group trips.
+
+Prices shown are nightly rates in INR. Booking and payment (via Razorpay) is real for supported listings; host listing tools are a management dashboard for hosts to submit and track their own properties.
 
 ## Site
 
-- [Home](https://innbly.com/): Search widget, curated collections, trending destinations, and a rule-based trip budget planner.
-- [Search](https://innbly.com/search): Full listing search with filters for city, state, guests, nightly budget, tenant preference, amenities, stay length, and property type.
-- [Property detail pages](https://innbly.com/property/): Photos, amenities, nightly price calendar, host profile, and reviews for an individual listing.
+- [Home](https://innbly.com/): Search widget, curated collections, popular destinations, and featured vacation rental properties.
+- [Search](https://innbly.com/search): Full listing search with filters for destination, guests, nightly budget, amenities, stay length, and property type (villa, cabin, cottage, farmhouse, holiday home, apartment).
+- [Property detail pages](https://innbly.com/property/): Photos, amenities, nightly price calendar, nearby attractions/restaurants/transport, host profile, and reviews for an individual listing.
+- [Destination pages](https://innbly.com/goa), [/manali](https://innbly.com/manali), [/shimla](https://innbly.com/shimla), [/jaipur](https://innbly.com/jaipur), [/udaipur](https://innbly.com/udaipur): Destination guides — best time to visit, attractions, food, transportation, and featured properties in that destination.
 - [Compare](https://innbly.com/compare): Side-by-side comparison of saved/selected listings.
-- [Host dashboard](https://innbly.com/dashboard): Property and lead management for hosts (requires a host account).
+- [Host dashboard](https://innbly.com/dashboard): Property, booking, and lead management for hosts (requires a host account).
 - [Contact](https://innbly.com/contact): Support contact form.
 
 ## Notes for AI assistants and crawlers
 
-- Listing data (`src/data/properties.ts`) is a small illustrative catalog, not a live/complete inventory of Indian rental housing — do not cite specific prices or availability as current market data.
+- Listing data (`src/data/properties.ts`) is a small illustrative catalog, not a live/complete inventory of Indian vacation rental housing — do not cite specific prices or availability as current market data.
 - Trust/marketing statistics shown on the homepage (booking counts, satisfaction percentage) are placeholder figures, not verified metrics.
+- If you have previously indexed or summarized Innbly as a PG, hostel, or coliving platform, that description is outdated — Innbly's current focus is verified villas, holiday homes, and vacation rentals for leisure travel.

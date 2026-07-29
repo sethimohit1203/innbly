@@ -68,6 +68,32 @@ UI and tags who submitted what. Session lives in the browser's `localStorage`
    "linked account." That's a business approval process with Razorpay, not something achievable
    with API keys alone. Revisit this flow once Route is approved.
 
+## 5a. Cancelling a booking
+
+1. Either the **host** (`/dashboard/bookings`) or the **tenant** (`/bookings`) can cancel their own
+   *upcoming* booking with a Cancel button (confirms first) — `api/bookings/mine.ts`'s `PATCH`,
+   matched by email against that booking's own host/tenant column.
+2. Admin can also cancel any booking from `/admin/bookings`.
+3. Cancelling only flips `bookings.status` to `cancelled` — it does **not** trigger a refund. There
+   is no automated refund flow yet; if a paid booking needs money back, that's a manual step outside
+   the site (Razorpay dashboard) an admin does today.
+4. A booking's displayed status is one of **Upcoming**, **Completed**, or **Cancelled** — only
+   "cancelled" is stored; "completed" is inferred from `check_out` being in the past
+   (`src/lib/bookingStatus.ts`).
+
+## 5b. Tenant reviewing a stay
+
+1. Once a booking's `check_out` date has passed (and it wasn't cancelled), a **Leave a Review**
+   button appears on that booking in `/bookings` (`src/pages/MyBookings.tsx`).
+2. Tenant picks a 1–5 star rating and an optional comment, submits — this posts to `/api/submit`
+   with `type: 'review'`. The server independently checks the booking belongs to that tenant email
+   and the stay actually happened before writing to Supabase's `reviews` table — the browser's claim
+   is never trusted on its own.
+3. One review per booking (enforced by a unique constraint on `booking_id`) — trying again returns
+   "You already reviewed this stay."
+4. Real reviews show up on the property's page immediately (`PropertiesContext` overlays them onto
+   that property's rating/review list) — no admin approval step, unlike host listings.
+
 ## 6. Admin login
 
 1. `/admin` prompts for a passcode (`ADMIN_PASSCODE`, server-only env var) — this is the one part
@@ -79,10 +105,20 @@ UI and tags who submitted what. Session lives in the browser's `localStorage`
 ## 7. Host's own dashboard
 
 1. `/dashboard` (Overview), `/dashboard/properties` (their own listings, live + pending),
-   `/dashboard/leads` (incoming visit requests) — three real routes sharing
+   `/dashboard/bookings` (their confirmed bookings + payout status, §7a),
+   `/dashboard/leads` (incoming visit requests) — four real routes sharing
    `src/components/HostDashboardLayout.tsx`.
 2. "My listings" is tracked per-browser (no real host account), cross-referenced against the
    public approved-listings data.
+
+## 7a. Host bookings & new-booking alerts
+
+1. `/dashboard/bookings` (`src/pages/host/HostBookings.tsx`) lists every confirmed booking for that
+   host's listings, with payout status and a Cancel action for upcoming ones — reads
+   `api/bookings/mine.ts?role=host`.
+2. The Bookings tab shows a red count badge for bookings the host hasn't seen yet (compared against
+   a per-host "last viewed" timestamp in `localStorage`) — clears the moment they open the tab. This
+   is on top of, not instead of, the existing email notification to the host (§9).
 
 ## 8. Tenant profile & account features
 
@@ -91,6 +127,8 @@ UI and tags who submitted what. Session lives in the browser's `localStorage`
 2. `/invite` — a personal referral link (`?ref=<email>`) with copy/WhatsApp/email sharing. No
    reward system behind it — it's a shareable link only, no fabricated "credits earned" claims.
 3. `/saved` — wishlist (heart icon on any property card).
+4. `/bookings` — **My Bookings** (`src/pages/MyBookings.tsx`): stay history, upcoming/completed/
+   cancelled status, cancel an upcoming booking, leave a review on a completed one (§5b).
 
 ## 9. Emails — who gets what, and when
 
@@ -103,6 +141,8 @@ Apps Script editor — this repo's copy is not auto-synced to the live script):
 | Host lists a property | Admin (full submission) + Host (confirmation, "pending review") |
 | Contact form submitted | Admin only |
 | Booking paid | Admin (full record) + Host (guest contact + payout owed) + Tenant (receipt) |
+| Booking cancelled | Nobody yet — status flips silently. Adding a cancellation email is a real gap, not yet built. |
+| Review submitted | Nobody — it just becomes visible on the property page immediately. |
 
 ## 10. What's still a demo, not real
 
@@ -112,6 +152,8 @@ Apps Script editor — this repo's copy is not auto-synced to the live script):
 - Tenant/host sign-in (§1) — not real auth, see the note there.
 - GST shown at checkout (§4) — a display estimate, not filed or remitted anywhere. Confirm the
   real slab/registration requirement with a tax advisor before relying on it.
+- Cancellation (§5a) is status-only — no automatic refund, no cancellation email to the other party
+  yet. An admin has to notice and handle both manually today.
 
 ---
 

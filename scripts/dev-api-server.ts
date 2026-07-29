@@ -36,6 +36,7 @@ const ROUTES: Record<string, () => Promise<{ default: (req: ApiRequest, res: Api
   '/api/bookings/create-order': () => import('../api/bookings/create-order'),
   '/api/bookings/verify': () => import('../api/bookings/verify'),
   '/api/admin/bookings': () => import('../api/admin/bookings'),
+  '/api/bookings/mine': () => import('../api/bookings/mine'),
 }
 
 function parseCookies(header: string | undefined): Record<string, string> {

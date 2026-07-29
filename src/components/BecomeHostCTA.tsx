@@ -39,8 +39,8 @@ export function BecomeHostCTA() {
             Turn your space into your next income stream.
           </h2>
           <p className="mt-4 max-w-md font-medium leading-relaxed text-slate-400">
-            Villas, farmhouses, PGs, coliving rooms — if it's stay-ready, it belongs on innbly. List your property and
-            start receiving guest inquiries directly.
+            Villas, holiday homes, cabins, cottages, farmhouses — if it's stay-ready, it belongs on Innbly. List your
+            property and start receiving guest inquiries directly.
           </p>
           <button
             onClick={goToListProperty}

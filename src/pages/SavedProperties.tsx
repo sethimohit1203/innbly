@@ -7,7 +7,7 @@ import { Footer } from '../components/Footer'
 import { usePageMeta } from '../hooks/usePageMeta'
 
 export function SavedPropertiesPage() {
-  usePageMeta('Saved Properties', 'The PGs, coliving spaces, and rentals you have saved on innbly.')
+  usePageMeta('Saved Properties', 'The villas, holiday homes, and vacation rentals you have saved on innbly.')
   const { savedIds } = useSavedProperties()
   const saved = properties.filter((p) => savedIds.includes(p.id))
 

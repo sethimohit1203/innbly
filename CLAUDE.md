@@ -202,6 +202,44 @@ unrelated `/enterprise` demo — don't conflate the two).
   admin, host, and tenant, each with only what they need (host gets the guest's contact + payout
   amount, tenant gets a receipt).
 
+### Booking status, cancellation, host/tenant booking views, and reviews
+
+- `bookings.status` (`upcoming` | `cancelled`, added by `supabase/bookings_status.sql`, run once
+  like every other Supabase migration here) is the only booking state that's actually stored.
+  **"Completed" is never written** — `src/lib/bookingStatus.ts`'s `deriveBookingStatus()` derives
+  it from `check_out` being in the past, since that state never needs a write. Every UI that shows
+  a booking (`HostBookingsPage`, `MyBookingsPage`, `AdminBookingsPage`) goes through this helper —
+  don't recompute the upcoming/completed/cancelled logic inline.
+- `api/bookings/mine.ts` is the shared read/cancel endpoint for **both** hosts and tenants,
+  dispatched on a `role=host|tenant` query param (mirrors `host_email` vs `tenant_email`) — this
+  was folded into one file rather than two to stay under Vercel's 12-function cap (see "API" above).
+  `GET` lists a role's own bookings by email; `PATCH` lets a host or tenant cancel their own
+  *upcoming* booking (ownership checked by matching the email against that row's own
+  host/tenant-email column — same no-real-session trust model as `HostOnlyRoute`, not a hardened
+  auth check). Admin cancellation is a separate, real-auth path: `api/admin/bookings.ts`'s `PATCH`
+  now also accepts a `status` field alongside `payoutStatus`, gated by `verifyAdminSession()`.
+- Host Dashboard's **Bookings** tab (`/dashboard/bookings`, `src/pages/host/HostBookings.tsx`) and
+  the tenant-facing **My Bookings** page (`/bookings`, `src/pages/MyBookings.tsx`) both read
+  `api/bookings/mine.ts` via the shared `src/hooks/useMyBookings.ts` hook — don't duplicate the
+  fetch/cancel logic in either page again.
+- **New-booking badge for hosts**: there's still no real push-notification infra, so
+  `src/hooks/useNewBookingsCount.ts` compares each booking's `created_at` against a per-host "last
+  seen" timestamp kept in `localStorage` (`innbly_host_bookings_last_seen_<email>`), shown as a red
+  count badge on the Bookings tab in `HostDashboardLayout.tsx`, cleared when the host actually opens
+  that tab. This is in addition to, not a replacement for, the existing email notification
+  (`Code.gs`'s `sendBookingEmails()`).
+- **Reviews**: `supabase/reviews.sql` (run once) creates a `reviews` table, one row per completed
+  booking (`booking_id` is `unique`), with public `SELECT` allowed (needed so ratings show on public
+  property pages) but **no anon insert/update/delete policy** — the only way to create a review is
+  `api/submit.ts`'s `type: 'review'` branch (`handleReview()`), which uses the service-role key to
+  independently verify the booking belongs to that tenant email, isn't cancelled, and `check_out`
+  has actually passed, before inserting — never trust a client-supplied "I stayed here." Tenants
+  submit from `MyBookingsPage`'s inline review form, only shown once a booking's derived status is
+  `completed`. `src/context/PropertiesContext.tsx` fetches all reviews once (public anon read) and
+  overlays real rating/reviewCount/reviews onto a property **only when real reviews exist for its
+  id** — a property with none keeps its existing values (curated demo content for the static
+  catalog, or the honest "new/unrated" defaults from `mapApprovedListing.ts` for host listings).
+
 ### Testing
 
 Playwright specs in `e2e/` are organized by feature area, not by page — `nightly-booking.spec.ts`

@@ -114,7 +114,7 @@ function SelectFilter({
 }
 
 export function SearchResultsPage() {
-  usePageMeta('Search Stays', 'Search verified villas, farmhouses, PGs, and homestays by city, budget, guests, and amenities on innbly.')
+  usePageMeta('Search Villas, Holiday Homes & Vacation Rentals', 'Search verified villas, cabins, cottages, and farmhouses by destination, budget, guests, and amenities on innbly.')
   const [searchParams] = useSearchParams()
   const { addSavedSearch } = useSavedSearch()
   const { showToast } = useToast()
@@ -280,7 +280,7 @@ export function SearchResultsPage() {
 
   return (
     <section>
-      <h1 className="sr-only">Search villas, farmhouses, PGs, and homestays</h1>
+      <h1 className="sr-only">Search villas, holiday homes, cabins, cottages, and farmhouses</h1>
 
       {/* Sticky search & filter bar — stays fixed directly beneath the sticky brand header */}
       <div className="sticky top-20 z-30 space-y-3 border-b border-slate-200 bg-white px-4 py-4 shadow-sm sm:px-6">

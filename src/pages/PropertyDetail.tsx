@@ -41,6 +41,7 @@ import {
   Scale,
   Lock,
   Headset,
+  Coffee,
 } from 'lucide-react'
 import { MapPlaceholder } from '../components/MapPlaceholder'
 import { Footer } from '../components/Footer'
@@ -49,7 +50,7 @@ import { DateRangePicker } from '../components/DateRangePicker'
 import { GuestCounter } from '../components/GuestCounter'
 import { PriceCalendar } from '../components/PriceCalendar'
 import { Reveal } from '../components/Reveal'
-import { FAQAccordion } from '../components/FAQAccordion'
+import { FAQAccordion, type FAQItem } from '../components/FAQAccordion'
 import { BookingModal } from '../components/BookingModal'
 import { useSavedProperties } from '../context/SavedPropertiesContext'
 import { useRecentlyViewed } from '../context/RecentlyViewedContext'
@@ -57,6 +58,8 @@ import { useCompare } from '../context/CompareContext'
 import { useToast } from '../context/ToastContext'
 import { useProperties } from '../context/PropertiesContext'
 import { usePageMeta } from '../hooks/usePageMeta'
+import { useJsonLd } from '../hooks/useJsonLd'
+import { breadcrumbSchema, faqSchema, SITE_URL } from '../lib/seo'
 import { getPaidPropertyIds } from '../lib/myBookings'
 import type { LandmarkType, TenantPreference } from '../types'
 
@@ -64,6 +67,7 @@ const landmarkIcons: Record<LandmarkType, JSX.Element> = {
   Metro: <TrainFront className="h-4 w-4" />,
   Gym: <Dumbbell className="h-4 w-4" />,
   Restaurant: <UtensilsCrossed className="h-4 w-4" />,
+  Cafe: <Coffee className="h-4 w-4" />,
   Hospital: <Building2 className="h-4 w-4" />,
   Market: <ShoppingBag className="h-4 w-4" />,
   College: <GraduationCap className="h-4 w-4" />,
@@ -71,6 +75,7 @@ const landmarkIcons: Record<LandmarkType, JSX.Element> = {
   Beach: <Waves className="h-4 w-4" />,
   Temple: <LandmarkIcon className="h-4 w-4" />,
   Airport: <Plane className="h-4 w-4" />,
+  Railway: <TrainFront className="h-4 w-4" />,
   Office: <Building2 className="h-4 w-4" />,
   Attraction: <MapPinned className="h-4 w-4" />,
 }
@@ -136,10 +141,77 @@ export function PropertyDetailPage() {
   }, [photoIndex, property])
 
   usePageMeta(
-    property ? `${property.title} for Rent in ${property.neighborhood}, ${property.city}` : 'Property not found',
+    property ? `${property.title} — Book in ${property.neighborhood}, ${property.city}` : 'Property not found',
     property
-      ? `${property.title} — ₹${property.price.toLocaleString('en-IN')}/night stay for up to ${property.maxGuests} guests in ${property.neighborhood}, ${property.city}. ${property.verified ? 'Verified property.' : ''} Schedule a free visit today.`
+      ? `${property.title} — ₹${property.price.toLocaleString('en-IN')}/night for up to ${property.maxGuests} guests in ${property.neighborhood}, ${property.city}. ${property.verified ? 'Verified property.' : ''} Book directly on Innbly.`
       : undefined,
+  )
+
+  const propertyFaqs: FAQItem[] = property
+    ? [
+        {
+          q: 'What time is check-in and check-out?',
+          a: `Exact timing is coordinated directly with ${property.ownerName} once your stay is confirmed — message the host to arrange a time that works for you.`,
+        },
+        {
+          q: 'Is the security deposit refundable?',
+          a: `Yes — the ₹${property.deposit.toLocaleString('en-IN')} security deposit is refundable and returned by the host after checkout, provided the property is left in good condition.`,
+        },
+        {
+          q: 'How quickly will the host respond?',
+          a: `Based on past guest interactions, ${property.ownerName} has a ${property.hostResponseRate}% response rate and typically replies within ${property.hostResponseTime.replace(/^Usually responds within /i, '')}.`,
+        },
+        {
+          q: 'Can I bring more guests than listed?',
+          a: `This space is set up for up to ${property.maxGuests} guest${property.maxGuests > 1 ? 's' : ''}. Message the host before booking if you need to bring more.`,
+        },
+      ]
+    : []
+
+  useJsonLd(
+    'property-schema',
+    property
+      ? [
+          breadcrumbSchema([
+            { name: 'Home', path: '/' },
+            { name: property.city, path: `/search?city=${encodeURIComponent(property.city)}` },
+            { name: property.title, path: `/property/${property.id}` },
+          ]),
+          {
+            '@context': 'https://schema.org',
+            '@type': 'LodgingBusiness',
+            '@id': `${SITE_URL}/property/${property.id}#lodging`,
+            name: property.title,
+            description: property.description,
+            image: property.images,
+            address: {
+              '@type': 'PostalAddress',
+              streetAddress: property.address,
+              addressLocality: property.neighborhood,
+              addressRegion: property.city,
+              addressCountry: 'IN',
+            },
+            priceRange: `₹${property.price.toLocaleString('en-IN')}/night`,
+            amenityFeature: property.amenities.map((a) => ({ '@type': 'LocationFeatureSpecification', name: a })),
+            ...(property.reviewCount > 0
+              ? {
+                  aggregateRating: {
+                    '@type': 'AggregateRating',
+                    ratingValue: property.rating,
+                    reviewCount: property.reviewCount,
+                  },
+                }
+              : {}),
+            review: property.reviews.map((r) => ({
+              '@type': 'Review',
+              author: { '@type': 'Person', name: r.name },
+              datePublished: r.date,
+              reviewBody: r.text,
+            })),
+          },
+          faqSchema(propertyFaqs),
+        ]
+      : null,
   )
 
   if (!property) {
@@ -266,6 +338,7 @@ export function PropertyDetailPage() {
         >
           <button
             onClick={() => setPhotoIndex(null)}
+            aria-label="Close photo viewer"
             className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
           >
             <X className="h-5 w-5" />
@@ -276,6 +349,7 @@ export function PropertyDetailPage() {
               e.stopPropagation()
               setPhotoIndex((i) => (i === null ? i : (i - 1 + property.images.length) % property.images.length))
             }}
+            aria-label="Previous photo"
             className="absolute left-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 sm:left-8"
           >
             <ChevronLeft className="h-5 w-5" />
@@ -283,7 +357,7 @@ export function PropertyDetailPage() {
 
           <img
             src={property.images[photoIndex]}
-            alt=""
+            alt={`${property.title} — photo ${photoIndex + 1} of ${property.images.length}`}
             onClick={(e) => e.stopPropagation()}
             className="max-h-[80vh] max-w-4xl rounded-xl object-contain"
           />
@@ -293,6 +367,7 @@ export function PropertyDetailPage() {
               e.stopPropagation()
               setPhotoIndex((i) => (i === null ? i : (i + 1) % property.images.length))
             }}
+            aria-label="Next photo"
             className="absolute right-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 sm:right-8"
           >
             <ChevronRight className="h-5 w-5" />
@@ -326,9 +401,11 @@ export function PropertyDetailPage() {
             <span className="flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
               <Users className="h-3.5 w-3.5" /> Up to {property.maxGuests} guests
             </span>
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-              For {property.tenantPreference}
-            </span>
+            {property.tenantPreference !== 'Anyone' && (
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                For {property.tenantPreference}
+              </span>
+            )}
             {property.instantBook && (
               <span className="flex items-center gap-1 rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700">
                 <Zap className="h-3.5 w-3.5" /> Instant Book
@@ -671,26 +748,7 @@ export function PropertyDetailPage() {
       {/* Property FAQ */}
       <Reveal className="mt-12 border-t border-slate-200 pt-8">
         <h2 className="mb-6 text-2xl font-bold text-slate-900">Frequently Asked Questions</h2>
-        <FAQAccordion
-          items={[
-            {
-              q: 'What time is check-in and check-out?',
-              a: `Exact timing is coordinated directly with ${property.ownerName} once your stay is confirmed — message the host to arrange a time that works for you.`,
-            },
-            {
-              q: 'Is the security deposit refundable?',
-              a: `Yes — the ₹${property.deposit.toLocaleString('en-IN')} security deposit is refundable and returned by the host after checkout, provided the property is left in good condition.`,
-            },
-            {
-              q: 'How quickly will the host respond?',
-              a: `Based on past guest interactions, ${property.ownerName} has a ${property.hostResponseRate}% response rate and typically replies within ${property.hostResponseTime.replace(/^Usually responds within /i, '')}.`,
-            },
-            {
-              q: 'Can I bring more guests than listed?',
-              a: `This space is set up for up to ${property.maxGuests} guest${property.maxGuests > 1 ? 's' : ''}. Message the host before booking if you need to bring more.`,
-            },
-          ]}
-        />
+        <FAQAccordion items={propertyFaqs} />
       </Reveal>
 
       {/* More Places Nearby */}

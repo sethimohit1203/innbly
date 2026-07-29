@@ -8,6 +8,8 @@ import { AdminLayout } from './components/AdminLayout'
 import { MobileBottomNav } from './components/MobileBottomNav'
 import { QuickMatchAssistant } from './components/QuickMatchAssistant'
 import { HomePage } from './pages/Home'
+import { DESTINATIONS } from './data/destinations'
+import { PROGRAMMATIC_PAGES } from './data/programmaticPages'
 
 // Everything below Home is lazy-loaded — Home is the most common landing
 // page and stays in the main bundle; every other route (including the
@@ -18,11 +20,13 @@ const PropertyDetailPage = lazy(() => import('./pages/PropertyDetail').then((m) 
 const HostOverviewPage = lazy(() => import('./pages/host/HostOverview').then((m) => ({ default: m.HostOverviewPage })))
 const HostPropertiesPage = lazy(() => import('./pages/host/HostProperties').then((m) => ({ default: m.HostPropertiesPage })))
 const HostLeadsPage = lazy(() => import('./pages/host/HostLeads').then((m) => ({ default: m.HostLeadsPage })))
+const HostBookingsPage = lazy(() => import('./pages/host/HostBookings').then((m) => ({ default: m.HostBookingsPage })))
 const ListPropertyPage = lazy(() => import('./pages/ListProperty').then((m) => ({ default: m.ListPropertyPage })))
 const ContactPage = lazy(() => import('./pages/Contact').then((m) => ({ default: m.ContactPage })))
 const PrivacyPage = lazy(() => import('./pages/Privacy').then((m) => ({ default: m.PrivacyPage })))
 const TermsPage = lazy(() => import('./pages/Terms').then((m) => ({ default: m.TermsPage })))
 const SavedPropertiesPage = lazy(() => import('./pages/SavedProperties').then((m) => ({ default: m.SavedPropertiesPage })))
+const MyBookingsPage = lazy(() => import('./pages/MyBookings').then((m) => ({ default: m.MyBookingsPage })))
 const ProfilePage = lazy(() => import('./pages/Profile').then((m) => ({ default: m.ProfilePage })))
 const InvitePage = lazy(() => import('./pages/Invite').then((m) => ({ default: m.InvitePage })))
 const EnterpriseHomePage = lazy(() => import('./pages/enterprise/EnterpriseHome').then((m) => ({ default: m.EnterpriseHomePage })))
@@ -35,6 +39,8 @@ const AdminMessagesPage = lazy(() => import('./pages/admin/AdminMessages').then(
 const AdminBookingsPage = lazy(() => import('./pages/admin/AdminBookings').then((m) => ({ default: m.AdminBookingsPage })))
 const ComparePage = lazy(() => import('./pages/Compare').then((m) => ({ default: m.ComparePage })))
 const HostProfilePage = lazy(() => import('./pages/HostProfile').then((m) => ({ default: m.HostProfilePage })))
+const DestinationPage = lazy(() => import('./pages/Destination').then((m) => ({ default: m.DestinationPage })))
+const ProgrammaticListingPage = lazy(() => import('./pages/ProgrammaticListingPage').then((m) => ({ default: m.ProgrammaticListingPage })))
 
 function RouteLoading() {
   return (
@@ -64,6 +70,7 @@ export default function App() {
           >
             <Route index element={<HostOverviewPage />} />
             <Route path="properties" element={<HostPropertiesPage />} />
+            <Route path="bookings" element={<HostBookingsPage />} />
             <Route path="leads" element={<HostLeadsPage />} />
           </Route>
           <Route
@@ -75,6 +82,7 @@ export default function App() {
             }
           />
           <Route path="/saved" element={<SavedPropertiesPage />} />
+          <Route path="/bookings" element={<MyBookingsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/invite" element={<InvitePage />} />
           <Route path="/contact" element={<ContactPage />} />
@@ -92,6 +100,12 @@ export default function App() {
           </Route>
           <Route path="/compare" element={<ComparePage />} />
           <Route path="/host/:id" element={<HostProfilePage />} />
+          {DESTINATIONS.map((d) => (
+            <Route key={d.slug} path={`/${d.slug}`} element={<DestinationPage slug={d.slug} />} />
+          ))}
+          {PROGRAMMATIC_PAGES.map((c) => (
+            <Route key={c.path} path={c.path} element={<ProgrammaticListingPage path={c.path} />} />
+          ))}
         </Routes>
         </Suspense>
       </main>

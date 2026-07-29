@@ -1,14 +1,28 @@
-import { NavLink, Outlet } from 'react-router-dom'
-import { LayoutDashboard, Building2, Users, PlusCircle } from 'lucide-react'
+import { useEffect } from 'react'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { LayoutDashboard, Building2, Users, PlusCircle, Receipt } from 'lucide-react'
 import { Footer } from './Footer'
+import { useAuth } from '../context/AuthContext'
+import { useNewBookingsCount, markBookingsSeen } from '../hooks/useNewBookingsCount'
 
 const TABS = [
   { to: '/dashboard', label: 'Dashboard Overview', icon: LayoutDashboard, end: true },
   { to: '/dashboard/properties', label: 'Manage Properties', icon: Building2, end: false },
+  { to: '/dashboard/bookings', label: 'Bookings', icon: Receipt, end: false },
   { to: '/dashboard/leads', label: 'Leads Tracker', icon: Users, end: false },
 ]
 
 export function HostDashboardLayout() {
+  const { user } = useAuth()
+  const location = useLocation()
+  const newBookingsCount = useNewBookingsCount(user?.email)
+
+  useEffect(() => {
+    if (user?.email && location.pathname === '/dashboard/bookings') {
+      markBookingsSeen(user.email)
+    }
+  }, [user?.email, location.pathname])
+
   return (
     <>
       <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
@@ -40,6 +54,11 @@ export function HostDashboardLayout() {
               }
             >
               <tab.icon className="h-4 w-4" /> {tab.label}
+              {tab.to === '/dashboard/bookings' && newBookingsCount > 0 && (
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1.5 text-[10px] font-bold text-white">
+                  {newBookingsCount}
+                </span>
+              )}
             </NavLink>
           ))}
         </div>

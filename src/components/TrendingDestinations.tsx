@@ -1,8 +1,14 @@
 import { Link } from 'react-router-dom'
 import { properties } from '../data/properties'
+import { DESTINATIONS } from '../data/destinations'
 
 function cityImage(city: string) {
   return `https://picsum.photos/seed/city-${city.toLowerCase()}/500/350`
+}
+
+function destinationPathForCity(city: string): string {
+  const match = DESTINATIONS.find((d) => d.name.toLowerCase() === city.toLowerCase())
+  return match ? `/${match.slug}` : `/search?city=${encodeURIComponent(city)}`
 }
 
 export function TrendingDestinations() {
@@ -21,7 +27,7 @@ export function TrendingDestinations() {
       {stats.map((s) => (
         <Link
           key={s.city}
-          to={`/search?city=${encodeURIComponent(s.city)}`}
+          to={destinationPathForCity(s.city)}
           className="group relative h-40 w-56 shrink-0 overflow-hidden rounded-2xl shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
         >
           <img src={cityImage(s.city)} alt={s.city} className="h-full w-full object-cover transition group-hover:scale-105" />

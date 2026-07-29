@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { IndianRupee, Check, Clock } from 'lucide-react'
+import { IndianRupee, Check, Clock, XCircle } from 'lucide-react'
+import { deriveBookingStatus, BOOKING_STATUS_STYLES, BOOKING_STATUS_LABELS } from '../../lib/bookingStatus'
 
 interface Booking {
   id: string
@@ -17,6 +18,7 @@ interface Booking {
   host_commission: number
   host_payout_amount: number
   payout_status: 'unpaid' | 'paid'
+  status: 'upcoming' | 'cancelled'
   created_at: string
 }
 
@@ -63,6 +65,18 @@ export function AdminBookingsPage() {
     setUpdatingId(null)
   }
 
+  const cancelBooking = async (id: string) => {
+    if (!window.confirm('Cancel this booking? This cannot be undone.')) return
+    setUpdatingId(id)
+    const res = await fetch('/api/admin/bookings', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, status: 'cancelled' }),
+    })
+    if (res.ok) await load()
+    setUpdatingId(null)
+  }
+
   const unpaidTotal = (bookings ?? [])
     .filter((b) => b.payout_status === 'unpaid' && b.host_email)
     .reduce((sum, b) => sum + b.host_payout_amount, 0)
@@ -91,54 +105,69 @@ export function AdminBookingsPage() {
             <p className="text-sm text-slate-400">No bookings yet.</p>
           ) : (
             <div className="space-y-3">
-              {bookings.map((b) => (
-                <div key={b.id} className="rounded-xl border border-slate-200 p-4">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <p className="flex items-center gap-2 font-bold text-slate-900">
-                        {b.property_title}
-                        <span
-                          className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
-                            b.payout_status === 'paid' ? 'bg-accent-50 text-accent-700' : 'bg-amber-50 text-amber-700'
-                          }`}
-                        >
-                          {b.payout_status === 'paid' ? 'Payout sent' : 'Payout pending'}
-                        </span>
-                      </p>
-                      <p className="text-xs text-slate-500">
-                        {b.check_in} → {b.check_out} · {b.nights} nights · {b.guests} guests · guest {b.tenant_name} ({b.tenant_email}, {b.tenant_phone})
-                      </p>
-                      <p className="mt-1 text-xs text-slate-500">
-                        Host: {b.host_name ?? 'N/A (static demo listing)'}{b.host_email ? ` · ${b.host_email}` : ''}
-                      </p>
-                    </div>
-                    <div className="flex shrink-0 items-center gap-4">
-                      <div className="text-right text-sm">
-                        <p className="font-bold text-slate-900">₹{b.guest_total.toLocaleString('en-IN')} paid</p>
-                        <p className="text-xs text-slate-500">₹{b.host_payout_amount.toLocaleString('en-IN')} owed to host</p>
+              {bookings.map((b) => {
+                const status = deriveBookingStatus(b)
+                return (
+                  <div key={b.id} className="rounded-xl border border-slate-200 p-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <p className="flex flex-wrap items-center gap-2 font-bold text-slate-900">
+                          {b.property_title}
+                          <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${BOOKING_STATUS_STYLES[status]}`}>
+                            {BOOKING_STATUS_LABELS[status]}
+                          </span>
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
+                              b.payout_status === 'paid' ? 'bg-accent-50 text-accent-700' : 'bg-amber-50 text-amber-700'
+                            }`}
+                          >
+                            {b.payout_status === 'paid' ? 'Payout sent' : 'Payout pending'}
+                          </span>
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          {b.check_in} → {b.check_out} · {b.nights} nights · {b.guests} guests · guest {b.tenant_name} ({b.tenant_email}, {b.tenant_phone})
+                        </p>
+                        <p className="mt-1 text-xs text-slate-500">
+                          Host: {b.host_name ?? 'N/A (static demo listing)'}{b.host_email ? ` · ${b.host_email}` : ''}
+                        </p>
                       </div>
-                      {b.payout_status === 'unpaid' ? (
-                        <button
-                          onClick={() => markPayout(b.id, 'paid')}
-                          disabled={updatingId === b.id || !b.host_email}
-                          title={!b.host_email ? 'No real host to pay for this listing' : undefined}
-                          className="flex items-center gap-1.5 rounded-lg border border-accent-300 bg-accent-50 px-3 py-1.5 text-xs font-bold text-accent-700 transition hover:bg-accent-100 disabled:cursor-not-allowed disabled:opacity-40"
-                        >
-                          <Check className="h-3.5 w-3.5" /> Mark Paid Out
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => markPayout(b.id, 'unpaid')}
-                          disabled={updatingId === b.id}
-                          className="flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-bold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
-                        >
-                          <Clock className="h-3.5 w-3.5" /> Reset
-                        </button>
-                      )}
+                      <div className="flex shrink-0 items-center gap-4">
+                        <div className="text-right text-sm">
+                          <p className="font-bold text-slate-900">₹{b.guest_total.toLocaleString('en-IN')} paid</p>
+                          <p className="text-xs text-slate-500">₹{b.host_payout_amount.toLocaleString('en-IN')} owed to host</p>
+                        </div>
+                        {b.payout_status === 'unpaid' ? (
+                          <button
+                            onClick={() => markPayout(b.id, 'paid')}
+                            disabled={updatingId === b.id || !b.host_email}
+                            title={!b.host_email ? 'No real host to pay for this listing' : undefined}
+                            className="flex items-center gap-1.5 rounded-lg border border-accent-300 bg-accent-50 px-3 py-1.5 text-xs font-bold text-accent-700 transition hover:bg-accent-100 disabled:cursor-not-allowed disabled:opacity-40"
+                          >
+                            <Check className="h-3.5 w-3.5" /> Mark Paid Out
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => markPayout(b.id, 'unpaid')}
+                            disabled={updatingId === b.id}
+                            className="flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-bold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                          >
+                            <Clock className="h-3.5 w-3.5" /> Reset
+                          </button>
+                        )}
+                        {status === 'upcoming' && (
+                          <button
+                            onClick={() => cancelBooking(b.id)}
+                            disabled={updatingId === b.id}
+                            className="flex items-center gap-1.5 rounded-lg border border-rose-300 px-3 py-1.5 text-xs font-bold text-rose-600 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-40"
+                          >
+                            <XCircle className="h-3.5 w-3.5" /> Cancel
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </>

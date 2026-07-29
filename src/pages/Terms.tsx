@@ -13,9 +13,9 @@ export function TermsPage() {
           <section>
             <h2 className="text-lg font-bold text-slate-900">Using innbly</h2>
             <p className="mt-2">
-              innbly is a platform that connects tenants looking for PGs, coliving spaces, and rentals with
-              independent property hosts. We help you discover listings, schedule visits, and communicate with
-              hosts. innbly is not a party to any rental agreement between a tenant and a host.
+              innbly is a platform that connects travelers looking for villas, holiday homes, cabins, cottages, and
+              farmhouses with independent property hosts. We help you discover listings, book stays, and communicate
+              with hosts. innbly is not a party to any rental agreement between a guest and a host.
             </p>
           </section>
 

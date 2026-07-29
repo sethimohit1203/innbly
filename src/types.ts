@@ -13,7 +13,7 @@ export const LIFESTYLE_TAGS = [
 export type LifestyleTag = (typeof LIFESTYLE_TAGS)[number]
 
 export type AvailabilityStatus = 'Available' | 'Limited' | 'Booked'
-export type LandmarkType = 'Metro' | 'Gym' | 'Restaurant' | 'Hospital' | 'Market' | 'College' | 'Mall' | 'Beach' | 'Temple' | 'Airport' | 'Office' | 'Attraction'
+export type LandmarkType = 'Metro' | 'Gym' | 'Restaurant' | 'Cafe' | 'Hospital' | 'Market' | 'College' | 'Mall' | 'Beach' | 'Temple' | 'Airport' | 'Railway' | 'Office' | 'Attraction'
 
 export const PROPERTY_TYPES = [
   'Hotels',

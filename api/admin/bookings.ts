@@ -6,6 +6,7 @@ import { getSupabaseAdmin } from '../_lib/supabaseAdmin.js'
 interface UpdatePayload {
   id?: string
   payoutStatus?: 'unpaid' | 'paid'
+  status?: 'upcoming' | 'cancelled'
 }
 
 export default async function handler(req: ApiRequest, res: ApiResponse) {
@@ -38,14 +39,26 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
 
   if (req.method === 'PATCH') {
     const body = readJsonBody<UpdatePayload>(req)
-    if (!body.id || !body.payoutStatus || !['unpaid', 'paid'].includes(body.payoutStatus)) {
-      res.status(400).json({ error: 'Missing or invalid id/payoutStatus' })
+    if (!body.id || (!body.payoutStatus && !body.status)) {
+      res.status(400).json({ error: 'Missing id, and payoutStatus or status' })
+      return
+    }
+    if (body.payoutStatus && !['unpaid', 'paid'].includes(body.payoutStatus)) {
+      res.status(400).json({ error: 'Invalid payoutStatus' })
+      return
+    }
+    if (body.status && !['upcoming', 'cancelled'].includes(body.status)) {
+      res.status(400).json({ error: 'Invalid status' })
       return
     }
 
+    const patch: Record<string, string> = {}
+    if (body.payoutStatus) patch.payout_status = body.payoutStatus
+    if (body.status) patch.status = body.status
+
     const { error } = await admin
       .from('bookings')
-      .update({ payout_status: body.payoutStatus })
+      .update(patch)
       .eq('id', body.id)
 
     if (error) {

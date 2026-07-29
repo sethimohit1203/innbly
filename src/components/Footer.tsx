@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Twitter, Linkedin, Instagram, Facebook, Youtube, Send, Mail } from 'lucide-react'
+import { Instagram, Facebook, Youtube, Send, Mail } from 'lucide-react'
 import { useToast } from '../context/ToastContext'
 import { submitToSheet } from '../lib/backend'
+import { SOCIAL_LINKS } from '../lib/seo'
 
 const SUPPORT_EMAIL = 'innblysupport@gmail.com'
 
@@ -32,8 +33,8 @@ export function Footer() {
               <span className="text-lg font-extrabold tracking-tight text-white">innbly</span>
             </Link>
             <p className="text-sm font-medium leading-relaxed text-slate-400">
-              India's most trusted premium stay & rental network. Redefining modern travel with verified villas,
-              homestays, and total price transparency.
+              India's trusted vacation rental network — verified villas, holiday homes, cabins, cottages, and
+              farmhouses with total price transparency.
             </p>
             <a
               href={`mailto:${SUPPORT_EMAIL}`}
@@ -42,30 +43,48 @@ export function Footer() {
               <Mail className="h-4 w-4" /> {SUPPORT_EMAIL}
             </a>
             <div className="flex items-center gap-3 text-white">
-              <a href="#" className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800 transition-colors hover:bg-primary-600">
-                <Twitter className="h-3.5 w-3.5" />
-              </a>
-              <a href="#" className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800 transition-colors hover:bg-primary-600">
-                <Facebook className="h-3.5 w-3.5" />
-              </a>
-              <a href="#" className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800 transition-colors hover:bg-primary-600">
-                <Linkedin className="h-3.5 w-3.5" />
-              </a>
-              <a href="#" className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800 transition-colors hover:bg-primary-600">
+              <a
+                href={SOCIAL_LINKS.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Innbly on Instagram"
+                className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800 transition-colors hover:bg-primary-600"
+              >
                 <Instagram className="h-3.5 w-3.5" />
               </a>
-              <a href="#" className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800 transition-colors hover:bg-primary-600">
+              <a
+                href={SOCIAL_LINKS.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Innbly on Facebook"
+                className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800 transition-colors hover:bg-primary-600"
+              >
+                <Facebook className="h-3.5 w-3.5" />
+              </a>
+              <a
+                href={SOCIAL_LINKS.youtube}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Innbly on YouTube"
+                className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800 transition-colors hover:bg-primary-600"
+              >
                 <Youtube className="h-3.5 w-3.5" />
               </a>
             </div>
           </div>
 
           <div>
-            <h4 className="mb-6 text-sm font-bold uppercase tracking-wider text-white">Cities</h4>
+            <h4 className="mb-6 text-sm font-bold uppercase tracking-wider text-white">Destinations</h4>
             <ul className="space-y-3 text-sm font-medium">
-              {['Bengaluru', 'Mumbai', 'Hyderabad', 'Noida', 'Goa'].map((city) => (
+              {[
+                ['Goa', '/goa'],
+                ['Manali', '/manali'],
+                ['Shimla', '/shimla'],
+                ['Jaipur', '/jaipur'],
+                ['Udaipur', '/udaipur'],
+              ].map(([city, path]) => (
                 <li key={city}>
-                  <Link to={`/search?city=${encodeURIComponent(city)}`} className="transition-colors hover:text-white">
+                  <Link to={path} className="transition-colors hover:text-white">
                     {city}
                   </Link>
                 </li>
@@ -97,16 +116,16 @@ export function Footer() {
               <li><Link to="/terms" className="transition-colors hover:text-white">Cancellation Policy</Link></li>
               <li><Link to="/terms" className="transition-colors hover:text-white">Refund Policy</Link></li>
               <li><Link to="/privacy-policy" className="transition-colors hover:text-white">Safety</Link></li>
-              <li><a href="#" className="transition-colors hover:text-white">Student Guide</a></li>
-              <li><a href="#" className="transition-colors hover:text-white">Corporate Stays</a></li>
-              <li><a href="#" className="transition-colors hover:text-white">Move-in Checklist</a></li>
+              <li><a href="#" className="transition-colors hover:text-white">Travel Guides</a></li>
+              <li><a href="#" className="transition-colors hover:text-white">Group Stays</a></li>
+              <li><a href="#" className="transition-colors hover:text-white">Packing Checklist</a></li>
             </ul>
           </div>
 
           <div className="space-y-6">
             <h4 className="mb-2 text-sm font-bold uppercase tracking-wider text-white">Stay Updated</h4>
             <p className="text-sm font-medium text-slate-400">
-              Get notifications when verified rooms open in your preferred zones.
+              Get notified when new verified stays open in your favorite destinations.
             </p>
             <form onSubmit={handleSubscribe} className="flex gap-2">
               <input

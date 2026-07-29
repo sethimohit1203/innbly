@@ -3,17 +3,101 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/jpeg" href="/brand/innbly-icon.jpg" />
+    <link rel="apple-touch-icon" href="/brand/innbly-icon.jpg" />
+    <meta name="theme-color" content="#0f172a" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Innbly — Find your next stay</title>
-    <meta name="description" content="Innbly — verified PGs, coliving spaces, and nightly stays. Search by city, budget, and guests, and chat with hosts instantly." />
+
+    <title>Verified Villas, Holiday Homes & Vacation Rentals in India | Innbly</title>
+    <meta
+      name="description"
+      content="Book verified villas, holiday homes, cabins, cottages and farmhouses across India's top getaway destinations. Transparent pricing, real hosts, instant booking on Innbly."
+    />
+    <link rel="canonical" href="https://innbly.com/" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+
     <meta name="google-site-verification" content="-G7r8xz7vUD63ygPkYw9ImNehcGpIlgjgfquIrjWkxo" />
     <meta name="msvalidate.01" content="51A3FF87265A848FA11120302A30E0A8" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Innbly" />
+    <meta property="og:title" content="Verified Villas, Holiday Homes & Vacation Rentals in India | Innbly" />
+    <meta
+      property="og:description"
+      content="Book verified villas, holiday homes, cabins, cottages and farmhouses across India's top getaway destinations. Transparent pricing, real hosts, instant booking."
+    />
+    <meta property="og:url" content="https://innbly.com/" />
+    <meta property="og:image" content="https://innbly.com/brand/innbly-icon.jpg" />
+    <meta property="og:image:alt" content="Innbly — Verified Villas, Holiday Homes & Vacation Rentals" />
+    <meta property="og:locale" content="en_IN" />
+
+    <!-- Twitter / X Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Verified Villas, Holiday Homes & Vacation Rentals in India | Innbly" />
+    <meta
+      name="twitter:description"
+      content="Book verified villas, holiday homes, cabins, cottages and farmhouses across India's top getaway destinations."
+    />
+    <meta name="twitter:image" content="https://innbly.com/brand/innbly-icon.jpg" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+
+    <!-- Preload the homepage hero image — it's the page's LCP element, but
+         it's set as a CSS background-image (src/pages/Home.tsx), which the
+         browser's preload scanner cannot discover early on its own. This
+         `<link rel="preload">` is what actually gets it fetching in
+         parallel with everything else instead of only after CSSOM builds.
+         Also preconnect to picsum.photos itself for the same reason
+         (separate origin from fonts, needs its own connection warm-up). -->
+    <link rel="preconnect" href="https://picsum.photos" crossorigin />
+    <link rel="preload" as="image" href="https://picsum.photos/seed/innbly-hero-villa/1280/720" />
+
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <!-- Site-wide entity/brand schema — kept static (not injected via JS)
+         so it's visible to crawlers/scrapers that don't execute JavaScript,
+         unlike the per-page WebPage/Breadcrumb/FAQ schema which is injected
+         at runtime via src/hooks/useJsonLd.ts (fine for Googlebot, which
+         does render JS, but not a substitute for this for other consumers). -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "@id": "https://innbly.com/#organization",
+        "name": "Innbly",
+        "url": "https://innbly.com/",
+        "logo": "https://innbly.com/brand/innbly-icon.jpg",
+        "description": "Innbly is a verified vacation rental and unique-stays marketplace in India, listing villas, holiday homes, cabins, cottages, farmhouses and apartments for short getaways.",
+        "sameAs": [
+          "https://www.instagram.com/innbly",
+          "https://www.facebook.com/share/1disYe1r9U/",
+          "https://youtube.com/@innbly"
+        ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "@id": "https://innbly.com/#website",
+        "name": "Innbly",
+        "url": "https://innbly.com/",
+        "publisher": { "@id": "https://innbly.com/#organization" },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://innbly.com/search?q={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

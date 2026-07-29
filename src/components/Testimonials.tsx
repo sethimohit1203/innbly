@@ -4,23 +4,23 @@ const testimonials = [
   {
     initials: 'RK',
     name: 'Rishabh Kapoor',
-    place: 'Stayed in Noida, Delhi NCR',
+    place: 'Stayed at a cottage in Rishikesh',
     rating: 5,
-    text: '"The booking estimator was exactly accurate down to the single rupee. The co-living space is kept spotless with the daily cleanups."',
+    text: '"The price breakdown was exactly accurate down to the rupee, and the cottage was kept spotless throughout our stay by the river."',
   },
   {
     initials: 'AI',
     name: 'Anjali Iyer',
-    place: 'Stayed in Indiranagar, Bangalore',
+    place: 'Stayed at a villa in Goa',
     rating: 5,
-    text: '"Moving into Bangalore without physical audits is scary, but innbly\'s photo walk-through and physical audit check made it stress-free."',
+    text: '"Booking a villa without seeing it in person is always a little scary, but Innbly\'s verified photos and host reviews made it stress-free — the place matched exactly."',
   },
   {
     initials: 'DM',
     name: 'Devansh Mehta',
-    place: 'Stayed in Bandra, Mumbai',
+    place: 'Stayed at a cabin in Shimla',
     rating: 4.5,
-    text: '"Super convenient scheduling. I booked a visit on Thursday and my move-in was sorted by Saturday morning. Highly recommended."',
+    text: '"Super convenient booking. I confirmed a weekend cabin trip on Thursday and we were checked in by Saturday morning. Highly recommended."',
   },
 ]
 
@@ -46,10 +46,10 @@ export function Testimonials() {
             Community Reviews
           </span>
           <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 md:text-4xl">
-            Loved By Thousands
+            Loved By Thousands of Travelers
           </h2>
           <p className="mt-4 font-medium text-slate-500">
-            Verified staying experiences straight from students and young industry professionals.
+            Verified stay experiences straight from real guests across India.
           </p>
         </div>
 
