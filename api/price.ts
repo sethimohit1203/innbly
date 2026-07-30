@@ -2,6 +2,7 @@ import type { ApiRequest, ApiResponse } from './_lib/http.js'
 import { getClientIp, readJsonBody } from './_lib/http.js'
 import { rateLimit } from './_lib/rateLimit.js'
 import { computeEstimatorTotal, computeBookingTotal, computeRoiEstimate, computeWeeklyCalendar } from './_lib/pricing.js'
+import { computeHostWeeklyCalendar } from './_lib/stayBooking.js'
 
 interface PriceRequest {
   kind: 'estimator' | 'booking' | 'roi' | 'calendar'
@@ -62,7 +63,12 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
       res.status(400).json({ error: 'propertyId is required' })
       return
     }
-    const result = computeWeeklyCalendar({ propertyId: body.propertyId })
+    // Host listings have real host-configurable pricing (weekend markup,
+    // per-date overrides); the static catalog falls back to the fixed
+    // day-of-week curve since those properties have no owning host row.
+    const result = body.propertyId.startsWith('host-')
+      ? await computeHostWeeklyCalendar(body.propertyId)
+      : computeWeeklyCalendar({ propertyId: body.propertyId })
     if (!result) {
       res.status(404).json({ error: 'Property not found' })
       return

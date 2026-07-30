@@ -31,7 +31,7 @@ var SHEET_HEADERS = {
     'Property Title', 'Property Type', 'Description',
     'City', 'Neighborhood', 'Address',
     'Max Guests', 'Price/Night', 'Security Deposit', 'Amenities',
-    'Photo URLs', 'Document URLs',
+    'Photo URLs', 'Document URLs', 'Access Code',
   ],
   booking: [
     'Timestamp', 'Property', 'Host Name', 'Host Email', 'Host Phone',
@@ -138,6 +138,7 @@ function appendRow(sheet, type, data) {
       (data.amenities || []).join(', '),
       (data.photoUrls || []).join(', '),
       (data.documentUrls || []).join(', '),
+      data.accessCode || '',
     ]);
   } else if (type === 'booking') {
     sheet.appendRow([
@@ -215,18 +216,30 @@ function sendHostConfirmationEmail(data) {
     ['Price', 'Rs ' + data.pricePerNight + '/night'],
     ['Status', 'Pending review'],
   ];
+  // Access code only ever goes in this host-only email (and the sheet row
+  // above) — never in the admin notification, and the API never echoes it
+  // back once stored, since it's the host's only proof of ownership for
+  // editing this listing's pricing/calendar later (see CLAUDE.md).
+  if (data.accessCode) {
+    rows.push(['Pricing access code', data.accessCode]);
+  }
   var footer =
     '<p style="margin:0 0 12px;color:#475569;font-size:14px;line-height:1.6;">' +
     'Thanks for listing with innbly, ' + escapeHtml(data.ownerName) + '! Our team reviews every submission before ' +
     'it goes live. You\'ll hear from us once it\'s approved — usually within 24–48 hours.' +
+    (data.accessCode
+      ? ' Keep your pricing access code (above) safe — you\'ll need it in the Host Dashboard to edit your price, ' +
+        'weekend rates, fees and calendar, and it can\'t be recovered if lost.'
+      : '') +
     '</p>';
   var plainBody =
     'Thanks for listing with innbly, ' + data.ownerName + '!\n\n' +
     'Property: ' + data.propertyTitle + ' — ' + data.propertyType + '\n' +
     'Location: ' + data.neighborhood + ', ' + data.city + '\n' +
     'Price: Rs ' + data.pricePerNight + '/night\n' +
-    'Status: Pending review\n\n' +
-    'Our team reviews every submission before it goes live — usually within 24-48 hours.';
+    'Status: Pending review\n' +
+    (data.accessCode ? 'Pricing access code: ' + data.accessCode + '\n' : '') +
+    '\nOur team reviews every submission before it goes live — usually within 24-48 hours.';
 
   MailApp.sendEmail({
     to: data.ownerEmail,

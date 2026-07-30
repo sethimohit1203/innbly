@@ -46,8 +46,9 @@ UI and tags who submitted what. Session lives in the browser's `localStorage`
 
 1. On a property page, tenant picks check-in/check-out + guests, clicks **Reserve & Pay**
    (`src/components/BookingModal.tsx`).
-2. Server (`api/bookings/create-order.ts`) computes the authoritative price — room subtotal, an 8%
-   guest service fee, estimated GST, and the security deposit — and creates a real Razorpay order.
+2. Server (`api/bookings/create-order.ts`) computes the authoritative price — room subtotal, a 15%
+   guest service fee (bundled into one guest-facing line, not shown separately), estimated GST, and
+   the security deposit — and creates a real Razorpay order.
 3. Razorpay's checkout widget opens. On successful payment, the server
    (`api/bookings/verify.ts`) **independently re-verifies the payment signature** and **recomputes
    the price from scratch** — it never trusts what the browser reports — then saves the booking to

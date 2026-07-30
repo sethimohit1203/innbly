@@ -145,12 +145,8 @@ export function BookingModal({ property, checkIn, checkOut, guests, onClose, onB
             {breakdown && (
               <div className="mt-4 space-y-1.5 rounded-xl border border-slate-200 p-4 text-sm">
                 <div className="flex justify-between text-slate-600">
-                  <span>₹{breakdown.nightlyRate.toLocaleString('en-IN')} × {breakdown.nights} night{breakdown.nights > 1 ? 's' : ''}</span>
-                  <span>₹{breakdown.roomSubtotal.toLocaleString('en-IN')}</span>
-                </div>
-                <div className="flex justify-between text-slate-600">
-                  <span>Service fee</span>
-                  <span>₹{breakdown.guestServiceFee.toLocaleString('en-IN')}</span>
+                  <span>Price for {breakdown.nights} night{breakdown.nights > 1 ? 's' : ''}</span>
+                  <span>₹{breakdown.guestBundledSubtotal.toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex justify-between text-slate-600">
                   <span>Taxes (est. GST {Math.round(breakdown.gstRate * 100)}%)</span>

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm, type FieldPath } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Check, ImagePlus, UploadCloud, FileText, X, Loader2, AlertCircle } from 'lucide-react'
+import { Check, ImagePlus, UploadCloud, FileText, X, Loader2, AlertCircle, Copy, KeyRound } from 'lucide-react'
 import { Footer } from '../components/Footer'
 import { GuestCounter } from '../components/GuestCounter'
 import { usePageMeta } from '../hooks/usePageMeta'
@@ -100,6 +100,8 @@ export function ListPropertyPage() {
   const [done, setDone] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [accessCode, setAccessCode] = useState<string | null>(null)
+  const [codeCopied, setCodeCopied] = useState(false)
 
   const {
     register,
@@ -137,8 +139,9 @@ export function ListPropertyPage() {
     setSubmitting(true)
     setSubmitError(null)
     try {
-      const id = await submitHostListing(data)
+      const { id, accessCode: code } = await submitHostListing(data)
       addMyListingId(id)
+      setAccessCode(code)
       setDone(true)
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
@@ -157,6 +160,37 @@ export function ListPropertyPage() {
         <p className="mt-2 text-slate-500">
           "{values.propertyTitle || 'Your property'}" has been sent for review. We'll be in touch once it's approved and live.
         </p>
+
+        {accessCode && (
+          <div className="mt-6 w-full rounded-2xl border border-amber-200 bg-amber-50 p-5 text-left">
+            <div className="flex items-center gap-2 text-amber-800">
+              <KeyRound className="h-4 w-4" />
+              <p className="text-sm font-bold">Your pricing access code</p>
+            </div>
+            <p className="mt-1 text-xs text-amber-700">
+              Save this now — you'll need it in the Host Dashboard to edit your price, weekend rates, fees and
+              calendar later, and it can't be recovered if you lose it. We've also emailed it to you.
+            </p>
+            <div className="mt-3 flex items-center gap-2">
+              <code className="flex-1 rounded-xl border border-amber-300 bg-white px-4 py-2.5 text-center text-lg font-bold tracking-widest text-slate-800">
+                {accessCode}
+              </code>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(accessCode).then(() => {
+                    setCodeCopied(true)
+                    setTimeout(() => setCodeCopied(false), 2000)
+                  })
+                }}
+                className="flex items-center gap-1.5 rounded-xl border border-amber-300 bg-white px-4 py-2.5 text-sm font-semibold text-amber-800 transition hover:bg-amber-100"
+              >
+                <Copy className="h-3.5 w-3.5" /> {codeCopied ? 'Copied' : 'Copy'}
+              </button>
+            </div>
+          </div>
+        )}
+
         <button
           onClick={() => navigate('/dashboard')}
           className="mt-6 rounded-xl bg-primary-600 px-6 py-3 text-sm font-semibold text-white hover:bg-primary-700"

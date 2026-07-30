@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
-import { LayoutDashboard, Building2, Users, PlusCircle, Receipt } from 'lucide-react'
+import { LayoutDashboard, Building2, Users, PlusCircle, Receipt, IndianRupee } from 'lucide-react'
 import { Footer } from './Footer'
 import { useAuth } from '../context/AuthContext'
 import { useNewBookingsCount, markBookingsSeen } from '../hooks/useNewBookingsCount'
@@ -8,6 +8,7 @@ import { useNewBookingsCount, markBookingsSeen } from '../hooks/useNewBookingsCo
 const TABS = [
   { to: '/dashboard', label: 'Dashboard Overview', icon: LayoutDashboard, end: true },
   { to: '/dashboard/properties', label: 'Manage Properties', icon: Building2, end: false },
+  { to: '/dashboard/pricing', label: 'Pricing & Calendar', icon: IndianRupee, end: false },
   { to: '/dashboard/bookings', label: 'Bookings', icon: Receipt, end: false },
   { to: '/dashboard/leads', label: 'Leads Tracker', icon: Users, end: false },
 ]

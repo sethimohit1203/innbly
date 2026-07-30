@@ -5,6 +5,7 @@ export interface BookingBreakdown {
   nightlyRate: number
   roomSubtotal: number
   guestServiceFee: number
+  guestBundledSubtotal: number
   gstRate: number
   gstAmount: number
   securityDeposit: number

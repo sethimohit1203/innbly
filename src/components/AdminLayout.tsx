@@ -19,9 +19,32 @@ export interface HostSubmission {
   max_guests: number
   price_per_night: number
   security_deposit: number
+  weekend_adjustment_pct: number
+  smart_pricing_enabled: boolean
+  cleaning_fee: number
+  pet_fee: number
+  extra_guest_fee: number
   amenities: string[]
   photo_urls: string[]
   document_urls: string[]
+  // access_code is present in the raw API response (GET selects '*') but is
+  // deliberately left off this type — it's the host's own listing-ownership
+  // secret and must never be rendered in the admin UI, even though the
+  // admin session can technically see it in the network response.
+}
+
+export interface PricingUpdate {
+  pricePerNight?: number
+  weekendAdjustmentPct?: number
+  smartPricingEnabled?: boolean
+  cleaningFee?: number
+  petFee?: number
+  extraGuestFee?: number
+}
+
+export interface DateOverride {
+  date: string
+  nightlyRate: number
 }
 
 export interface Stats {
@@ -39,6 +62,9 @@ export interface AdminOutletContext {
   submissionsMessage: string | null
   decidingId: string | null
   decide: (id: string, status: 'approved' | 'rejected' | 'pending') => void
+  updatePricing: (id: string, pricing: PricingUpdate) => Promise<boolean>
+  fetchDateOverrides: (id: string) => Promise<DateOverride[]>
+  setDateOverride: (id: string, date: string, nightlyRate: number | null) => Promise<boolean>
   reload: () => void
 }
 
@@ -112,6 +138,36 @@ export function AdminLayout() {
     })
     if (res.ok) await loadSubmissions()
     setDecidingId(null)
+  }
+
+  const updatePricing = async (id: string, pricing: PricingUpdate) => {
+    const res = await fetch('/api/admin/host-listings', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, action: 'pricing', pricing }),
+    })
+    if (res.ok) await loadSubmissions()
+    return res.ok
+  }
+
+  const fetchDateOverrides = async (id: string): Promise<DateOverride[]> => {
+    const res = await fetch(`/api/admin/host-listings?dateOverrides=${encodeURIComponent(id)}`)
+    if (!res.ok) return []
+    const data = await res.json().catch(() => ({}))
+    return data.dateOverrides ?? []
+  }
+
+  const setDateOverride = async (id: string, date: string, nightlyRate: number | null) => {
+    const body =
+      nightlyRate === null
+        ? { id, action: 'pricing', clearOverrides: [date] }
+        : { id, action: 'pricing', setOverrides: [{ date, nightlyRate }] }
+    const res = await fetch('/api/admin/host-listings', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+    return res.ok
   }
 
   const reload = () => {
@@ -196,6 +252,9 @@ export function AdminLayout() {
     submissionsMessage,
     decidingId,
     decide,
+    updatePricing,
+    fetchDateOverrides,
+    setDateOverride,
     reload,
   }
 

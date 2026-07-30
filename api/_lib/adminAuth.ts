@@ -53,3 +53,18 @@ export function checkPasscode(candidate: string): boolean {
   const b = Buffer.from(expected)
   return a.length === b.length && timingSafeEqual(a, b)
 }
+
+/** Same timing-safe comparison as checkPasscode, but against a per-listing
+ * access_code stored in the DB (host_submissions.access_code) instead of a
+ * single shared env var — this is how a host proves ownership of their own
+ * listing to edit its pricing/calendar, since there's no real host login
+ * (see CLAUDE.md). `expected` is null for listings created before the
+ * access-code column existed, or rows an admin hasn't backfilled yet — those
+ * always fail closed rather than allowing a blank/undefined match. */
+export function verifyListingAccessCode(candidate: string, expected: string | null | undefined): boolean {
+  const trimmedExpected = expected?.trim()
+  if (!trimmedExpected || !candidate) return false
+  const a = Buffer.from(candidate.trim())
+  const b = Buffer.from(trimmedExpected)
+  return a.length === b.length && timingSafeEqual(a, b)
+}

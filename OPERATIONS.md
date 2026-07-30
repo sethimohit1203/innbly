@@ -106,7 +106,8 @@ is used narrowly, for the host-submission pipeline and now real bookings/payment
 "Reserve & Pay" on a property page is a genuine payment flow, not a demo:
 
 1. Pick check-in/check-out dates and guests, then click **Reserve & Pay**. A price breakdown shows:
-   room subtotal, an 8% guest service fee, an estimated GST line, and the refundable security
+   a bundled room price (base rate plus a 15% guest service fee, shown as one line — hosts/admin
+   still see the fee broken out separately), an estimated GST line, and the refundable security
    deposit — all computed server-side (never trust what the browser displays for the actual charge).
 2. Paying opens Razorpay's real checkout widget (test-mode cards work fine with test keys — see
    Razorpay's docs for test card numbers).
@@ -117,9 +118,15 @@ is used narrowly, for the host-submission pipeline and now real bookings/payment
    transaction's system of record instead of tenants and hosts going around it.
 5. Admin, host, and tenant all get an email; check `/admin/bookings` to see what each host is owed.
 
-**Commission model:** host pays 2% of the room subtotal, guest pays an 8% service fee — both
-undercutting Airbnb's typical rates on purpose. GST is estimated (12%/18% based on nightly rate) for
-display only; confirm the real applicable slab and registration requirement with a tax advisor.
+**Commission model:** host pays 2% of the room subtotal, guest pays a 15% service fee (bundled into
+the guest-facing price, not shown as its own line) — both undercutting Airbnb's typical rates on
+purpose. GST is estimated (12%/18% based on nightly rate) for display only; confirm the real
+applicable slab and registration requirement with a tax advisor.
+
+Hosts can also set their own weekend markup, per-date price overrides, and fees for a listing from
+`/dashboard/pricing`, gated by a per-listing access code (not a real login — see CLAUDE.md's
+"Host-configurable pricing & calendar" section). Admin can edit the same fields from
+`/admin/properties` without a passcode.
 
 **Payouts to hosts are manual for now.** Automatically splitting and transferring a host's share
 needs **Razorpay Route** — a separate marketplace product requiring each host to complete their own

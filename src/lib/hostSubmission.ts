@@ -45,7 +45,22 @@ async function uploadFiles(files: File[], folder: string): Promise<string[]> {
   return urls
 }
 
-export async function submitHostListing(values: HostFormValues): Promise<string> {
+/** 8-char alphanumeric, generated with crypto-safe randomness — this becomes
+ * the host's only way to prove ownership of this listing later (there's no
+ * real host login, see CLAUDE.md), so it needs to be a real secret rather
+ * than something guessable, but still short enough to read back over email
+ * or type into a form. */
+function generateAccessCode(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(6))
+  return Array.from(bytes, (b) => b.toString(36).padStart(2, '0')).join('').slice(0, 8).toUpperCase()
+}
+
+export interface HostSubmissionResult {
+  id: string
+  accessCode: string
+}
+
+export async function submitHostListing(values: HostFormValues): Promise<HostSubmissionResult> {
   if (!supabase) throw new Error('Listing submissions are temporarily unavailable. Please try again later.')
 
   const [photoUrls, documentUrls] = await Promise.all([
@@ -60,6 +75,9 @@ export async function submitHostListing(values: HostFormValues): Promise<string>
   // without needing a SELECT policy that would otherwise let anyone read
   // anyone else's submission just by guessing an email.
   const id = crypto.randomUUID()
+  // Same reasoning applies to the access code: it must be generated and
+  // handed to the host right now, since RLS never lets it be read back.
+  const accessCode = generateAccessCode()
 
   const { error } = await supabase.from('host_submissions').insert({
     id,
@@ -78,13 +96,16 @@ export async function submitHostListing(values: HostFormValues): Promise<string>
     amenities: values.amenities,
     photo_urls: photoUrls,
     document_urls: documentUrls,
+    access_code: accessCode,
   })
 
   if (error) throw new Error(error.message)
 
   // Best-effort mirror to Google Sheets (+ email notification) — Supabase
   // above is the source of truth, so a Sheets hiccup shouldn't fail the
-  // submission the host already sees as successful.
+  // submission the host already sees as successful. The access code rides
+  // along so it also lands in the host's own confirmation email, in case
+  // they lose the one shown on this screen.
   submitToSheet('host-listing', {
     ownerName: values.ownerName,
     ownerEmail: values.ownerEmail,
@@ -101,7 +122,8 @@ export async function submitHostListing(values: HostFormValues): Promise<string>
     amenities: values.amenities,
     photoUrls,
     documentUrls,
+    accessCode,
   }).catch(() => {})
 
-  return id
+  return { id, accessCode }
 }

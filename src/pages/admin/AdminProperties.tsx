@@ -1,8 +1,190 @@
-import { Home, Check, X, Clock } from 'lucide-react'
-import { useAdminData } from '../../components/AdminLayout'
+import { useEffect, useMemo, useState } from 'react'
+import { Home, Check, X, Clock, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, IndianRupee } from 'lucide-react'
+import { useAdminData, type HostSubmission } from '../../components/AdminLayout'
+import { dateKey, resolvePrice, buildMonthDays } from '../../lib/pricingCalendar'
+
+function AdminPricingPanel({ submission }: { submission: HostSubmission }) {
+  const { updatePricing, fetchDateOverrides, setDateOverride } = useAdminData()
+  const [draft, setDraft] = useState({
+    pricePerNight: submission.price_per_night,
+    weekendAdjustmentPct: submission.weekend_adjustment_pct,
+    smartPricingEnabled: submission.smart_pricing_enabled,
+    cleaningFee: submission.cleaning_fee,
+    petFee: submission.pet_fee,
+    extraGuestFee: submission.extra_guest_fee,
+  })
+  const [overrides, setOverrides] = useState<{ date: string; nightlyRate: number }[]>([])
+  const [monthCursor, setMonthCursor] = useState(() => {
+    const d = new Date()
+    return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1))
+  })
+  const [selectedDate, setSelectedDate] = useState<string | null>(null)
+  const [overrideInput, setOverrideInput] = useState('')
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    fetchDateOverrides(submission.id).then(setOverrides)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [submission.id])
+
+  const overrideMap = useMemo(() => new Map(overrides.map((o) => [o.date, o.nightlyRate])), [overrides])
+  const monthDays = useMemo(() => buildMonthDays(monthCursor), [monthCursor])
+
+  const save = async (patch: Partial<typeof draft>) => {
+    setSaving(true)
+    const next = { ...draft, ...patch }
+    setDraft(next)
+    await updatePricing(submission.id, patch)
+    setSaving(false)
+  }
+
+  const saveOverride = async (date: string, rate: number | null) => {
+    setSaving(true)
+    const ok = await setDateOverride(submission.id, date, rate)
+    if (ok) {
+      setOverrides((prev) => {
+        const rest = prev.filter((o) => o.date !== date)
+        return rate === null ? rest : [...rest, { date, nightlyRate: rate }]
+      })
+      setSelectedDate(null)
+    }
+    setSaving(false)
+  }
+
+  return (
+    <div className="mt-3 grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 lg:grid-cols-[260px_1fr]">
+      <div className="space-y-3">
+        <div>
+          <label className="mb-1 block text-xs font-medium text-slate-600">Base price (₹/night)</label>
+          <input
+            type="number"
+            value={draft.pricePerNight}
+            onChange={(e) => setDraft({ ...draft, pricePerNight: Number(e.target.value) })}
+            onBlur={(e) => save({ pricePerNight: Number(e.target.value) })}
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-medium text-slate-600">Weekend adjustment (%)</label>
+          <input
+            type="number"
+            value={Math.round(draft.weekendAdjustmentPct * 100)}
+            onChange={(e) => setDraft({ ...draft, weekendAdjustmentPct: Number(e.target.value) / 100 })}
+            onBlur={(e) => save({ weekendAdjustmentPct: Number(e.target.value) / 100 })}
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+          />
+        </div>
+        <label className="flex items-center gap-2 text-xs font-medium text-slate-600">
+          <input
+            type="checkbox"
+            checked={draft.smartPricingEnabled}
+            onChange={(e) => save({ smartPricingEnabled: e.target.checked })}
+            className="h-3.5 w-3.5 rounded border-slate-300 text-primary-600 focus:ring-primary-400"
+          />
+          Smart pricing enabled
+        </label>
+        {(
+          [
+            ['cleaningFee', 'Cleaning fee'],
+            ['petFee', 'Pet fee'],
+            ['extraGuestFee', 'Extra guest fee'],
+          ] as const
+        ).map(([key, label]) => (
+          <div key={key}>
+            <label className="mb-1 block text-xs font-medium text-slate-600">{label} (₹)</label>
+            <input
+              type="number"
+              value={draft[key]}
+              onChange={(e) => setDraft({ ...draft, [key]: Number(e.target.value) })}
+              onBlur={(e) => save({ [key]: Number(e.target.value) } as Partial<typeof draft>)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+            />
+          </div>
+        ))}
+        {saving && <p className="text-xs text-slate-400">Saving…</p>}
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => setMonthCursor(new Date(Date.UTC(monthCursor.getUTCFullYear(), monthCursor.getUTCMonth() - 1, 1)))}
+            className="rounded-full p-1 text-slate-500 hover:bg-slate-200"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <p className="text-sm font-bold text-slate-800">
+            {monthCursor.toLocaleDateString('en-IN', { month: 'long', year: 'numeric', timeZone: 'UTC' })}
+          </p>
+          <button
+            onClick={() => setMonthCursor(new Date(Date.UTC(monthCursor.getUTCFullYear(), monthCursor.getUTCMonth() + 1, 1)))}
+            className="rounded-full p-1 text-slate-500 hover:bg-slate-200"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="mt-3 grid grid-cols-7 gap-1 text-center text-[10px] font-semibold text-slate-400">
+          {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
+            <div key={i}>{d}</div>
+          ))}
+        </div>
+        <div className="mt-1 grid grid-cols-7 gap-1">
+          {monthDays.map((d, i) => {
+            if (!d) return <div key={`b-${i}`} />
+            const key = dateKey(d)
+            const price = resolvePrice(draft, d, overrideMap)
+            const isOverridden = overrideMap.has(key)
+            return (
+              <button
+                key={key}
+                onClick={() => {
+                  setSelectedDate(key)
+                  setOverrideInput(String(price))
+                }}
+                className={`rounded-lg border p-1 text-left transition ${
+                  selectedDate === key ? 'border-primary-500 bg-primary-50' : isOverridden ? 'border-accent-300 bg-accent-50' : 'border-slate-200 bg-white'
+                }`}
+              >
+                <p className="text-[10px] font-semibold text-slate-700">{d.getUTCDate()}</p>
+                <p className="text-[9px] text-slate-500">₹{price.toLocaleString('en-IN')}</p>
+              </button>
+            )
+          })}
+        </div>
+
+        {selectedDate && (
+          <div className="mt-3 flex items-center gap-2 rounded-lg border border-slate-200 bg-white p-2.5">
+            <span className="text-xs font-semibold text-slate-600">{selectedDate}</span>
+            <input
+              type="number"
+              value={overrideInput}
+              onChange={(e) => setOverrideInput(e.target.value)}
+              className="w-24 rounded-lg border border-slate-300 px-2 py-1.5 text-xs outline-none focus:border-primary-500"
+            />
+            <button
+              onClick={() => saveOverride(selectedDate, Number(overrideInput))}
+              disabled={!(Number(overrideInput) > 0)}
+              className="rounded-lg bg-primary-600 px-3 py-1.5 text-xs font-bold text-white disabled:opacity-50"
+            >
+              Save
+            </button>
+            {overrideMap.has(selectedDate) && (
+              <button onClick={() => saveOverride(selectedDate, null)} className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-bold text-slate-600">
+                Clear
+              </button>
+            )}
+            <button onClick={() => setSelectedDate(null)} className="text-xs font-semibold text-slate-400">
+              Cancel
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
 
 export function AdminPropertiesPage() {
   const { stats, submissions, submissionsConfigured, submissionsMessage, decidingId, decide } = useAdminData()
+  const [expandedId, setExpandedId] = useState<string | null>(null)
 
   return (
     <div className="space-y-6">
@@ -29,7 +211,8 @@ export function AdminPropertiesPage() {
         ) : (
           <div className="space-y-3">
             {submissions.map((s) => (
-              <div key={s.id} className="flex flex-col gap-3 rounded-xl border border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div key={s.id} className="rounded-xl border border-slate-200 p-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
                   {s.photo_urls?.length > 0 ? (
                     <div className="flex shrink-0 -space-x-2">
@@ -103,7 +286,15 @@ export function AdminPropertiesPage() {
                       <Clock className="h-3.5 w-3.5" /> Reset
                     </button>
                   )}
+                  <button
+                    onClick={() => setExpandedId(expandedId === s.id ? null : s.id)}
+                    className="flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-bold text-slate-600 transition hover:bg-slate-50"
+                  >
+                    <IndianRupee className="h-3.5 w-3.5" /> Pricing {expandedId === s.id ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                  </button>
                 </div>
+              </div>
+              {expandedId === s.id && <AdminPricingPanel submission={s} />}
               </div>
             ))}
           </div>

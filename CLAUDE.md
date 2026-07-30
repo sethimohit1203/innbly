@@ -173,10 +173,13 @@ listings) is a real payment flow, not a stub — `api/_lib/stayBooking.ts` is th
 unrelated `/enterprise` demo — don't conflate the two).
 
 - Commission model (a deliberate undercut of Airbnb's typical split-fee rates to compete on price):
-  host pays **2%** of the room subtotal, guest pays an **8%** service fee, plus an estimated GST
-  (12%/18% two-tier slab on the nightly rate — **this is a display estimate only**; confirm the
-  actual applicable slab and any GST-registration requirement with a tax advisor before relying on
-  it for compliance, nothing here files or remits GST). All of this is computed in
+  host pays **2%** of the room subtotal, guest pays a **15%** service fee — bundled into a single
+  guest-facing "price for N nights" line (`src/components/BookingModal.tsx`) rather than shown as
+  its own row, though the server-side breakdown (and hosts/admin) still see `guestServiceFee` broken
+  out separately — plus an estimated GST (12%/18% two-tier slab on the nightly rate — **this is a
+  display estimate only**; confirm the actual applicable slab and any GST-registration requirement
+  with a tax advisor before relying on it for compliance, nothing here files or remits GST). All of
+  this is computed in
   `computeStayBookingBreakdown()` and re-derived from scratch server-side in both
   `api/bookings/create-order.ts` and `api/bookings/verify.ts` — never trust client-supplied amounts.
 - Flow: `create-order.ts` computes the price and opens a Razorpay order (test or live, based on
@@ -201,6 +204,43 @@ unrelated `/enterprise` demo — don't conflate the two).
   needed since verification already runs server-side. `Code.gs`'s `sendBookingEmails()` notifies
   admin, host, and tenant, each with only what they need (host gets the guest's contact + payout
   amount, tenant gets a receipt).
+
+### Host-configurable pricing & calendar
+
+Hosts can now manage their own listing's pricing beyond the flat `price_per_night` set at
+submission time — weekend markup, a "smart pricing" starter-default toggle, cleaning/pet/extra-guest
+fees, and a per-date price calendar. Since there's no real host login (see Auth model above),
+ownership here is a **per-listing access code** (`host_submissions.access_code`), not email-matching:
+
+- `supabase/host_listing_pricing.sql` (run once) adds `access_code`, `weekend_adjustment_pct`,
+  `smart_pricing_enabled`, `cleaning_fee`, `pet_fee`, `extra_guest_fee` to `host_submissions`, and a
+  new `listing_date_prices` table (per-date overrides) with RLS enabled and **zero policies** — every
+  read/write goes through the service-role key, never anon. `approved_listings` exposes the new
+  non-secret columns; `access_code` is never added to that view.
+- The access code is generated client-side at submission time (`src/lib/hostSubmission.ts`,
+  same "anon can INSERT but never SELECT, so generate now or lose it forever" reasoning already used
+  for the row's `id`), shown once on the post-submit confirmation screen, and mirrored into the
+  host's own confirmation email via `Code.gs` (never the admin notification).
+- `api/host/listing-pricing.ts` is the host-side GET/PATCH route, gated by
+  `verifyListingAccessCode()` (`api/_lib/adminAuth.ts`, same timing-safe-compare pattern as the admin
+  passcode) and rate-limited per IP+listing (failed attempts count too, since a passcode is a
+  guessable secret unlike a real login). `api/admin/host-listings.ts` got the equivalent admin-side
+  capability folded in via an `action: 'pricing'` field on its existing PATCH (no new file, admin
+  already has a real session so no passcode needed there) — this is also why the route stayed under
+  Vercel's 12-function cap.
+- `api/_lib/stayBooking.ts`'s `resolveNightlyRate()` is what actually prices a night for a host
+  listing: an explicit date override first, else the weekend markup on Fri/Sat, else the flat base
+  rate — and it's reused by `computeStayBookingBreakdown()` (summed per-night, since a stay can span
+  mixed rates now) **and** by `api/price.ts`'s `'calendar'` kind (`computeHostWeeklyCalendar()`) so
+  the tenant-facing 7-day preview (`PriceCalendar.tsx`) shows the host's real prices instead of the
+  static catalog's fixed day-of-week curve (`api/_lib/pricing.ts`'s `DAY_MULTIPLIERS`, which still
+  powers that same preview for static catalog properties only — they have no owning host row).
+- Host UI: `/dashboard/pricing` (`src/pages/host/HostPricingPage.tsx`). Admin UI: an expandable
+  "Pricing" panel per listing in `/admin/properties`. Both share date-math helpers from
+  `src/lib/pricingCalendar.ts` rather than duplicating the resolved-price logic.
+- "Smart pricing" is a starter-default toggle (sets a sensible weekend markup the host can still see
+  and override), not a live demand-based pricing engine — there's no demand data anywhere in this
+  codebase to drive one, and the UI copy says so explicitly rather than overpromising.
 
 ### Booking status, cancellation, host/tenant booking views, and reviews
 

@@ -21,6 +21,7 @@ const HostOverviewPage = lazy(() => import('./pages/host/HostOverview').then((m)
 const HostPropertiesPage = lazy(() => import('./pages/host/HostProperties').then((m) => ({ default: m.HostPropertiesPage })))
 const HostLeadsPage = lazy(() => import('./pages/host/HostLeads').then((m) => ({ default: m.HostLeadsPage })))
 const HostBookingsPage = lazy(() => import('./pages/host/HostBookings').then((m) => ({ default: m.HostBookingsPage })))
+const HostPricingPage = lazy(() => import('./pages/host/HostPricingPage').then((m) => ({ default: m.HostPricingPage })))
 const ListPropertyPage = lazy(() => import('./pages/ListProperty').then((m) => ({ default: m.ListPropertyPage })))
 const ContactPage = lazy(() => import('./pages/Contact').then((m) => ({ default: m.ContactPage })))
 const PrivacyPage = lazy(() => import('./pages/Privacy').then((m) => ({ default: m.PrivacyPage })))
@@ -70,6 +71,7 @@ export default function App() {
           >
             <Route index element={<HostOverviewPage />} />
             <Route path="properties" element={<HostPropertiesPage />} />
+            <Route path="pricing" element={<HostPricingPage />} />
             <Route path="bookings" element={<HostBookingsPage />} />
             <Route path="leads" element={<HostLeadsPage />} />
           </Route>
