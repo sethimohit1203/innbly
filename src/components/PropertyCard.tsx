@@ -77,7 +77,9 @@ export function PropertyCard({ property, onQuickView }: { property: Property; on
             e.preventDefault()
             toggleSaved(property.id)
           }}
-          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-md transition hover:scale-110"
+          aria-label={isSaved(property.id) ? 'Remove from saved properties' : 'Save property'}
+          aria-pressed={isSaved(property.id)}
+          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-md transition hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2"
         >
           <Heart className={`h-4 w-4 ${isSaved(property.id) ? 'fill-rose-500 text-rose-500' : 'text-slate-600'}`} />
         </button>
@@ -88,7 +90,8 @@ export function PropertyCard({ property, onQuickView }: { property: Property; on
               e.preventDefault()
               onQuickView(property)
             }}
-            className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-1.5 rounded-full bg-white/95 px-4 py-2 text-xs font-bold text-slate-800 opacity-0 shadow-lg backdrop-blur-md transition-all group-hover:opacity-100"
+            aria-label={`Quick view ${property.title}`}
+            className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-1.5 rounded-full bg-white/95 px-4 py-2 text-xs font-bold text-slate-800 opacity-0 shadow-lg backdrop-blur-md transition-all group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
           >
             <Eye className="h-3.5 w-3.5" /> Quick View
           </button>
@@ -167,7 +170,9 @@ export function PropertyCard({ property, onQuickView }: { property: Property; on
               }}
               disabled={!isComparing(property.id) && compareIds.length >= 3}
               title="Add to compare"
-              className={`flex items-center gap-1 rounded-lg border px-2 py-2 text-[10px] font-bold transition disabled:cursor-not-allowed disabled:opacity-30 ${
+              aria-label={isComparing(property.id) ? 'Remove from compare' : 'Add to compare'}
+              aria-pressed={isComparing(property.id)}
+              className={`flex items-center gap-1 rounded-lg border px-2 py-2 text-[10px] font-bold transition disabled:cursor-not-allowed disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-1 ${
                 isComparing(property.id) ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-slate-200 text-slate-500 hover:border-slate-300'
               }`}
             >

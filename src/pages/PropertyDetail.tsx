@@ -157,6 +157,18 @@ export function PropertyDetailPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [property?.id])
 
+  // Keyboard support for the photo lightbox — Escape closes, arrows navigate.
+  useEffect(() => {
+    if (photoIndex === null || !property) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setPhotoIndex(null)
+      else if (e.key === 'ArrowLeft') setPhotoIndex((i) => (i === null ? i : (i - 1 + property.images.length) % property.images.length))
+      else if (e.key === 'ArrowRight') setPhotoIndex((i) => (i === null ? i : (i + 1) % property.images.length))
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [photoIndex, property])
+
   useEffect(() => {
     if (photoIndex === null || !property) return
     const onKey = (e: KeyboardEvent) => {
@@ -278,21 +290,23 @@ export function PropertyDetailPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => toggleSaved(property.id)}
-            className="flex items-center gap-1.5 rounded-full border border-slate-300 px-3.5 py-1.5 text-sm font-medium text-slate-600 transition hover:border-slate-400"
+            aria-pressed={saved}
+            className="flex items-center gap-1.5 rounded-full border border-slate-300 px-3.5 py-1.5 text-sm font-medium text-slate-600 transition hover:border-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2"
           >
             <Heart className={`h-4 w-4 ${saved ? 'fill-rose-500 text-rose-500' : ''}`} />
             {saved ? 'Saved' : 'Save'}
           </button>
           <button
             onClick={() => setShareOpen(true)}
-            className="flex items-center gap-1.5 rounded-full border border-slate-300 px-3.5 py-1.5 text-sm font-medium text-slate-600 transition hover:border-slate-400"
+            className="flex items-center gap-1.5 rounded-full border border-slate-300 px-3.5 py-1.5 text-sm font-medium text-slate-600 transition hover:border-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2"
           >
             <Share2 className="h-4 w-4" /> Share
           </button>
           <button
             onClick={() => toggleCompare(property.id)}
             disabled={!isComparing(property.id) && compareIds.length >= 3}
-            className={`flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-40 ${
+            aria-pressed={isComparing(property.id)}
+            className={`flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 ${
               isComparing(property.id) ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-slate-300 text-slate-600 hover:border-slate-400'
             }`}
           >
@@ -327,7 +341,7 @@ export function PropertyDetailPage() {
       <div id="photos" className="relative mb-8 grid h-64 scroll-mt-28 grid-cols-1 gap-2 overflow-hidden rounded-2xl sm:h-[420px] sm:grid-cols-5 sm:grid-rows-2">
         <button
           onClick={() => setPhotoIndex(0)}
-          className="h-full w-full overflow-hidden sm:col-span-3 sm:row-span-2"
+          className="h-full w-full overflow-hidden sm:col-span-3 sm:row-span-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-400"
         >
           <img
             src={property.images[0]}
@@ -336,13 +350,18 @@ export function PropertyDetailPage() {
           />
         </button>
         {property.images.slice(1, 5).map((img, i) => (
-          <button key={i} onClick={() => setPhotoIndex(i + 1)} className="hidden h-full w-full overflow-hidden sm:col-span-1 sm:block">
+          <button
+            key={i}
+            onClick={() => setPhotoIndex(i + 1)}
+            aria-label={`View photo ${i + 2} of ${property.images.length}`}
+            className="hidden h-full w-full overflow-hidden sm:col-span-1 sm:block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-400"
+          >
             <img src={img} alt="" className="h-full w-full object-cover transition hover:brightness-95" />
           </button>
         ))}
         <button
           onClick={() => setPhotoIndex(0)}
-          className="absolute bottom-4 right-4 flex items-center gap-1.5 rounded-full bg-white/95 px-4 py-2 text-sm font-semibold text-slate-800 shadow-card-hover transition hover:bg-white"
+          className="absolute bottom-4 right-4 flex items-center gap-1.5 rounded-full bg-white/95 px-4 py-2 text-sm font-semibold text-slate-800 shadow-card-hover transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
         >
           <Images className="h-4 w-4" /> View all photos
         </button>
@@ -373,7 +392,7 @@ export function PropertyDetailPage() {
           <button
             onClick={() => setPhotoIndex(null)}
             aria-label="Close photo viewer"
-            className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+            className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
           >
             <X className="h-5 w-5" />
           </button>
@@ -384,7 +403,7 @@ export function PropertyDetailPage() {
               setPhotoIndex((i) => (i === null ? i : (i - 1 + property.images.length) % property.images.length))
             }}
             aria-label="Previous photo"
-            className="absolute left-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 sm:left-8"
+            className="absolute left-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:left-8"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
@@ -402,7 +421,7 @@ export function PropertyDetailPage() {
               setPhotoIndex((i) => (i === null ? i : (i + 1) % property.images.length))
             }}
             aria-label="Next photo"
-            className="absolute right-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 sm:right-8"
+            className="absolute right-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:right-8"
           >
             <ChevronRight className="h-5 w-5" />
           </button>
@@ -491,9 +510,11 @@ export function PropertyDetailPage() {
                       {present.map((a) => (
                         <div
                           key={a}
-                          className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-700 transition hover:border-primary-300 hover:bg-primary-50/50"
+                          className="flex items-center gap-3 rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-700 transition duration-200 ease-smooth hover:-translate-y-0.5 hover:border-primary-300 hover:bg-primary-50/60 hover:shadow-card"
                         >
-                          <span className="text-primary-600">{amenityIcons[a]}</span>
+                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-600">
+                            {amenityIcons[a]}
+                          </span>
                           {a}
                         </div>
                       ))}
