@@ -276,6 +276,7 @@ export function ListPropertyPage() {
 
   if (done) {
     return (
+      <>
       <div className="mx-auto max-w-2xl px-4 py-16">
         <div className="mx-auto flex max-w-xl flex-col items-center text-center">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent-50">
@@ -348,20 +349,42 @@ export function ListPropertyPage() {
           </button>
         </div>
       </div>
+      {/* The footer only appears once the listing is actually submitted —
+          during the wizard itself it's hidden so it can't distract someone
+          mid-flow (see the return below). */}
+      <Footer />
+      </>
     )
   }
 
+  const progressPct = Math.round(((step + 1) / STEPS.length) * 100)
+  const minutesLeft = Math.max(1, Math.ceil((STEPS.length - step - 1) * 0.4))
+
   return (
     <>
-      <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
-        <h1 className="text-2xl font-extrabold text-slate-900">List Your Property</h1>
+      <div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
+        <h1 className="text-section-heading text-slate-900">List Your Property</h1>
 
-        {/* Stepper */}
-        <div className="mt-6 flex items-center gap-1 overflow-x-auto pb-1 scrollbar-thin">
+        {/* Progress */}
+        <div className="mt-6">
+          <div className="flex items-center justify-between text-caption font-semibold text-slate-500">
+            <span>Step {step + 1} of {STEPS.length}</span>
+            <span>{progressPct}% complete · ~{minutesLeft} min left</span>
+          </div>
+          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-primary-600 to-accent-500 transition-all duration-300 ease-smooth"
+              style={{ width: `${progressPct}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Compact step wayfinding row */}
+        <div className="mt-4 flex items-center gap-1 overflow-x-auto pb-1 scrollbar-thin">
           {STEPS.map((s, i) => (
             <div key={s.label} className="flex shrink-0 items-center gap-1">
               <div
-                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition ${
+                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-colors duration-200 ${
                   i <= step ? 'bg-primary-600 text-white' : 'bg-slate-200 text-slate-500'
                 }`}
               >
@@ -376,7 +399,7 @@ export function ListPropertyPage() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
+          <div className="mt-8 animate-fade-in rounded-2xl border border-slate-200 bg-white p-8 shadow-card sm:p-10" key={step}>
             {step === 0 && (
               <div className="space-y-4">
                 <div>
@@ -818,7 +841,6 @@ export function ListPropertyPage() {
           </div>
         </form>
       </div>
-      <Footer />
     </>
   )
 }

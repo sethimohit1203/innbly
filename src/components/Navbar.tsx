@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Link } from '~links'
+import { Link, NavLink } from '~links'
 import {
   Search,
   LayoutDashboard,
@@ -68,33 +68,46 @@ export function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/80 backdrop-blur-md">
-      <div className="mx-auto grid h-20 max-w-7xl grid-cols-[1fr_auto_1fr] items-center px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/80 shadow-sm backdrop-blur-md transition-shadow">
+      <div className="mx-auto grid h-18 max-w-7xl grid-cols-[1fr_auto_1fr] items-center px-6 sm:px-8 lg:px-10">
         <Link to="/" className="flex items-center gap-2.5 justify-self-start">
-          <img src="/brand/innbly-icon.jpg" alt="innbly" className="h-10 w-10 rounded-xl object-cover shadow-lg shadow-primary-500/20" />
+          <img src="/brand/innbly-icon.jpg" alt="innbly" className="h-9 w-9 rounded-xl object-cover shadow-lg shadow-primary-500/20" />
           <span className="bg-gradient-to-r from-primary-900 to-primary-600 bg-clip-text text-xl font-extrabold tracking-tight text-transparent">
             innbly
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-8 justify-self-center md:flex">
+        <nav className="hidden items-center gap-10 justify-self-center md:flex">
           {isHost
             ? hostLinks.map((link) => (
-                <Link
+                <NavLink
                   key={link.to}
                   to={link.to}
-                  className="flex items-center gap-1.5 text-[15px] font-semibold text-slate-600 transition-colors hover:text-primary-600"
+                  end
+                  className={({ isActive }) =>
+                    `relative flex items-center gap-1.5 py-6 text-[15px] font-semibold transition-colors after:absolute after:-bottom-px after:left-0 after:h-0.5 after:rounded-full after:bg-primary-600 after:transition-all after:duration-200 after:ease-smooth after:content-[''] ${
+                      isActive
+                        ? 'text-primary-700 after:w-full'
+                        : 'text-slate-600 after:w-0 hover:text-primary-600 hover:after:w-full'
+                    }`
+                  }
                 >
                   <link.icon className="h-4 w-4" /> {link.label}
-                </Link>
+                </NavLink>
               ))
             : (
-                <Link
+                <NavLink
                   to="/search"
-                  className="flex items-center gap-1.5 text-[15px] font-semibold text-slate-600 transition-colors hover:text-primary-600"
+                  className={({ isActive }) =>
+                    `relative flex items-center gap-1.5 py-6 text-[15px] font-semibold transition-colors after:absolute after:-bottom-px after:left-0 after:h-0.5 after:rounded-full after:bg-primary-600 after:transition-all after:duration-200 after:ease-smooth after:content-[''] ${
+                      isActive
+                        ? 'text-primary-700 after:w-full'
+                        : 'text-slate-600 after:w-0 hover:text-primary-600 hover:after:w-full'
+                    }`
+                  }
                 >
                   <Search className="h-4 w-4" /> Explore
-                </Link>
+                </NavLink>
               )}
         </nav>
 

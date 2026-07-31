@@ -107,6 +107,13 @@ const amenityGroups: Record<string, string[]> = {
   Services: ['Housekeeping', 'Meals', 'Gym'],
 }
 
+const SECTION_NAV: [string, string][] = [
+  ['photos', 'Photos'],
+  ['amenities', 'Amenities'],
+  ['reviews', 'Reviews'],
+  ['location', 'Location'],
+]
+
 export function PropertyDetailPage() {
   const { id } = useParams()
   const { properties, getPropertyById } = useProperties()
@@ -123,7 +130,27 @@ export function PropertyDetailPage() {
   const [guests, setGuests] = useState(1)
   const [showBookingModal, setShowBookingModal] = useState(false)
   const [isPaid, setIsPaid] = useState(() => (property ? getPaidPropertyIds().includes(property.id) : false))
+  const [activeSection, setActiveSection] = useState('photos')
   const saved = property ? isSaved(property.id) : false
+
+  // Scroll-spy: highlight whichever section nav tab corresponds to the
+  // section actually on screen, not just the last one clicked.
+  useEffect(() => {
+    if (!property) return
+    const ids = SECTION_NAV.map(([sectionId]) => sectionId)
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
+        if (visible[0]) setActiveSection(visible[0].target.id)
+      },
+      { rootMargin: '-140px 0px -60% 0px', threshold: 0 },
+    )
+    const elements = ids.map((sectionId) => document.getElementById(sectionId)).filter((el): el is HTMLElement => el !== null)
+    elements.forEach((el) => observer.observe(el))
+    return () => observer.disconnect()
+  }, [property])
 
   useEffect(() => {
     if (property) addRecentlyViewed(property.id)
@@ -277,18 +304,18 @@ export function PropertyDetailPage() {
       {/* In-page section nav — smooth-scrolls to each section below rather
           than navigating anywhere, so it deliberately stays a same-tab
           anchor jump even though every other link on the site opens in a
-          new tab. */}
-      <nav className="sticky top-20 z-30 -mx-4 mb-6 flex gap-6 overflow-x-auto border-b border-slate-200 bg-white/90 px-4 py-3 backdrop-blur-md sm:-mx-6 sm:px-6">
-        {[
-          ['photos', 'Photos'],
-          ['amenities', 'Amenities'],
-          ['reviews', 'Reviews'],
-          ['location', 'Location'],
-        ].map(([id, label]) => (
+          new tab. Active tab tracks whichever section is actually on
+          screen (scroll-spy), not just which one was last clicked. */}
+      <nav className="sticky top-18 z-30 -mx-4 mb-6 flex gap-6 overflow-x-auto border-b border-slate-200 bg-white/90 px-4 py-3 backdrop-blur-md sm:-mx-6 sm:px-6">
+        {SECTION_NAV.map(([id, label]) => (
           <a
             key={id}
             href={`#${id}`}
-            className="shrink-0 whitespace-nowrap text-sm font-semibold text-slate-500 transition hover:text-primary-600"
+            className={`relative shrink-0 whitespace-nowrap pb-1 text-sm font-semibold transition-colors after:absolute after:-bottom-px after:left-0 after:h-0.5 after:rounded-full after:bg-primary-600 after:transition-all after:duration-200 after:ease-smooth after:content-[''] ${
+              activeSection === id
+                ? 'text-primary-700 after:w-full'
+                : 'text-slate-500 after:w-0 hover:text-primary-600'
+            }`}
           >
             {label}
           </a>
