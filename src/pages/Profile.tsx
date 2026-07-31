@@ -46,7 +46,7 @@ export function ProfilePage() {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault()
-    updateProfile({ name: name.trim() || user.name, email: email.trim() || user.email, phone: phone.trim() || undefined })
+    updateProfile({ name: name.trim() || user.name, phone: phone.trim() || undefined })
     showToast('Profile updated')
   }
 
@@ -145,8 +145,9 @@ export function ProfilePage() {
               <input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+                disabled
+                title="Email can't be changed here — it's your login for this account."
+                className="w-full cursor-not-allowed rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-400 outline-none"
               />
             </div>
             <div className="sm:col-span-2">

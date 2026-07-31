@@ -1,14 +1,15 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useForm, type FieldPath } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Check, ImagePlus, UploadCloud, FileText, X, Loader2, AlertCircle, Copy, KeyRound } from 'lucide-react'
+import { Check, ImagePlus, UploadCloud, FileText, X, Loader2, AlertCircle, Copy, KeyRound, Home } from 'lucide-react'
 import { Footer } from '../components/Footer'
 import { GuestCounter } from '../components/GuestCounter'
+import { LocationPicker, type LocationValue } from '../components/host/LocationPicker'
 import { usePageMeta } from '../hooks/usePageMeta'
 import { hostFormSchema, submitHostListing, type HostFormValues } from '../lib/hostSubmission'
 import { addMyListingId } from '../lib/myListings'
-import { PROPERTY_TYPES } from '../types'
+import { PROPERTY_TYPES, STRUCTURE_TYPES, PRIVACY_TYPES } from '../types'
 
 const ALL_AMENITIES = [
   'Wi-Fi',
@@ -23,15 +24,17 @@ const ALL_AMENITIES = [
   'Laundry',
 ]
 
-const STEPS: { label: string; fields: FieldPath<HostFormValues>[] }[] = [
-  { label: 'Owner Info', fields: ['ownerName', 'ownerEmail', 'ownerPhone'] },
-  { label: 'Property Info', fields: ['propertyTitle', 'propertyType', 'description'] },
-  { label: 'Location', fields: ['city', 'neighborhood', 'address'] },
-  { label: 'Pricing', fields: ['pricePerNight', 'securityDeposit', 'maxGuests'] },
-  { label: 'Amenities', fields: ['amenities'] },
-  { label: 'Photos', fields: ['photos'] },
-  { label: 'Documents', fields: ['documents'] },
-  { label: 'Agreement', fields: ['agreedToTerms'] },
+const STEPS: { slug: string; label: string; fields: FieldPath<HostFormValues>[] }[] = [
+  { slug: 'owner-info', label: 'Owner Info', fields: ['ownerName', 'ownerEmail', 'ownerPhone'] },
+  { slug: 'about-your-place', label: 'Property Info', fields: ['propertyTitle', 'propertyType', 'description'] },
+  { slug: 'structure', label: 'Structure', fields: ['structureType'] },
+  { slug: 'privacy-type', label: 'Privacy Type', fields: ['privacyType'] },
+  { slug: 'location', label: 'Location', fields: ['city', 'neighborhood', 'address'] },
+  { slug: 'pricing', label: 'Pricing', fields: ['pricePerNight', 'securityDeposit', 'maxGuests'] },
+  { slug: 'amenities', label: 'Amenities', fields: ['amenities'] },
+  { slug: 'photos', label: 'Photos', fields: ['photos'] },
+  { slug: 'documents', label: 'Documents', fields: ['documents'] },
+  { slug: 'agreement', label: 'Agreement', fields: ['agreedToTerms'] },
 ]
 
 function FileDropzone({
@@ -96,12 +99,25 @@ function FileDropzone({
 export function ListPropertyPage() {
   usePageMeta('List Your Property', 'List your property on innbly in a few simple steps and start receiving guest inquiries directly.')
   const navigate = useNavigate()
-  const [step, setStep] = useState(0)
+  const { step: stepSlug } = useParams()
   const [done, setDone] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [accessCode, setAccessCode] = useState<string | null>(null)
   const [codeCopied, setCodeCopied] = useState(false)
+  const [location, setLocation] = useState<LocationValue | null>(null)
+
+  const stepIndex = Math.max(0, STEPS.findIndex((s) => s.slug === stepSlug))
+  const step = stepSlug ? stepIndex : 0
+
+  // A bare /dashboard/list-property (or an unknown slug) settles on step 0's
+  // real URL rather than silently rendering it under the wrong address —
+  // keeps every step addressable/bookmarkable/back-button-able.
+  useEffect(() => {
+    if (!stepSlug || STEPS.findIndex((s) => s.slug === stepSlug) === -1) {
+      navigate(`/dashboard/list-property/${STEPS[0].slug}`, { replace: true })
+    }
+  }, [stepSlug, navigate])
 
   const {
     register,
@@ -130,9 +146,20 @@ export function ListPropertyPage() {
     setValue('amenities', current.includes(a) ? current.filter((x) => x !== a) : [...current, a], { shouldValidate: true })
   }
 
+  const goToStep = (index: number) => navigate(`/dashboard/list-property/${STEPS[index].slug}`)
+
   const goNext = async () => {
     const valid = await trigger(STEPS[step].fields)
-    if (valid) setStep((s) => Math.min(STEPS.length - 1, s + 1))
+    if (valid) goToStep(Math.min(STEPS.length - 1, step + 1))
+  }
+
+  const handleLocationChange = (v: LocationValue) => {
+    setLocation(v)
+    setValue('city', v.city, { shouldValidate: true })
+    setValue('neighborhood', v.neighborhood, { shouldValidate: true })
+    setValue('address', v.address, { shouldValidate: true })
+    setValue('latitude', v.lat, { shouldValidate: true })
+    setValue('longitude', v.lng, { shouldValidate: true })
   }
 
   const onSubmit = async (data: HostFormValues) => {
@@ -305,7 +332,55 @@ export function ListPropertyPage() {
             )}
 
             {step === 2 && (
+              <div>
+                <h2 className="mb-1 text-xl font-bold text-slate-900">Which of these best describes your place?</h2>
+                <p className="mb-4 text-sm text-slate-500">This is separate from your listing's site category — it just helps guests picture the space.</p>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {STRUCTURE_TYPES.map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setValue('structureType', t, { shouldValidate: true })}
+                      className={`flex flex-col items-center gap-2 rounded-2xl border p-4 text-center transition ${
+                        values.structureType === t
+                          ? 'border-primary-500 bg-primary-50 text-primary-700'
+                          : 'border-slate-200 text-slate-600 hover:border-slate-400'
+                      }`}
+                    >
+                      <Home className="h-5 w-5" />
+                      <span className="text-sm font-semibold">{t}</span>
+                    </button>
+                  ))}
+                </div>
+                {errors.structureType && <p className="mt-3 text-xs font-medium text-rose-600">{errors.structureType.message}</p>}
+              </div>
+            )}
+
+            {step === 3 && (
+              <div>
+                <h2 className="mb-4 text-xl font-bold text-slate-900">What type of place will guests have?</h2>
+                <div className="space-y-3">
+                  {PRIVACY_TYPES.map((p) => (
+                    <button
+                      key={p.value}
+                      type="button"
+                      onClick={() => setValue('privacyType', p.value, { shouldValidate: true })}
+                      className={`block w-full rounded-2xl border-2 p-4 text-left transition ${
+                        values.privacyType === p.value ? 'border-primary-500 bg-primary-50' : 'border-slate-200 hover:border-slate-300'
+                      }`}
+                    >
+                      <p className="font-semibold text-slate-800">{p.label}</p>
+                      <p className="mt-1 text-sm text-slate-500">{p.description}</p>
+                    </button>
+                  ))}
+                </div>
+                {errors.privacyType && <p className="mt-3 text-xs font-medium text-rose-600">{errors.privacyType.message}</p>}
+              </div>
+            )}
+
+            {step === 4 && (
               <div className="space-y-4">
+                <LocationPicker value={location} onChange={handleLocationChange} />
                 <div>
                   <label htmlFor="city" className="mb-1 block text-sm font-medium text-slate-700">City</label>
                   <input
@@ -340,7 +415,7 @@ export function ListPropertyPage() {
               </div>
             )}
 
-            {step === 3 && (
+            {step === 5 && (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -372,7 +447,7 @@ export function ListPropertyPage() {
               </div>
             )}
 
-            {step === 4 && (
+            {step === 6 && (
               <div>
                 <p className="mb-3 text-sm font-medium text-slate-700">Select the amenities available:</p>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -398,7 +473,7 @@ export function ListPropertyPage() {
               </div>
             )}
 
-            {step === 5 && (
+            {step === 7 && (
               <>
                 <FileDropzone
                   label="Property Photos"
@@ -413,7 +488,7 @@ export function ListPropertyPage() {
               </>
             )}
 
-            {step === 6 && (
+            {step === 8 && (
               <>
                 <FileDropzone
                   label="Verification Documents (ID proof / ownership proof)"
@@ -427,7 +502,7 @@ export function ListPropertyPage() {
               </>
             )}
 
-            {step === 7 && (
+            {step === 9 && (
               <div className="space-y-5">
                 <div className="rounded-xl bg-slate-50 p-4 text-sm text-slate-600">
                   <p className="font-bold text-slate-800">{values.propertyTitle || 'Untitled property'}</p>
@@ -460,7 +535,7 @@ export function ListPropertyPage() {
           <div className="mt-6 flex justify-between">
             <button
               type="button"
-              onClick={() => setStep((s) => Math.max(0, s - 1))}
+              onClick={() => goToStep(Math.max(0, step - 1))}
               disabled={step === 0}
               className="rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-600 transition hover:border-slate-400 disabled:cursor-not-allowed disabled:opacity-40"
             >

@@ -76,7 +76,7 @@ export default function App() {
             <Route path="leads" element={<HostLeadsPage />} />
           </Route>
           <Route
-            path="/dashboard/list-property"
+            path="/dashboard/list-property/:step?"
             element={
               <HostOnlyRoute>
                 <ListPropertyPage />

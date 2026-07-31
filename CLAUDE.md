@@ -82,15 +82,48 @@ static catalog + Google Sheets pattern described below.
   `src/pages/admin/`. `AdminLayout` owns all the auth/data-fetching state and passes it down via
   `Outlet context` (`useAdminData()`) rather than each tab fetching independently.
 
-### Auth model (important: this is not real authentication)
+### Auth model (real accounts, real sessions — as of the password/OTP rebuild)
 
-Login/signup (`AuthContext`, `AuthModal`) only captures name + email + role to personalize the UI
-and tag leads — there are no passwords and no server-verified sessions for tenant/host accounts.
-Don't build features that assume `user` is a trustworthy identity boundary.
+Tenant/host auth is now real: `api/auth.ts` (single `action`-dispatched route, see "API" below)
+handles signup, email-OTP verification, login, role switching, and profile updates against a
+`public.users` table (`supabase/users.sql`) with `node:crypto.scrypt`-hashed passwords — no
+`bcrypt`/`bcryptjs` dependency needed, scrypt is built into Node. `api/_lib/userAuth.ts` holds the
+password hashing, the signed session cookie (`innbly_session`, HMAC'd with `USER_SESSION_SECRET`,
+embeds `{userId, role}`), and OTP hashing (`OTP_SECRET`) — both are Vercel env vars, not
+client-exposed, and deliberately separate from the admin session's `ADMIN_SESSION_SECRET` so the
+two trust boundaries can't cross-contaminate each other.
 
-The **admin dashboard** (`/admin`, `api/admin/*`) is separate and is real auth: a passcode checked
-server-side (`api/_lib/adminAuth.ts`) against `ADMIN_PASSCODE`, with an HMAC-signed session cookie
-(`ADMIN_SESSION_SECRET`). Both are Vercel env vars, not client-exposed.
+- **Signup requires an emailed 6-digit code** before a session issues (`supabase/otp_codes.sql`,
+  10-minute expiry, 5 attempts) — matches Airbnb's own flow, where OTP only confirms identity once
+  at signup, not on every login. The email is sent via the **existing Google Apps Script pipeline**
+  (`google-apps-script/Code.gs`'s `sendOtpEmail`, a new `'otp'` `doPost` branch that skips the
+  usual sheet-row logging), not a new paid transactional email service — same ~100/day Gmail quota
+  as every other email this app sends. Unlike every other `forwardToSheet` call site (fire-and-forget,
+  see "API" below), OTP delivery uses `sendViaAppsScriptAwaited()` (`api/_lib/sheets.ts`) so
+  `api/auth.ts` knows whether the email actually sent before telling the user "code sent."
+- `src/context/AuthContext.tsx`'s `user` is now hydrated from `GET /api/auth?action=session` on
+  mount (the httpOnly cookie is the source of truth), not read from `localStorage` — a page reload
+  re-verifies the session server-side rather than trusting whatever was last written to the browser.
+  `user`'s shape (`name`, `email`, `role`, `phone?`, `avatarUrl?`) is unchanged from before, so every
+  existing `useAuth()` call site kept working without edits.
+- **Google Sign-In** (`GoogleSignInButton`) still only decodes the ID token client-side without
+  verifying its signature against Google's JWKS server-side — flagged in `api/auth.ts`'s
+  `google-auth` action as a known gap, not silently glossed over. It does now get a real session
+  cookie via that action, unlike the old fully-local fake login.
+- **Role switching** ("Switch to travelling"/"Switch to hosting" in `Navbar.tsx`) just flips
+  `users.role` via `api/auth.ts`'s `switch-role` action — same self-serve semantics as before
+  (anyone can become a host), now persisted server-side instead of localStorage.
+- Email can't be changed from `/profile` (`update-profile` action intentionally omits it) — it's
+  now a real login credential, not just a display field, so changing it needs its own re-verification
+  flow that doesn't exist yet (flagged as a future gap, not built).
+- `api/auth.ts` is the route that pushed this deployment to **12/12** of Vercel's Hobby function
+  cap (see below) — there is no more headroom for a new top-level `api/*.ts` file without folding
+  into an existing one or upgrading the plan.
+
+The **admin dashboard** (`/admin`, `api/admin/*`) remains its own separate, older real-auth system:
+a passcode checked server-side (`api/_lib/adminAuth.ts`) against `ADMIN_PASSCODE`, with an
+HMAC-signed session cookie (`ADMIN_SESSION_SECRET`). Don't conflate the two — an admin session
+proves nothing about a tenant/host identity and vice versa.
 
 ### API (`api/`) — Google Sheets side
 

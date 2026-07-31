@@ -1,24 +1,42 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { X, Building2 } from 'lucide-react'
+import { X, Building2, KeyRound, Loader2 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
-import { submitToSheet } from '../lib/backend'
 import { GoogleSignInButton } from './GoogleSignInButton'
 import type { UserRole } from '../types'
+
+type Step = 'form' | 'otp' | 'community'
+
+async function callAuth(action: string, payload: Record<string, unknown> = {}) {
+  const res = await fetch('/api/auth', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, ...payload }),
+  })
+  const data = await res.json().catch(() => ({}))
+  return { ok: res.ok, data }
+}
 
 export function AuthModal() {
   const { isModalOpen, pendingRole, closeAuthModal, login } = useAuth()
   const { showToast } = useToast()
   const navigate = useNavigate()
-  // Default assumption: anyone opening this modal came here to book a stay,
-  // unless the caller requested a specific role (e.g. "List Your Property"
-  // opens this pre-set to host). Hosting is a single opt-in toggle otherwise.
+
   const [role, setRole] = useState<UserRole>('tenant')
   const [mode, setMode] = useState<'signup' | 'login'>('signup')
+  const [step, setStep] = useState<Step>('form')
+
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [dob, setDob] = useState('')
+  const [password, setPassword] = useState('')
+  const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', ''])
+  const otpRefs = useRef<(HTMLInputElement | null)[]>([])
+
   const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [pendingUser, setPendingUser] = useState<{ name: string; email: string; role: UserRole } | null>(null)
 
   useEffect(() => {
     if (isModalOpen) setRole(pendingRole)
@@ -28,45 +46,109 @@ export function AuthModal() {
 
   const reset = () => {
     setRole('tenant')
+    setMode('signup')
+    setStep('form')
     setName('')
     setEmail('')
+    setDob('')
+    setPassword('')
+    setOtpDigits(['', '', '', '', '', ''])
+    setError(null)
+    setPendingUser(null)
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const finishLogin = (user: { name: string; email: string; role: UserRole }) => {
+    login(user)
+    reset()
+    if (user.role === 'host') navigate('/dashboard/list-property')
+  }
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (submitting) return
-
-    const finalName = name || 'Guest User'
-    const finalEmail = email || 'guest@innbly.com'
-
-    // Sign-in/up here is a local, fake session (see CLAUDE.md auth model) —
-    // it must never depend on the backend logging call succeeding. Log the
-    // signup to the sheet/admin best-effort, but don't block the user from
-    // getting in if that network call is slow or down.
-    login({ name: finalName, email: finalEmail, role })
-    reset()
-    if (role === 'host') navigate('/dashboard/list-property')
-
+    setError(null)
     setSubmitting(true)
-    submitToSheet('signup', { name: finalName, email: finalEmail, role, method: 'email' })
-      .then((result) => {
-        if (!result.ok) showToast(result.error ?? "You're signed in, but we couldn't log this signup.", 'error')
-      })
-      .finally(() => setSubmitting(false))
+    try {
+      if (mode === 'login') {
+        const { ok, data } = await callAuth('login', { email, password })
+        if (!ok) {
+          setError(data.error ?? 'Could not log in.')
+          return
+        }
+        showToast(`Welcome back, ${data.user.name.split(' ')[0]}!`)
+        finishLogin(data.user)
+      } else {
+        const { ok, data } = await callAuth('signup', { name, email, password, dob })
+        if (!ok) {
+          setError(data.error ?? 'Could not create your account.')
+          return
+        }
+        setPendingUser({ name, email, role })
+        setStep('otp')
+      }
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleOtpChange = (index: number, value: string) => {
+    const digit = value.replace(/\D/g, '').slice(-1)
+    setOtpDigits((prev) => {
+      const next = [...prev]
+      next[index] = digit
+      return next
+    })
+    if (digit && index < 5) otpRefs.current[index + 1]?.focus()
+  }
+
+  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' && !otpDigits[index] && index > 0) otpRefs.current[index - 1]?.focus()
+  }
+
+  const handleVerifyOtp = async () => {
+    const code = otpDigits.join('')
+    if (code.length !== 6 || !pendingUser) return
+    setError(null)
+    setSubmitting(true)
+    try {
+      const { ok, data } = await callAuth('verify-otp', { email: pendingUser.email, code })
+      if (!ok) {
+        setError(data.error ?? 'Incorrect code.')
+        return
+      }
+      setPendingUser(data.user)
+      setStep('community')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleResendOtp = async () => {
+    if (!pendingUser) return
+    setError(null)
+    const { ok, data } = await callAuth('resend-otp', { email: pendingUser.email })
+    showToast(ok ? 'A new code is on its way.' : (data.error ?? 'Could not resend the code.'), ok ? 'success' : 'error')
+  }
+
+  const handleAgreeCommunity = () => {
+    if (!pendingUser) return
+    showToast(`Welcome, ${pendingUser.name.split(' ')[0]}!`)
+    finishLogin(pendingUser)
   }
 
   const handleGoogleSuccess = async (profile: { name: string; email: string }) => {
-    login({ name: profile.name, email: profile.email, role })
-    showToast(`Welcome, ${profile.name.split(' ')[0]}!`)
-    reset()
-    if (role === 'host') navigate('/dashboard/list-property')
-
     setSubmitting(true)
-    submitToSheet('signup', { name: profile.name, email: profile.email, role, method: 'google' })
-      .then((result) => {
-        if (!result.ok) showToast(result.error ?? "You're signed in, but we couldn't log this signup.", 'error')
-      })
-      .finally(() => setSubmitting(false))
+    try {
+      const { ok, data } = await callAuth('google-auth', { name: profile.name, email: profile.email })
+      if (!ok) {
+        showToast(data.error ?? 'Could not sign in with Google.', 'error')
+        return
+      }
+      showToast(`Welcome, ${profile.name.split(' ')[0]}!`)
+      finishLogin({ ...data.user, role })
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -82,83 +164,195 @@ export function AuthModal() {
           <X className="h-5 w-5" />
         </button>
 
-        <h2 className="text-2xl font-bold text-slate-900">
-          {mode === 'signup' ? 'Join innbly' : 'Welcome back'}
-        </h2>
-        <p className="mt-1 text-sm text-slate-500">
-          {mode === 'signup' ? 'Tell us who you are to get started.' : 'Log in to continue.'}
-        </p>
+        {step === 'form' && (
+          <>
+            <h2 className="text-2xl font-bold text-slate-900">
+              {mode === 'signup' ? "Let's create your account" : 'Log in'}
+            </h2>
+            <p className="mt-1 text-sm text-slate-500">
+              {mode === 'signup' ? 'This information is required to book or host.' : 'Welcome back to innbly.'}
+            </p>
 
-        <button
-          type="button"
-          onClick={() => setRole((r) => (r === 'host' ? 'tenant' : 'host'))}
-          className={`mt-6 flex w-full items-center justify-between gap-3 rounded-2xl border-2 p-4 text-left transition ${
-            role === 'host'
-              ? 'border-accent-500 bg-accent-50'
-              : 'border-dashed border-slate-200 hover:border-accent-300 hover:bg-slate-50'
-          }`}
-        >
-          <span className="flex items-center gap-3">
-            <Building2 className={`h-6 w-6 ${role === 'host' ? 'text-accent-600' : 'text-slate-400'}`} />
-            <span>
-              <span className="block font-semibold text-slate-800">List a property instead</span>
-              <span className="block text-xs text-slate-500">Become a host and reach verified tenants</span>
-            </span>
-          </span>
-          <span
-            className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${
-              role === 'host' ? 'bg-accent-500 text-white' : 'bg-slate-100 text-slate-500'
-            }`}
-          >
-            {role === 'host' ? 'Hosting' : 'Off'}
-          </span>
-        </button>
+            <button
+              type="button"
+              onClick={() => setRole((r) => (r === 'host' ? 'tenant' : 'host'))}
+              className={`mt-6 flex w-full items-center justify-between gap-3 rounded-2xl border-2 p-4 text-left transition ${
+                role === 'host'
+                  ? 'border-accent-500 bg-accent-50'
+                  : 'border-dashed border-slate-200 hover:border-accent-300 hover:bg-slate-50'
+              }`}
+            >
+              <span className="flex items-center gap-3">
+                <Building2 className={`h-6 w-6 ${role === 'host' ? 'text-accent-600' : 'text-slate-400'}`} />
+                <span>
+                  <span className="block font-semibold text-slate-800">List a property instead</span>
+                  <span className="block text-xs text-slate-500">Become a host and reach verified tenants</span>
+                </span>
+              </span>
+              <span
+                className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${
+                  role === 'host' ? 'bg-accent-500 text-white' : 'bg-slate-100 text-slate-500'
+                }`}
+              >
+                {role === 'host' ? 'Hosting' : 'Off'}
+              </span>
+            </button>
 
-        <div className="mt-6">
-          <GoogleSignInButton onSuccess={handleGoogleSuccess} />
-        </div>
+            <div className="mt-6">
+              <GoogleSignInButton onSuccess={handleGoogleSuccess} />
+            </div>
 
-        <div className="my-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
-          <div className="h-px flex-1 bg-slate-200" />
-          or continue with email
-          <div className="h-px flex-1 bg-slate-200" />
-        </div>
+            <div className="my-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+              <div className="h-px flex-1 bg-slate-200" />
+              or continue with email
+              <div className="h-px flex-1 bg-slate-200" />
+            </div>
 
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <input
-            type="text"
-            required
-            placeholder="Full name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-          />
-          <input
-            type="email"
-            required
-            placeholder="Email address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-          />
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full rounded-xl bg-accent-500 px-4 py-3 text-sm font-semibold text-white shadow-card transition hover:bg-accent-600 hover:shadow-card-hover disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            {submitting ? 'Please wait…' : mode === 'signup' ? 'Create account' : 'Log in'}
-          </button>
-        </form>
+            <form onSubmit={handleFormSubmit} className="space-y-3">
+              {mode === 'signup' && (
+                <>
+                  <p className="text-xs font-semibold text-slate-500">Legal name</p>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Full name (as on your government ID)"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+                  />
+                </>
+              )}
+              <input
+                type="email"
+                required
+                placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+              />
+              {mode === 'signup' && (
+                <>
+                  <p className="pt-1 text-xs font-semibold text-slate-500">Date of birth</p>
+                  <input
+                    type="date"
+                    required
+                    value={dob}
+                    onChange={(e) => setDob(e.target.value)}
+                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+                  />
+                </>
+              )}
+              <input
+                type="password"
+                required
+                minLength={8}
+                placeholder="Password (min. 8 characters)"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+              />
+              {error && <p className="text-xs font-medium text-rose-600">{error}</p>}
+              <button
+                type="submit"
+                disabled={submitting}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-4 py-3 text-sm font-semibold text-white shadow-card transition hover:bg-accent-600 hover:shadow-card-hover disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+                {mode === 'signup' ? 'Agree and continue' : 'Log in'}
+              </button>
+            </form>
 
-        <p className="mt-4 text-center text-sm text-slate-500">
-          {mode === 'signup' ? 'Already have an account?' : "Don't have an account?"}{' '}
-          <button
-            onClick={() => setMode(mode === 'signup' ? 'login' : 'signup')}
-            className="font-semibold text-primary-600 hover:underline"
-          >
-            {mode === 'signup' ? 'Log in' : 'Sign up'}
-          </button>
-        </p>
+            <p className="mt-4 text-center text-sm text-slate-500">
+              {mode === 'signup' ? 'Already have an account?' : "Don't have an account?"}{' '}
+              <button
+                onClick={() => {
+                  setMode(mode === 'signup' ? 'login' : 'signup')
+                  setError(null)
+                }}
+                className="font-semibold text-primary-600 hover:underline"
+              >
+                {mode === 'signup' ? 'Log in' : 'Sign up'}
+              </button>
+            </p>
+          </>
+        )}
+
+        {step === 'otp' && pendingUser && (
+          <div className="text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary-50">
+              <KeyRound className="h-6 w-6 text-primary-600" />
+            </div>
+            <h2 className="mt-4 text-2xl font-bold text-slate-900">Confirm it's you</h2>
+            <p className="mt-1 text-sm text-slate-500">We sent a code to {pendingUser.email}.</p>
+
+            <div className="mt-6 flex justify-center gap-2">
+              {otpDigits.map((digit, i) => (
+                <input
+                  key={i}
+                  ref={(el) => {
+                    otpRefs.current[i] = el
+                  }}
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) => handleOtpChange(i, e.target.value)}
+                  onKeyDown={(e) => handleOtpKeyDown(i, e)}
+                  className="h-14 w-11 rounded-xl border border-slate-300 text-center text-lg font-bold outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+                />
+              ))}
+            </div>
+
+            {error && <p className="mt-3 text-xs font-medium text-rose-600">{error}</p>}
+
+            <button
+              onClick={handleVerifyOtp}
+              disabled={submitting || otpDigits.join('').length !== 6}
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {submitting && <Loader2 className="h-4 w-4 animate-spin" />} Confirm
+            </button>
+            <button onClick={handleResendOtp} className="mt-4 text-sm font-semibold text-primary-600 hover:underline">
+              Didn't get it? Send a new code
+            </button>
+          </div>
+        )}
+
+        {step === 'community' && pendingUser && (
+          <div className="text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary-50 text-2xl">
+              🏡
+            </div>
+            <h2 className="mt-4 text-2xl font-bold text-slate-900">Everyone belongs here</h2>
+            <p className="mt-4 text-sm text-slate-600">
+              When you join innbly, we ask you to agree to our{' '}
+              <a href="/terms" className="font-semibold text-primary-600 hover:underline">
+                Community Commitment
+              </a>
+              :
+            </p>
+            <p className="mt-3 text-sm text-slate-600">
+              I will treat everyone in the community — regardless of their race, religion, national
+              origin, ethnicity, skin colour, disability, sex, gender identity, sexual orientation or
+              age — with respect and without judgement or bias.
+            </p>
+            <button
+              onClick={handleAgreeCommunity}
+              className="mt-6 w-full rounded-xl bg-gradient-to-r from-primary-600 to-accent-500 px-4 py-3 text-sm font-bold text-white shadow-card transition hover:shadow-card-hover"
+            >
+              Agree and continue
+            </button>
+            <button
+              onClick={() => {
+                closeAuthModal()
+                reset()
+              }}
+              className="mt-3 text-sm font-semibold text-slate-400 hover:text-slate-600"
+            >
+              Decline
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

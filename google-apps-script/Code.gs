@@ -46,6 +46,14 @@ function doPost(e) {
     var data = JSON.parse(e.postData.contents);
     var type = data.type;
 
+    // 'otp' is email-only — no sheet row (it's an ephemeral code, not a
+    // record worth keeping), so it skips the SHEET_NAMES/appendRow path
+    // that every other submission type goes through.
+    if (type === 'otp') {
+      sendOtpEmail(data);
+      return jsonResponse({ ok: true });
+    }
+
     if (!SHEET_NAMES[type]) {
       return jsonResponse({ ok: false, error: 'Unknown submission type: ' + type });
     }
@@ -243,6 +251,35 @@ function sendHostConfirmationEmail(data) {
 
   MailApp.sendEmail({
     to: data.ownerEmail,
+    subject: subject,
+    body: plainBody,
+    htmlBody: emailTemplate(subject, rows, footer),
+  });
+}
+
+/** Signup email-verification code — sent directly (no sheet row, see
+ * doPost above), same MailApp + emailTemplate pattern as every other email
+ * here. api/auth.ts awaits this call's success/failure via
+ * sendViaAppsScriptAwaited, unlike the fire-and-forget forwardToSheet used
+ * for every other type, so the signup UI can show a real error if delivery
+ * fails instead of assuming the code was sent. */
+function sendOtpEmail(data) {
+  var subject = 'Your innbly verification code';
+  var rows = [
+    ['Code', data.code],
+  ];
+  var footer =
+    '<p style="margin:0 0 12px;color:#475569;font-size:14px;line-height:1.6;">' +
+    'Hi ' + escapeHtml(data.name || '') + ', enter this code to verify your email and finish creating your innbly account. ' +
+    'It expires in 10 minutes.' +
+    '</p>';
+  var plainBody =
+    'Hi ' + (data.name || '') + ',\n\n' +
+    'Your innbly verification code is: ' + data.code + '\n\n' +
+    'It expires in 10 minutes.';
+
+  MailApp.sendEmail({
+    to: data.email,
     subject: subject,
     body: plainBody,
     htmlBody: emailTemplate(subject, rows, footer),

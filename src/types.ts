@@ -44,6 +44,53 @@ export const PROPERTY_TYPES = [
 
 export type PropertyType = (typeof PROPERTY_TYPES)[number]
 
+/** The host-wizard "what kind of place is it" grid (Structure step) — a
+ * different taxonomy from PROPERTY_TYPES above (which drives site-wide
+ * category nav/filters/SEO pages and must stay as-is). This is the
+ * dwelling-shape list a host picks from when listing, matching Airbnb's own
+ * structure step; `host_submissions.property_type` stores whichever of
+ * these strings was picked (the column is a plain text field, not
+ * constrained to PROPERTY_TYPES). */
+export const STRUCTURE_TYPES = [
+  'House',
+  'Flat/apartment',
+  'Barn',
+  'Bed & breakfast',
+  'Boat',
+  'Cabin',
+  'Campervan/motorhome',
+  'Casa particular',
+  'Castle',
+  'Cave',
+  'Container',
+  'Cycladic home',
+  'Dammuso',
+  'Dome',
+  'Earth home',
+  'Farm',
+  'Guest house',
+  'Hotel',
+  'Houseboat',
+  'Minsu',
+  'Riad',
+  'Ryokan',
+  "Shepherd's hut",
+  'Tent',
+  'Tiny home',
+  'Tower',
+  'Tree house',
+  'Trullo',
+  'Windmill',
+] as const
+export type StructureType = (typeof STRUCTURE_TYPES)[number]
+
+export const PRIVACY_TYPES = [
+  { value: 'entire', label: 'An entire place', description: 'Guests have the whole place to themselves.' },
+  { value: 'room', label: 'A room', description: 'Guests have their own room in a home, plus access to shared spaces.' },
+  { value: 'shared', label: 'A shared room in a hostel', description: 'Guests sleep in a shared room in a professionally managed hostel with staff on-site 24/7.' },
+] as const
+export type PrivacyType = (typeof PRIVACY_TYPES)[number]['value']
+
 export interface Property {
   id: string
   title: string
