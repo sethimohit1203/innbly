@@ -64,7 +64,7 @@ import { Button } from '../components/ui/Button'
 import { useJsonLd } from '../hooks/useJsonLd'
 import { breadcrumbSchema, faqSchema, SITE_URL } from '../lib/seo'
 import { getPaidPropertyIds } from '../lib/myBookings'
-import type { LandmarkType, TenantPreference } from '../types'
+import type { LandmarkType } from '../types'
 
 const landmarkIcons: Record<LandmarkType, JSX.Element> = {
   Metro: <TrainFront className="h-4 w-4" />,
@@ -125,7 +125,6 @@ export function PropertyDetailPage() {
   const { showToast } = useToast()
   const [photoIndex, setPhotoIndex] = useState<number | null>(null)
   const [descExpanded, setDescExpanded] = useState(false)
-  const [tenantType, setTenantType] = useState<TenantPreference>('Anyone')
   const [checkIn, setCheckIn] = useState<string | null>(null)
   const [checkOut, setCheckOut] = useState<string | null>(null)
   const [guests, setGuests] = useState(1)
@@ -661,25 +660,6 @@ export function PropertyDetailPage() {
             <p className="mt-1 text-xs text-slate-500">
               Security deposit: ₹{property.deposit.toLocaleString('en-IN')} (refundable)
             </p>
-
-            <fieldset className="mt-5">
-              <legend className="mb-1.5 block text-xs font-semibold text-slate-600">Preferred Tenant Type</legend>
-              <div className="grid grid-cols-3 gap-2">
-                {(['Boys', 'Girls', 'Anyone'] as TenantPreference[]).map((t) => (
-                  <button
-                    key={t}
-                    onClick={() => setTenantType(t)}
-                    className={`rounded-lg border px-2 py-2 text-xs font-semibold transition ${
-                      tenantType === t
-                        ? 'border-primary-500 bg-primary-50 text-primary-700'
-                        : 'border-slate-300 text-slate-600 hover:border-slate-400'
-                    }`}
-                  >
-                    {t}
-                  </button>
-                ))}
-              </div>
-            </fieldset>
 
             <div className="mt-4">
               <span className="mb-1.5 block text-xs font-semibold text-slate-600">Check-in — Check-out</span>
