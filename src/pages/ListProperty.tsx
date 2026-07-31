@@ -2,9 +2,8 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useForm, type FieldPath } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Check, ImagePlus, UploadCloud, FileText, X, Loader2, AlertCircle, Copy, KeyRound, Home } from 'lucide-react'
+import { Check, ImagePlus, UploadCloud, FileText, X, Loader2, AlertCircle, Copy, KeyRound, Home, Minus, Plus, Sparkles, PartyPopper } from 'lucide-react'
 import { Footer } from '../components/Footer'
-import { GuestCounter } from '../components/GuestCounter'
 import { LocationPicker, type LocationValue } from '../components/host/LocationPicker'
 import { usePageMeta } from '../hooks/usePageMeta'
 import { hostFormSchema, submitHostListing, type HostFormValues } from '../lib/hostSubmission'
@@ -24,18 +23,86 @@ const ALL_AMENITIES = [
   'Laundry',
 ]
 
+const DESCRIPTION_HIGHLIGHTS: Record<string, string> = {
+  Peaceful: 'Take a break and unwind at this peaceful oasis.',
+  Unique: 'Experience something truly unique during your stay.',
+  'Family-friendly': 'A wonderful, family-friendly space for everyone.',
+  Stylish: 'A stylish space designed with care.',
+  Central: 'Centrally located, close to everything you need.',
+  Spacious: 'Enjoy a spacious layout with plenty of room.',
+}
+
+const DISCOUNTS: { key: keyof Pick<HostFormValues, 'discountNewListing' | 'discountLastMinute' | 'discountWeekly' | 'discountMonthly'>; pct: string; label: string; hint: string }[] = [
+  { key: 'discountNewListing', pct: '20%', label: 'New listing promotion', hint: 'Available until your listing has 3 reviews or gets booked 10 times' },
+  { key: 'discountLastMinute', pct: '1%', label: 'Last-minute discount', hint: 'For stays booked 14 days or less before arrival' },
+  { key: 'discountWeekly', pct: '10%', label: 'Weekly discount', hint: 'For stays of 7 nights or more' },
+  { key: 'discountMonthly', pct: '15%', label: 'Monthly discount', hint: 'For stays of 28 nights or more' },
+]
+
+const SAFETY_ITEMS: { key: keyof Pick<HostFormValues, 'safetyCamera' | 'safetyNoiseMonitor' | 'safetyWeapons'>; label: string }[] = [
+  { key: 'safetyCamera', label: 'Exterior security camera present' },
+  { key: 'safetyNoiseMonitor', label: 'Noise decibel monitor present' },
+  { key: 'safetyWeapons', label: 'Weapon(s) on the property' },
+]
+
 const STEPS: { slug: string; label: string; fields: FieldPath<HostFormValues>[] }[] = [
   { slug: 'owner-info', label: 'Owner Info', fields: ['ownerName', 'ownerEmail', 'ownerPhone'] },
-  { slug: 'about-your-place', label: 'Property Info', fields: ['propertyTitle', 'propertyType', 'description'] },
   { slug: 'structure', label: 'Structure', fields: ['structureType'] },
   { slug: 'privacy-type', label: 'Privacy Type', fields: ['privacyType'] },
   { slug: 'location', label: 'Location', fields: ['city', 'neighborhood', 'address'] },
-  { slug: 'pricing', label: 'Pricing', fields: ['pricePerNight', 'securityDeposit', 'maxGuests'] },
+  { slug: 'floor-plan', label: 'Floor Plan', fields: ['maxGuests', 'bedrooms', 'beds', 'bathrooms'] },
+  { slug: 'stand-out', label: 'Stand Out', fields: [] },
+  { slug: 'title-type', label: 'Title', fields: ['propertyTitle', 'propertyType'] },
   { slug: 'amenities', label: 'Amenities', fields: ['amenities'] },
   { slug: 'photos', label: 'Photos', fields: ['photos'] },
   { slug: 'documents', label: 'Documents', fields: ['documents'] },
+  { slug: 'description', label: 'Description', fields: ['description'] },
+  { slug: 'finish-up', label: 'Finish Up', fields: [] },
+  { slug: 'booking-settings', label: 'Booking Settings', fields: ['instantBook'] },
+  { slug: 'pricing', label: 'Pricing', fields: ['pricePerNight', 'securityDeposit'] },
+  { slug: 'discounts', label: 'Discounts', fields: [] },
+  { slug: 'safety', label: 'Safety', fields: [] },
   { slug: 'agreement', label: 'Agreement', fields: ['agreedToTerms'] },
 ]
+
+function NumberStepperRow({
+  label,
+  value,
+  onChange,
+  min = 0,
+  max = 30,
+}: {
+  label: string
+  value: number
+  onChange: (v: number) => void
+  min?: number
+  max?: number
+}) {
+  return (
+    <div className="flex items-center justify-between border-b border-slate-100 py-4 last:border-0">
+      <span className="font-medium text-slate-800">{label}</span>
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => onChange(Math.max(min, value - 1))}
+          disabled={value <= min}
+          className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 text-slate-600 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-30"
+        >
+          <Minus className="h-3.5 w-3.5" />
+        </button>
+        <span className="w-5 text-center text-sm font-semibold">{value}</span>
+        <button
+          type="button"
+          onClick={() => onChange(Math.min(max, value + 1))}
+          disabled={value >= max}
+          className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 text-slate-600 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-30"
+        >
+          <Plus className="h-3.5 w-3.5" />
+        </button>
+      </div>
+    </div>
+  )
+}
 
 function FileDropzone({
   label,
@@ -96,6 +163,20 @@ function FileDropzone({
   )
 }
 
+/** A full-bleed, no-form-fields divider step — matches Airbnb's "Step N" interstitials. */
+function Interstitial({ eyebrow, title, description, icon: Icon }: { eyebrow: string; title: string; description: string; icon: typeof Sparkles }) {
+  return (
+    <div className="flex flex-col items-center py-10 text-center">
+      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary-50 text-primary-600">
+        <Icon className="h-7 w-7" />
+      </div>
+      <p className="mt-5 text-sm font-semibold uppercase tracking-wide text-slate-400">{eyebrow}</p>
+      <h2 className="mt-2 text-2xl font-extrabold text-slate-900">{title}</h2>
+      <p className="mt-3 max-w-sm text-sm text-slate-500">{description}</p>
+    </div>
+  )
+}
+
 export function ListPropertyPage() {
   usePageMeta('List Your Property', 'List your property on innbly in a few simple steps and start receiving guest inquiries directly.')
   const navigate = useNavigate()
@@ -130,8 +211,19 @@ export function ListPropertyPage() {
     resolver: zodResolver(hostFormSchema),
     defaultValues: {
       maxGuests: 2,
+      bedrooms: 1,
+      beds: 1,
+      bathrooms: 1,
       pricePerNight: 1800,
       securityDeposit: 10000,
+      instantBook: false,
+      discountNewListing: true,
+      discountLastMinute: true,
+      discountWeekly: true,
+      discountMonthly: true,
+      safetyCamera: false,
+      safetyNoiseMonitor: false,
+      safetyWeapons: false,
       amenities: [],
       photos: [],
       documents: [],
@@ -162,6 +254,11 @@ export function ListPropertyPage() {
     setValue('longitude', v.lng, { shouldValidate: true })
   }
 
+  const applyHighlight = (snippet: string) => {
+    const current = (values.description ?? '').trim()
+    setValue('description', current ? `${current} ${snippet}` : snippet, { shouldValidate: true })
+  }
+
   const onSubmit = async (data: HostFormValues) => {
     setSubmitting(true)
     setSubmitError(null)
@@ -179,14 +276,38 @@ export function ListPropertyPage() {
 
   if (done) {
     return (
-      <div className="mx-auto flex max-w-xl flex-col items-center px-4 py-24 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent-50">
-          <Check className="h-8 w-8 text-accent-600" />
+      <div className="mx-auto max-w-2xl px-4 py-16">
+        <div className="mx-auto flex max-w-xl flex-col items-center text-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent-50">
+            <Check className="h-8 w-8 text-accent-600" />
+          </div>
+          <h1 className="mt-5 text-2xl font-bold text-slate-900">Listing submitted!</h1>
+          <p className="mt-2 text-slate-500">
+            "{values.propertyTitle || 'Your property'}" has been sent for review. We'll be in touch once it's approved and live.
+          </p>
         </div>
-        <h1 className="mt-5 text-2xl font-bold text-slate-900">Listing submitted!</h1>
-        <p className="mt-2 text-slate-500">
-          "{values.propertyTitle || 'Your property'}" has been sent for review. We'll be in touch once it's approved and live.
-        </p>
+
+        {/* Listing-card preview, matching the Airbnb "Your listing" screen */}
+        <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-card">
+          <div className="flex items-center gap-4 border-b border-slate-100 p-4">
+            {values.photos?.[0] ? (
+              <img src={URL.createObjectURL(values.photos[0])} alt="" className="h-16 w-20 rounded-xl object-cover" />
+            ) : (
+              <div className="flex h-16 w-20 items-center justify-center rounded-xl bg-slate-100 text-slate-300">
+                <Home className="h-6 w-6" />
+              </div>
+            )}
+            <div>
+              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-700">Action required</span>
+              <p className="mt-1 font-bold text-slate-900">{values.propertyTitle || 'Untitled property'}</p>
+              <p className="text-sm text-slate-500">{values.neighborhood}, {values.city}</p>
+            </div>
+          </div>
+          <div className="p-4">
+            <p className="text-sm font-bold text-slate-800">Confirm a few key details</p>
+            <p className="mt-1 text-xs text-slate-500">Required to publish — our team reviews every submission before it goes live, usually within 24–48 hours.</p>
+          </div>
+        </div>
 
         {accessCode && (
           <div className="mt-6 w-full rounded-2xl border border-amber-200 bg-amber-50 p-5 text-left">
@@ -218,12 +339,14 @@ export function ListPropertyPage() {
           </div>
         )}
 
-        <button
-          onClick={() => navigate('/dashboard')}
-          className="mt-6 rounded-xl bg-primary-600 px-6 py-3 text-sm font-semibold text-white hover:bg-primary-700"
-        >
-          Back to Dashboard
-        </button>
+        <div className="mt-6 text-center">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="rounded-xl bg-primary-600 px-6 py-3 text-sm font-semibold text-white hover:bg-primary-700"
+          >
+            Back to Dashboard
+          </button>
+        </div>
       </div>
     )
   }
@@ -292,46 +415,6 @@ export function ListPropertyPage() {
             )}
 
             {step === 1 && (
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="propertyTitle" className="mb-1 block text-sm font-medium text-slate-700">Property Title</label>
-                  <input
-                    id="propertyTitle"
-                    {...register('propertyTitle')}
-                    placeholder="e.g. Palm Grove Villa — Candolim"
-                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-                  />
-                  {errors.propertyTitle && <p className="mt-1 text-xs font-medium text-rose-600">{errors.propertyTitle.message}</p>}
-                </div>
-                <div>
-                  <label htmlFor="propertyType" className="mb-1 block text-sm font-medium text-slate-700">Property Type</label>
-                  <select
-                    id="propertyType"
-                    {...register('propertyType')}
-                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-                  >
-                    <option value="">Select a type</option>
-                    {PROPERTY_TYPES.map((t) => (
-                      <option key={t} value={t}>{t}</option>
-                    ))}
-                  </select>
-                  {errors.propertyType && <p className="mt-1 text-xs font-medium text-rose-600">{errors.propertyType.message}</p>}
-                </div>
-                <div>
-                  <label htmlFor="description" className="mb-1 block text-sm font-medium text-slate-700">Description</label>
-                  <textarea
-                    id="description"
-                    {...register('description')}
-                    rows={4}
-                    placeholder="Tell guests what makes this space worth staying in…"
-                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-                  />
-                  {errors.description && <p className="mt-1 text-xs font-medium text-rose-600">{errors.description.message}</p>}
-                </div>
-              </div>
-            )}
-
-            {step === 2 && (
               <div>
                 <h2 className="mb-1 text-xl font-bold text-slate-900">Which of these best describes your place?</h2>
                 <p className="mb-4 text-sm text-slate-500">This is separate from your listing's site category — it just helps guests picture the space.</p>
@@ -356,7 +439,7 @@ export function ListPropertyPage() {
               </div>
             )}
 
-            {step === 3 && (
+            {step === 2 && (
               <div>
                 <h2 className="mb-4 text-xl font-bold text-slate-900">What type of place will guests have?</h2>
                 <div className="space-y-3">
@@ -378,7 +461,7 @@ export function ListPropertyPage() {
               </div>
             )}
 
-            {step === 4 && (
+            {step === 3 && (
               <div className="space-y-4">
                 <LocationPicker value={location} onChange={handleLocationChange} />
                 <div>
@@ -415,39 +498,59 @@ export function ListPropertyPage() {
               </div>
             )}
 
+            {step === 4 && (
+              <div>
+                <h2 className="mb-1 text-xl font-bold text-slate-900">Share some basics about your place</h2>
+                <p className="mb-2 text-sm text-slate-500">You'll add more details later, such as bed types.</p>
+                <div className="mt-4">
+                  <NumberStepperRow label="Guests" value={values.maxGuests ?? 2} onChange={(v) => setValue('maxGuests', v, { shouldValidate: true })} min={1} max={20} />
+                  <NumberStepperRow label="Bedrooms" value={values.bedrooms ?? 1} onChange={(v) => setValue('bedrooms', v, { shouldValidate: true })} min={0} max={20} />
+                  <NumberStepperRow label="Beds" value={values.beds ?? 1} onChange={(v) => setValue('beds', v, { shouldValidate: true })} min={1} max={30} />
+                  <NumberStepperRow label="Bathrooms" value={values.bathrooms ?? 1} onChange={(v) => setValue('bathrooms', v, { shouldValidate: true })} min={1} max={20} />
+                </div>
+                {errors.maxGuests && <p className="mt-2 text-xs font-medium text-rose-600">{errors.maxGuests.message}</p>}
+              </div>
+            )}
+
             {step === 5 && (
+              <Interstitial
+                eyebrow="Step 2"
+                title="Make your place stand out"
+                description="In this step, you'll add some of the amenities your place offers, plus photos and documents. Then you'll create a title and description."
+                icon={Sparkles}
+              />
+            )}
+
+            {step === 6 && (
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="pricePerNight" className="mb-1 block text-sm font-medium text-slate-700">Nightly Rate (₹)</label>
-                    <input
-                      id="pricePerNight"
-                      type="number"
-                      {...register('pricePerNight', { valueAsNumber: true })}
-                      className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-                    />
-                    {errors.pricePerNight && <p className="mt-1 text-xs font-medium text-rose-600">{errors.pricePerNight.message}</p>}
-                  </div>
-                  <div>
-                    <label htmlFor="securityDeposit" className="mb-1 block text-sm font-medium text-slate-700">Security Deposit (₹)</label>
-                    <input
-                      id="securityDeposit"
-                      type="number"
-                      {...register('securityDeposit', { valueAsNumber: true })}
-                      className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-                    />
-                    {errors.securityDeposit && <p className="mt-1 text-xs font-medium text-rose-600">{errors.securityDeposit.message}</p>}
-                  </div>
+                <div>
+                  <label htmlFor="propertyTitle" className="mb-1 block text-sm font-medium text-slate-700">Property Title</label>
+                  <input
+                    id="propertyTitle"
+                    {...register('propertyTitle')}
+                    placeholder="e.g. Palm Grove Villa — Candolim"
+                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+                  />
+                  {errors.propertyTitle && <p className="mt-1 text-xs font-medium text-rose-600">{errors.propertyTitle.message}</p>}
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-slate-700">Max Guests</label>
-                  <GuestCounter value={values.maxGuests ?? 2} onChange={(v) => setValue('maxGuests', v, { shouldValidate: true })} max={20} />
-                  {errors.maxGuests && <p className="mt-1 text-xs font-medium text-rose-600">{errors.maxGuests.message}</p>}
+                  <label htmlFor="propertyType" className="mb-1 block text-sm font-medium text-slate-700">Property Type</label>
+                  <select
+                    id="propertyType"
+                    {...register('propertyType')}
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+                  >
+                    <option value="">Select a type</option>
+                    {PROPERTY_TYPES.map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                  {errors.propertyType && <p className="mt-1 text-xs font-medium text-rose-600">{errors.propertyType.message}</p>}
                 </div>
               </div>
             )}
 
-            {step === 6 && (
+            {step === 7 && (
               <div>
                 <p className="mb-3 text-sm font-medium text-slate-700">Select the amenities available:</p>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -473,7 +576,7 @@ export function ListPropertyPage() {
               </div>
             )}
 
-            {step === 7 && (
+            {step === 8 && (
               <>
                 <FileDropzone
                   label="Property Photos"
@@ -488,7 +591,7 @@ export function ListPropertyPage() {
               </>
             )}
 
-            {step === 8 && (
+            {step === 9 && (
               <>
                 <FileDropzone
                   label="Verification Documents (ID proof / ownership proof)"
@@ -502,12 +605,165 @@ export function ListPropertyPage() {
               </>
             )}
 
-            {step === 9 && (
+            {step === 10 && (
+              <div>
+                <h2 className="mb-1 text-xl font-bold text-slate-900">Create your description</h2>
+                <p className="mb-4 text-sm text-slate-500">Share what makes your place special.</p>
+                <div className="mb-4 flex flex-wrap gap-2">
+                  {Object.entries(DESCRIPTION_HIGHLIGHTS).map(([label, snippet]) => (
+                    <button
+                      key={label}
+                      type="button"
+                      onClick={() => applyHighlight(snippet)}
+                      className="rounded-full border border-slate-300 px-3.5 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-primary-400 hover:text-primary-700"
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <textarea
+                  id="description"
+                  {...register('description')}
+                  rows={6}
+                  placeholder="Tell guests what makes this space worth staying in…"
+                  className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+                />
+                <p className="mt-1 text-right text-xs text-slate-400">{(values.description ?? '').length}/500</p>
+                {errors.description && <p className="mt-1 text-xs font-medium text-rose-600">{errors.description.message}</p>}
+              </div>
+            )}
+
+            {step === 11 && (
+              <Interstitial
+                eyebrow="Step 3"
+                title="Finish up and publish"
+                description="Finally, you'll choose booking settings, set up pricing, add any discounts, and share a few safety details before you publish your listing."
+                icon={PartyPopper}
+              />
+            )}
+
+            {step === 12 && (
+              <div>
+                <h2 className="mb-1 text-xl font-bold text-slate-900">Pick your booking settings</h2>
+                <p className="mb-4 text-sm text-slate-500">You can change this at any time.</p>
+                <div className="space-y-3">
+                  <button
+                    type="button"
+                    onClick={() => setValue('instantBook', false, { shouldValidate: true })}
+                    className={`block w-full rounded-2xl border-2 p-4 text-left transition ${
+                      !values.instantBook ? 'border-primary-500 bg-primary-50' : 'border-slate-200 hover:border-slate-300'
+                    }`}
+                  >
+                    <p className="font-semibold text-slate-800">
+                      Approve your first 5 bookings <span className="ml-1 text-xs font-bold text-accent-600">Recommended</span>
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500">Start by reviewing reservation requests, then switch to Instant Book so guests can book automatically.</p>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setValue('instantBook', true, { shouldValidate: true })}
+                    className={`block w-full rounded-2xl border-2 p-4 text-left transition ${
+                      values.instantBook ? 'border-primary-500 bg-primary-50' : 'border-slate-200 hover:border-slate-300'
+                    }`}
+                  >
+                    <p className="font-semibold text-slate-800">Use Instant Book</p>
+                    <p className="mt-1 text-sm text-slate-500">Let guests book automatically.</p>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {step === 13 && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="mb-1 text-xl font-bold text-slate-900">Now, set your prices</h2>
+                  <p className="mb-3 text-sm text-slate-500">You can change this anytime from your Host Dashboard's Pricing &amp; Calendar tab.</p>
+                  <label htmlFor="pricePerNight" className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">Base price</label>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-2xl font-bold text-slate-400">₹</span>
+                    <input
+                      id="pricePerNight"
+                      type="number"
+                      {...register('pricePerNight', { valueAsNumber: true })}
+                      className="w-40 rounded-xl border border-slate-300 px-2 py-1 text-3xl font-extrabold text-slate-900 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+                    />
+                  </div>
+                  {errors.pricePerNight && <p className="mt-1 text-xs font-medium text-rose-600">{errors.pricePerNight.message}</p>}
+                  <p className="mt-2 text-xs text-slate-400">
+                    Weekend markup and a per-date calendar can be set up after your listing is approved, from Pricing &amp; Calendar in your dashboard.
+                  </p>
+                </div>
+                <div>
+                  <label htmlFor="securityDeposit" className="mb-1 block text-sm font-medium text-slate-700">Security Deposit (₹)</label>
+                  <input
+                    id="securityDeposit"
+                    type="number"
+                    {...register('securityDeposit', { valueAsNumber: true })}
+                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+                  />
+                  {errors.securityDeposit && <p className="mt-1 text-xs font-medium text-rose-600">{errors.securityDeposit.message}</p>}
+                </div>
+              </div>
+            )}
+
+            {step === 14 && (
+              <div>
+                <h2 className="mb-1 text-xl font-bold text-slate-900">Add discounts</h2>
+                <p className="mb-4 text-sm text-slate-500">Help your place stand out to get booked faster and earn your first reviews.</p>
+                <div className="space-y-3">
+                  {DISCOUNTS.map((d) => (
+                    <label key={d.key} className="flex items-center justify-between rounded-2xl border border-slate-200 p-4">
+                      <span className="flex items-center gap-3">
+                        <span className="flex h-9 min-w-[3.25rem] items-center justify-center rounded-full border border-slate-300 px-2 text-sm font-bold text-slate-700">{d.pct}</span>
+                        <span>
+                          <span className="block font-semibold text-slate-800">{d.label}</span>
+                          <span className="block text-xs text-slate-500">{d.hint}</span>
+                        </span>
+                      </span>
+                      <input
+                        type="checkbox"
+                        {...register(d.key)}
+                        className="h-5 w-5 rounded border-slate-300 text-primary-600 focus:ring-primary-400"
+                      />
+                    </label>
+                  ))}
+                </div>
+                <p className="mt-3 text-xs text-slate-400">Only one discount will be applied per stay.</p>
+              </div>
+            )}
+
+            {step === 15 && (
+              <div>
+                <h2 className="mb-4 text-xl font-bold text-slate-900">Share safety details</h2>
+                <p className="mb-3 font-semibold text-slate-700">Does your place have any of these?</p>
+                <div className="space-y-3">
+                  {SAFETY_ITEMS.map((s) => (
+                    <label key={s.key} className="flex items-center justify-between rounded-2xl border border-slate-200 p-4">
+                      <span className="font-medium text-slate-700">{s.label}</span>
+                      <input
+                        type="checkbox"
+                        {...register(s.key)}
+                        className="h-5 w-5 rounded border-slate-300 text-primary-600 focus:ring-primary-400"
+                      />
+                    </label>
+                  ))}
+                </div>
+                <p className="mt-4 text-xs text-slate-500">
+                  Security cameras that monitor indoor spaces are not allowed even if they're turned off. All exterior
+                  security cameras must be disclosed.
+                </p>
+              </div>
+            )}
+
+            {step === 16 && (
               <div className="space-y-5">
                 <div className="rounded-xl bg-slate-50 p-4 text-sm text-slate-600">
                   <p className="font-bold text-slate-800">{values.propertyTitle || 'Untitled property'}</p>
                   <p>{values.propertyType} · {values.neighborhood}, {values.city}</p>
-                  <p>₹{Number(values.pricePerNight || 0).toLocaleString('en-IN')}/night · up to {values.maxGuests} guests</p>
+                  <p>
+                    ₹{Number(values.pricePerNight || 0).toLocaleString('en-IN')}/night · up to {values.maxGuests} guests ·{' '}
+                    {values.bedrooms} bedroom{values.bedrooms === 1 ? '' : 's'} · {values.beds} bed{values.beds === 1 ? '' : 's'} · {values.bathrooms} bathroom{values.bathrooms === 1 ? '' : 's'}
+                  </p>
                   <p>{(values.photos ?? []).length} photo(s), {(values.documents ?? []).length} document(s) attached</p>
                 </div>
                 <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 p-4">
