@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from '~links'
 import { Clock, MapPin } from 'lucide-react'
 import { useProperties } from '../../context/PropertiesContext'
 import { getMyListingIds } from '../../lib/myListings'

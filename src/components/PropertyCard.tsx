@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from '~links'
 import { motion } from 'framer-motion'
 import { MapPin, BadgeCheck, Star, Users, Heart, Zap, Wifi, TrainFront, ShieldCheck, Scale, Sparkles, Eye } from 'lucide-react'
 import type { Property } from '../types'

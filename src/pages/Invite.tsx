@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from '~links'
 import { Gift, Copy, Check, User } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { Footer } from '../components/Footer'

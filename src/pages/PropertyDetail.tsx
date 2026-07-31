@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { Link } from '~links'
+import { ShareModal } from '../components/ShareModal'
 import {
   ChevronRight,
   ChevronLeft,
@@ -229,23 +231,7 @@ export function PropertyDetailPage() {
     `Hi ${property.ownerName}, I'm interested in "${property.title}" listed on innbly. Could you share more details?`,
   )}`
 
-  const handleShare = async () => {
-    const shareData = { title: property.title, text: `Check out ${property.title} on innbly`, url: window.location.href }
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData)
-      } catch {
-        // User cancelled the native share sheet — not an error.
-      }
-      return
-    }
-    try {
-      await navigator.clipboard.writeText(window.location.href)
-      showToast('Link copied to clipboard')
-    } catch {
-      showToast('Could not copy the link — copy it from the address bar instead.', 'error')
-    }
-  }
+  const [shareOpen, setShareOpen] = useState(false)
 
   const nearby = properties.filter((p) => p.id !== property.id && p.city === property.city)
   const recommendations = (nearby.length >= 3 ? nearby : properties.filter((p) => p.id !== property.id)).slice(0, 4)
@@ -271,7 +257,7 @@ export function PropertyDetailPage() {
             {saved ? 'Saved' : 'Save'}
           </button>
           <button
-            onClick={handleShare}
+            onClick={() => setShareOpen(true)}
             className="flex items-center gap-1.5 rounded-full border border-slate-300 px-3.5 py-1.5 text-sm font-medium text-slate-600 transition hover:border-slate-400"
           >
             <Share2 className="h-4 w-4" /> Share
@@ -288,9 +274,30 @@ export function PropertyDetailPage() {
         </div>
       </div>
 
+      {/* In-page section nav — smooth-scrolls to each section below rather
+          than navigating anywhere, so it deliberately stays a same-tab
+          anchor jump even though every other link on the site opens in a
+          new tab. */}
+      <nav className="sticky top-20 z-30 -mx-4 mb-6 flex gap-6 overflow-x-auto border-b border-slate-200 bg-white/90 px-4 py-3 backdrop-blur-md sm:-mx-6 sm:px-6">
+        {[
+          ['photos', 'Photos'],
+          ['amenities', 'Amenities'],
+          ['reviews', 'Reviews'],
+          ['location', 'Location'],
+        ].map(([id, label]) => (
+          <a
+            key={id}
+            href={`#${id}`}
+            className="shrink-0 whitespace-nowrap text-sm font-semibold text-slate-500 transition hover:text-primary-600"
+          >
+            {label}
+          </a>
+        ))}
+      </nav>
+
       {/* Hero media grid — collapses to a single full-width photo on mobile instead of
           cramming the 5-column desktop layout into tiny unusable strips */}
-      <div className="relative mb-8 grid h-64 grid-cols-1 gap-2 overflow-hidden rounded-2xl sm:h-[420px] sm:grid-cols-5 sm:grid-rows-2">
+      <div id="photos" className="relative mb-8 grid h-64 scroll-mt-28 grid-cols-1 gap-2 overflow-hidden rounded-2xl sm:h-[420px] sm:grid-cols-5 sm:grid-rows-2">
         <button
           onClick={() => setPhotoIndex(0)}
           className="h-full w-full overflow-hidden sm:col-span-3 sm:row-span-2"
@@ -444,7 +451,7 @@ export function PropertyDetailPage() {
           </Reveal>
 
           {/* Amenities */}
-          <Reveal className="mt-8 border-t border-slate-200 pt-6">
+          <Reveal id="amenities" className="mt-8 scroll-mt-28 border-t border-slate-200 pt-6">
             <h2 className="mb-4 text-lg font-bold text-slate-900">Amenities</h2>
             <div className="space-y-5">
               {Object.entries(amenityGroups).map(([group, items]) => {
@@ -471,7 +478,7 @@ export function PropertyDetailPage() {
           </Reveal>
 
           {/* Location */}
-          <Reveal className="mt-8 border-t border-slate-200 pt-6">
+          <Reveal id="location" className="mt-8 scroll-mt-28 border-t border-slate-200 pt-6">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-bold text-slate-900">Location & Proximity</h2>
               <span className="rounded-full bg-primary-50 px-3 py-1 text-xs font-bold text-primary-700">
@@ -681,7 +688,7 @@ export function PropertyDetailPage() {
       </div>
 
       {/* Reviews */}
-      <Reveal className="mt-12 border-t border-slate-200 pt-8">
+      <Reveal id="reviews" className="mt-12 scroll-mt-28 border-t border-slate-200 pt-8">
         <h2 className="mb-6 text-2xl font-bold text-slate-900">Ratings & Reviews</h2>
         <div className="flex flex-col gap-10 lg:flex-row">
           <div className="lg:w-2/5">
@@ -804,6 +811,15 @@ export function PropertyDetailPage() {
           setIsPaid(true)
           setShowBookingModal(false)
         }}
+      />
+    )}
+    {shareOpen && (
+      <ShareModal
+        title={property.title}
+        subtitle={`${property.propertyType} · ${property.neighborhood}, ${property.city}`}
+        imageUrl={property.images[0]}
+        url={window.location.href}
+        onClose={() => setShareOpen(false)}
       />
     )}
     </>

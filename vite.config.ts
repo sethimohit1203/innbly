@@ -1,8 +1,18 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import path from 'node:path'
 
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      // Every internal Link/NavLink opens in a new tab, per product
+      // decision — call sites import from here instead of
+      // 'react-router-dom' directly so every file gets that behavior
+      // without repeating target="_blank" everywhere. See NewTabLinks.tsx.
+      '~links': path.resolve(__dirname, 'src/components/NewTabLinks.tsx'),
+    },
+  },
   server: {
     port: 5183,
     strictPort: true,

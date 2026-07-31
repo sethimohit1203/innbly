@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from '~links'
 import { Heart, Eye, Scale, BellRing, LogOut, User, Gift, LayoutDashboard, Camera, Loader2 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useSavedProperties } from '../context/SavedPropertiesContext'

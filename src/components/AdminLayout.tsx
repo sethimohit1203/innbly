@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { NavLink, Outlet, useOutletContext } from 'react-router-dom'
+import { Outlet, useOutletContext } from 'react-router-dom'
+import { NavLink } from '~links'
 import { Lock, LayoutDashboard, Home, Users, MessageSquare, LogOut, RefreshCw, IndianRupee } from 'lucide-react'
 import { usePageMeta } from '../hooks/usePageMeta'
 

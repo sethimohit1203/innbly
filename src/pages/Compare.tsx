@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from '~links'
 import { X, Scale } from 'lucide-react'
 import { properties } from '../data/properties'
 import { useCompare } from '../context/CompareContext'

@@ -1,4 +1,5 @@
-import { Link, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
+import { Link } from '~links'
 import { Search, Heart, User } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 

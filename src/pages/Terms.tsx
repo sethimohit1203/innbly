@@ -58,7 +58,7 @@ export function TermsPage() {
             <h2 className="text-lg font-bold text-slate-900">Contact</h2>
             <p className="mt-2">
               Questions about these terms? Reach us at{' '}
-              <a href="mailto:innblysupport@gmail.com" className="font-semibold text-primary-600 hover:underline">
+              <a href="mailto:innblysupport@gmail.com" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary-600 hover:underline">
                 innblysupport@gmail.com
               </a>
               .

@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
-import { Link, Navigate } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
+import { Link } from '~links'
 import { ChevronRight } from 'lucide-react'
 import { PropertyCard } from '../components/PropertyCard'
 import { Footer } from '../components/Footer'

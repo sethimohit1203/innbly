@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from '~links'
 import { TrainFront, Gem, Briefcase, Mountain, Waves, Laptop, Heart, PartyPopper, Dog, Wallet } from 'lucide-react'
 
 const CATEGORIES = [

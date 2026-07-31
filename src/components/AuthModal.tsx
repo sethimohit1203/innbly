@@ -326,7 +326,7 @@ export function AuthModal() {
             <h2 className="mt-4 text-2xl font-bold text-slate-900">Everyone belongs here</h2>
             <p className="mt-4 text-sm text-slate-600">
               When you join innbly, we ask you to agree to our{' '}
-              <a href="/terms" className="font-semibold text-primary-600 hover:underline">
+              <a href="/terms" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary-600 hover:underline">
                 Community Commitment
               </a>
               :

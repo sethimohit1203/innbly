@@ -1,4 +1,5 @@
-import { useParams, Link } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { Link } from '~links'
 import { BadgeCheck, Clock, TrendingUp, Calendar, Languages } from 'lucide-react'
 import { PropertyCard } from '../components/PropertyCard'
 import { Footer } from '../components/Footer'

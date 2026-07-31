@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import { Link } from '~links'
 import {
   Search,
   LayoutDashboard,
@@ -68,15 +69,15 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/80 backdrop-blur-md">
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link to="/" className="flex items-center gap-2.5">
+      <div className="mx-auto grid h-20 max-w-7xl grid-cols-[1fr_auto_1fr] items-center px-4 sm:px-6 lg:px-8">
+        <Link to="/" className="flex items-center gap-2.5 justify-self-start">
           <img src="/brand/innbly-icon.jpg" alt="innbly" className="h-10 w-10 rounded-xl object-cover shadow-lg shadow-primary-500/20" />
           <span className="bg-gradient-to-r from-primary-900 to-primary-600 bg-clip-text text-xl font-extrabold tracking-tight text-transparent">
             innbly
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden items-center gap-8 justify-self-center md:flex">
           {isHost
             ? hostLinks.map((link) => (
                 <Link
@@ -97,7 +98,7 @@ export function Navbar() {
               )}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 justify-self-end">
           <TranslateWidget />
 
           {!isHost && (

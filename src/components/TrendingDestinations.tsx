@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from '~links'
 import { properties } from '../data/properties'
 import { DESTINATIONS } from '../data/destinations'
 

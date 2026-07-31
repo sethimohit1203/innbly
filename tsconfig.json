@@ -6,6 +6,10 @@
     "module": "ESNext",
     "skipLibCheck": true,
     "moduleResolution": "bundler",
+    "baseUrl": ".",
+    "paths": {
+      "~links": ["src/components/NewTabLinks.tsx"]
+    },
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,

@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { Link } from 'react-router-dom'
+import { Link } from '~links'
 import { X, MapPin, Star, Users, BadgeCheck, Zap, ShieldCheck, ArrowRight } from 'lucide-react'
 import type { Property } from '../types'
 

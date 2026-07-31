@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from '~links'
 import { SlidersHorizontal, UtensilsCrossed, Snowflake, ShieldCheck, Receipt, Loader2 } from 'lucide-react'
 import { useServerPrice } from '../hooks/useServerPrice'
 

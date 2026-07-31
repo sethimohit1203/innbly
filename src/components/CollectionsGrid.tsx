@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from '~links'
 
 const COLLECTIONS: { label: string; slug: string; image: string }[] = [
   { label: 'Top Rated', slug: 'top-rated', image: 'https://picsum.photos/seed/coll-top/400/300' },

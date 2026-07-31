@@ -5,11 +5,13 @@ interface RevealProps {
   children: ReactNode
   delay?: number
   className?: string
+  id?: string
 }
 
-export function Reveal({ children, delay = 0, className }: RevealProps) {
+export function Reveal({ children, delay = 0, className, id }: RevealProps) {
   return (
     <motion.div
+      id={id}
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-80px' }}

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from '~links'
 import { Building2, ArrowRight } from 'lucide-react'
 import { ModuleShowcase } from '../../components/enterprise/ModuleShowcase'
 import { RoiCalculator } from '../../components/enterprise/RoiCalculator'

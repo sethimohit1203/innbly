@@ -42,7 +42,7 @@ export function PrivacyPage() {
             <h2 className="text-lg font-bold text-slate-900">Your choices</h2>
             <p className="mt-2">
               You can ask us to delete your information at any time by emailing{' '}
-              <a href="mailto:innblysupport@gmail.com" className="font-semibold text-primary-600 hover:underline">
+              <a href="mailto:innblysupport@gmail.com" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary-600 hover:underline">
                 innblysupport@gmail.com
               </a>
               . You can also unsubscribe from newsletter emails at any time using the same contact.
@@ -53,7 +53,7 @@ export function PrivacyPage() {
             <h2 className="text-lg font-bold text-slate-900">Contact</h2>
             <p className="mt-2">
               Questions about this policy? Reach us at{' '}
-              <a href="mailto:innblysupport@gmail.com" className="font-semibold text-primary-600 hover:underline">
+              <a href="mailto:innblysupport@gmail.com" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary-600 hover:underline">
                 innblysupport@gmail.com
               </a>
               .

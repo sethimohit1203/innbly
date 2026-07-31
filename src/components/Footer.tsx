@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from '~links'
 import { Instagram, Facebook, Youtube, Send, Mail } from 'lucide-react'
 import { useToast } from '../context/ToastContext'
 import { submitToSheet } from '../lib/backend'

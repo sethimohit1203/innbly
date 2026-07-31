@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from '~links'
 
 const LIFESTYLES: { label: string; emoji: string; slug: string }[] = [
   { label: 'Digital Nomad', emoji: '💻', slug: 'digital-nomad' },

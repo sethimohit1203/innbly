@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import { Link } from '~links'
 import { motion } from 'framer-motion'
 import { Search, MapPin, Users, Wallet } from 'lucide-react'
 import { PropertyCard } from '../components/PropertyCard'

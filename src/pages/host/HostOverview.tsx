@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from '~links'
 import { Home, Clock, Users, ArrowRight, Phone, Calendar } from 'lucide-react'
 import { useLeads } from '../../context/LeadsContext'
 import { useProperties } from '../../context/PropertiesContext'

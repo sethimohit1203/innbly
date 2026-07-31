@@ -774,7 +774,7 @@ export function ListPropertyPage() {
                   />
                   <span className="text-sm text-slate-600">
                     I confirm the information above is accurate and I agree to innbly's host terms and cancellation
-                    policy shown in the <a href="/terms" className="font-semibold text-primary-600 hover:underline">Terms of Service</a>.
+                    policy shown in the <a href="/terms" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary-600 hover:underline">Terms of Service</a>.
                   </span>
                 </label>
                 {errors.agreedToTerms && <p className="text-xs font-medium text-rose-600">{errors.agreedToTerms.message}</p>}
