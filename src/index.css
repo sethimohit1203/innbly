@@ -45,3 +45,40 @@ body {
 .animate-fade-in {
   animation: fadeIn 0.25s ease-out;
 }
+
+/* Site-wide smoothness: every interactive element gets a consistent,
+   gentle transition by default (color/background/border/shadow/transform)
+   instead of only the handful of components that happened to add a
+   `transition` utility class already — this is what makes hover/focus/
+   active states feel uniformly smooth across pages rather than only in
+   spots someone remembered to animate. Individual components' own
+   `transition-*`/`duration-*` classes still win where they're more
+   specific (Tailwind's cascade), so nothing already-tuned regresses. */
+@layer base {
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  summary,
+  [role='button'] {
+    transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 180ms;
+  }
+}
+
+/* Respect reduced-motion preferences — smoothness shouldn't fight
+   accessibility settings. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

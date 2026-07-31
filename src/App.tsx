@@ -1,5 +1,5 @@
 import { Suspense, lazy } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import { Navbar } from './components/Navbar'
 import { AuthModal } from './components/AuthModal'
 import { HostOnlyRoute } from './components/HostOnlyRoute'
@@ -52,11 +52,19 @@ function RouteLoading() {
 }
 
 export default function App() {
+  const location = useLocation()
+  // Keyed by top-level path segment only (not the full pathname) — fades in
+  // when moving between distinct sections (Home → Search → dashboard…), but
+  // doesn't remount (and re-fetch) layouts like HostDashboardLayout/
+  // AdminLayout just because the user clicked between their own tabs.
+  const routeSection = location.pathname.split('/')[1] || 'home'
+
   return (
     <div className="flex min-h-screen flex-col bg-slate-50">
       <Navbar />
       <main className="flex-1 pb-16 md:pb-0">
         <Suspense fallback={<RouteLoading />}>
+        <div key={routeSection} className="animate-fade-in">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/search" element={<SearchResultsPage />} />
@@ -109,6 +117,7 @@ export default function App() {
             <Route key={c.path} path={c.path} element={<ProgrammaticListingPage path={c.path} />} />
           ))}
         </Routes>
+        </div>
         </Suspense>
       </main>
       <AuthModal />
