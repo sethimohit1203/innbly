@@ -23,12 +23,27 @@ export function Navbar() {
   const { user, openAuthModal, logout, switchRole } = useAuth()
   const navigate = useNavigate()
 
-  const goToListProperty = () => {
-    if (user?.role === 'host') navigate('/dashboard/list-property')
-    else openAuthModal('host')
-  }
   const [mobileOpen, setMobileOpen] = useState(false)
   const [avatarOpen, setAvatarOpen] = useState(false)
+  const [switchingToHost, setSwitchingToHost] = useState(false)
+
+  const goToListProperty = async () => {
+    if (user?.role === 'host') {
+      navigate('/dashboard/list-property')
+      return
+    }
+    if (user) {
+      // Already have a real account (just not in host mode yet) — flip the
+      // existing session's role instead of throwing them back into the
+      // signup modal, which used to happen unconditionally here.
+      setSwitchingToHost(true)
+      const updated = await switchRole()
+      setSwitchingToHost(false)
+      if (updated) navigate('/dashboard/list-property')
+      return
+    }
+    openAuthModal('host')
+  }
 
   const handleSwitchRole = async () => {
     const updated = await switchRole()
@@ -88,9 +103,10 @@ export function Navbar() {
           {!isHost && (
             <button
               onClick={goToListProperty}
-              className="hidden items-center gap-1.5 rounded-xl bg-primary-600 px-5 py-2.5 text-[14px] font-semibold text-white shadow-lg shadow-primary-600/10 transition-all hover:bg-primary-700 hover:shadow-primary-600/20 active:scale-95 sm:inline-flex"
+              disabled={switchingToHost}
+              className="hidden items-center gap-1.5 rounded-xl bg-primary-600 px-5 py-2.5 text-[14px] font-semibold text-white shadow-lg shadow-primary-600/10 transition-all hover:bg-primary-700 hover:shadow-primary-600/20 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 sm:inline-flex"
             >
-              <PlusCircle className="h-4 w-4" /> List Your Property
+              <PlusCircle className="h-4 w-4" /> {switchingToHost ? 'Switching…' : 'List Your Property'}
             </button>
           )}
 
