@@ -24,6 +24,14 @@ export interface HostSubmission {
   cleaning_fee: number
   pet_fee: number
   extra_guest_fee: number
+  discount_new_listing: boolean
+  discount_last_minute: boolean
+  discount_weekly: boolean
+  discount_monthly: boolean
+  min_nights: number
+  max_nights: number
+  cancellation_policy: 'flexible' | 'firm'
+  non_refundable_discount_enabled: boolean
   amenities: string[]
   photo_urls: string[]
   document_urls: string[]
@@ -40,6 +48,14 @@ export interface PricingUpdate {
   cleaningFee?: number
   petFee?: number
   extraGuestFee?: number
+  discountNewListing?: boolean
+  discountLastMinute?: boolean
+  discountWeekly?: boolean
+  discountMonthly?: boolean
+  minNights?: number
+  maxNights?: number
+  cancellationPolicy?: 'flexible' | 'firm'
+  nonRefundableDiscountEnabled?: boolean
 }
 
 export interface DateOverride {

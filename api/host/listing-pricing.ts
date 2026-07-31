@@ -12,7 +12,7 @@ import { getSupabaseAdmin } from '../_lib/supabaseAdmin.js'
  * admin passcode uses (see api/_lib/adminAuth.ts). */
 
 const PRICING_COLUMNS =
-  'id, property_title, price_per_night, weekend_adjustment_pct, smart_pricing_enabled, cleaning_fee, pet_fee, extra_guest_fee, access_code'
+  'id, property_title, price_per_night, weekend_adjustment_pct, smart_pricing_enabled, cleaning_fee, pet_fee, extra_guest_fee, discount_new_listing, discount_last_minute, discount_weekly, discount_monthly, min_nights, max_nights, cancellation_policy, non_refundable_discount_enabled, access_code'
 
 interface PricingUpdate {
   pricePerNight?: number
@@ -21,6 +21,14 @@ interface PricingUpdate {
   cleaningFee?: number
   petFee?: number
   extraGuestFee?: number
+  discountNewListing?: boolean
+  discountLastMinute?: boolean
+  discountWeekly?: boolean
+  discountMonthly?: boolean
+  minNights?: number
+  maxNights?: number
+  cancellationPolicy?: 'flexible' | 'firm'
+  nonRefundableDiscountEnabled?: boolean
 }
 
 function getParam(req: ApiRequest, key: string): string | undefined {
@@ -41,6 +49,15 @@ function validatePricing(pricing: PricingUpdate): string | null {
     ['extraGuestFee', pricing.extraGuestFee],
   ] as const) {
     if (value !== undefined && !(value >= 0)) return `${key} cannot be negative.`
+  }
+  if (pricing.minNights !== undefined && !(pricing.minNights >= 1)) {
+    return 'Minimum nights must be at least 1.'
+  }
+  if (pricing.maxNights !== undefined && !(pricing.maxNights >= (pricing.minNights ?? 1))) {
+    return 'Maximum nights must be at least the minimum nights.'
+  }
+  if (pricing.cancellationPolicy !== undefined && !['flexible', 'firm'].includes(pricing.cancellationPolicy)) {
+    return 'Invalid cancellation policy.'
   }
   return null
 }
@@ -110,6 +127,14 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
         cleaningFee: listing.cleaning_fee,
         petFee: listing.pet_fee,
         extraGuestFee: listing.extra_guest_fee,
+        discountNewListing: listing.discount_new_listing,
+        discountLastMinute: listing.discount_last_minute,
+        discountWeekly: listing.discount_weekly,
+        discountMonthly: listing.discount_monthly,
+        minNights: listing.min_nights,
+        maxNights: listing.max_nights,
+        cancellationPolicy: listing.cancellation_policy,
+        nonRefundableDiscountEnabled: listing.non_refundable_discount_enabled,
       },
       dateOverrides: (overrides ?? []).map((o) => ({ date: o.price_date, nightlyRate: o.nightly_rate })),
     })
@@ -138,6 +163,14 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
           ...(body.pricing.cleaningFee !== undefined && { cleaning_fee: body.pricing.cleaningFee }),
           ...(body.pricing.petFee !== undefined && { pet_fee: body.pricing.petFee }),
           ...(body.pricing.extraGuestFee !== undefined && { extra_guest_fee: body.pricing.extraGuestFee }),
+          ...(body.pricing.discountNewListing !== undefined && { discount_new_listing: body.pricing.discountNewListing }),
+          ...(body.pricing.discountLastMinute !== undefined && { discount_last_minute: body.pricing.discountLastMinute }),
+          ...(body.pricing.discountWeekly !== undefined && { discount_weekly: body.pricing.discountWeekly }),
+          ...(body.pricing.discountMonthly !== undefined && { discount_monthly: body.pricing.discountMonthly }),
+          ...(body.pricing.minNights !== undefined && { min_nights: body.pricing.minNights }),
+          ...(body.pricing.maxNights !== undefined && { max_nights: body.pricing.maxNights }),
+          ...(body.pricing.cancellationPolicy !== undefined && { cancellation_policy: body.pricing.cancellationPolicy }),
+          ...(body.pricing.nonRefundableDiscountEnabled !== undefined && { non_refundable_discount_enabled: body.pricing.nonRefundableDiscountEnabled }),
         })
         .eq('id', id)
 

@@ -12,6 +12,14 @@ function AdminPricingPanel({ submission }: { submission: HostSubmission }) {
     cleaningFee: submission.cleaning_fee,
     petFee: submission.pet_fee,
     extraGuestFee: submission.extra_guest_fee,
+    discountNewListing: submission.discount_new_listing,
+    discountLastMinute: submission.discount_last_minute,
+    discountWeekly: submission.discount_weekly,
+    discountMonthly: submission.discount_monthly,
+    minNights: submission.min_nights,
+    maxNights: submission.max_nights,
+    cancellationPolicy: submission.cancellation_policy,
+    nonRefundableDiscountEnabled: submission.non_refundable_discount_enabled,
   })
   const [overrides, setOverrides] = useState<{ date: string; nightlyRate: number }[]>([])
   const [monthCursor, setMonthCursor] = useState(() => {
@@ -101,6 +109,72 @@ function AdminPricingPanel({ submission }: { submission: HostSubmission }) {
             />
           </div>
         ))}
+        <div className="border-t border-slate-200 pt-3">
+          <p className="mb-1.5 text-xs font-semibold text-slate-600">Discounts</p>
+          {(
+            [
+              ['discountNewListing', 'New listing 20%'],
+              ['discountLastMinute', 'Last-minute 1%'],
+              ['discountWeekly', 'Weekly 10%'],
+              ['discountMonthly', 'Monthly 15%'],
+            ] as const
+          ).map(([key, label]) => (
+            <label key={key} className="flex items-center gap-2 py-0.5 text-xs font-medium text-slate-600">
+              <input
+                type="checkbox"
+                checked={draft[key]}
+                onChange={(e) => save({ [key]: e.target.checked } as Partial<typeof draft>)}
+                className="h-3.5 w-3.5 rounded border-slate-300 text-primary-600 focus:ring-primary-400"
+              />
+              {label}
+            </label>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 border-t border-slate-200 pt-3">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-slate-600">Min nights</label>
+            <input
+              type="number"
+              value={draft.minNights}
+              onChange={(e) => setDraft({ ...draft, minNights: Number(e.target.value) })}
+              onBlur={(e) => save({ minNights: Number(e.target.value) })}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-slate-600">Max nights</label>
+            <input
+              type="number"
+              value={draft.maxNights}
+              onChange={(e) => setDraft({ ...draft, maxNights: Number(e.target.value) })}
+              onBlur={(e) => save({ maxNights: Number(e.target.value) })}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+            />
+          </div>
+        </div>
+
+        <div className="border-t border-slate-200 pt-3">
+          <label className="mb-1 block text-xs font-medium text-slate-600">Cancellation policy</label>
+          <select
+            value={draft.cancellationPolicy}
+            onChange={(e) => save({ cancellationPolicy: e.target.value as 'flexible' | 'firm' })}
+            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+          >
+            <option value="flexible">Flexible</option>
+            <option value="firm">Firm</option>
+          </select>
+          <label className="mt-2 flex items-center gap-2 text-xs font-medium text-slate-600">
+            <input
+              type="checkbox"
+              checked={draft.nonRefundableDiscountEnabled}
+              onChange={(e) => save({ nonRefundableDiscountEnabled: e.target.checked })}
+              className="h-3.5 w-3.5 rounded border-slate-300 text-primary-600 focus:ring-primary-400"
+            />
+            Non-refundable option enabled
+          </label>
+        </div>
+
         {saving && <p className="text-xs text-slate-400">Saving…</p>}
       </div>
 

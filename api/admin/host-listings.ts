@@ -10,6 +10,14 @@ interface PricingUpdate {
   cleaningFee?: number
   petFee?: number
   extraGuestFee?: number
+  discountNewListing?: boolean
+  discountLastMinute?: boolean
+  discountWeekly?: boolean
+  discountMonthly?: boolean
+  minNights?: number
+  maxNights?: number
+  cancellationPolicy?: 'flexible' | 'firm'
+  nonRefundableDiscountEnabled?: boolean
 }
 
 interface UpdatePayload {
@@ -113,6 +121,14 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
           res.status(400).json({ error: 'Weekend adjustment must be between -50% and +200%.' })
           return
         }
+        if (p.minNights !== undefined && !(p.minNights >= 1)) {
+          res.status(400).json({ error: 'Minimum nights must be at least 1.' })
+          return
+        }
+        if (p.maxNights !== undefined && !(p.maxNights >= (p.minNights ?? 1))) {
+          res.status(400).json({ error: 'Maximum nights must be at least the minimum nights.' })
+          return
+        }
 
         const { error } = await admin
           .from('host_submissions')
@@ -123,6 +139,14 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
             ...(p.cleaningFee !== undefined && { cleaning_fee: p.cleaningFee }),
             ...(p.petFee !== undefined && { pet_fee: p.petFee }),
             ...(p.extraGuestFee !== undefined && { extra_guest_fee: p.extraGuestFee }),
+            ...(p.discountNewListing !== undefined && { discount_new_listing: p.discountNewListing }),
+            ...(p.discountLastMinute !== undefined && { discount_last_minute: p.discountLastMinute }),
+            ...(p.discountWeekly !== undefined && { discount_weekly: p.discountWeekly }),
+            ...(p.discountMonthly !== undefined && { discount_monthly: p.discountMonthly }),
+            ...(p.minNights !== undefined && { min_nights: p.minNights }),
+            ...(p.maxNights !== undefined && { max_nights: p.maxNights }),
+            ...(p.cancellationPolicy !== undefined && { cancellation_policy: p.cancellationPolicy }),
+            ...(p.nonRefundableDiscountEnabled !== undefined && { non_refundable_discount_enabled: p.nonRefundableDiscountEnabled }),
           })
           .eq('id', body.id)
 
