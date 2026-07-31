@@ -54,7 +54,22 @@ async function sendOtpEmail(email: string, name: string, code: string): Promise<
   return sendViaAppsScriptAwaited('otp', { email, name, code })
 }
 
+/** Top-level guard: any uncaught throw inside handleRequest (most likely a
+ * missing env var like USER_SESSION_SECRET/OTP_SECRET — createUserSessionCookie/
+ * hashOtp throw synchronously if their secret isn't configured) previously
+ * surfaced to the client as an unparseable non-JSON error response, which
+ * src/components/AuthModal.tsx's `.catch(() => ({}))` then silently turned
+ * into a generic "Could not sign in" message with no way to diagnose it.
+ * Wrapping here guarantees a real JSON error body every time. */
 export default async function handler(req: ApiRequest, res: ApiResponse) {
+  try {
+    await handleRequest(req, res)
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message || 'Internal server error' })
+  }
+}
+
+async function handleRequest(req: ApiRequest, res: ApiResponse) {
   const body = readJsonBody<Record<string, unknown>>(req)
   const query = req.query.action
   const action = (req.method === 'GET' ? (Array.isArray(query) ? query[0] : query) : (body.action as string | undefined)) ?? ''
