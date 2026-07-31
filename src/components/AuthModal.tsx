@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { X, Building2, KeyRound, Loader2 } from 'lucide-react'
+import { X, Building2, KeyRound } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { GoogleSignInButton } from './GoogleSignInButton'
+import { Button } from './ui/Button'
+import { Input } from './ui/Input'
 import type { UserRole } from '../types'
 
 type Step = 'form' | 'otp' | 'community'
@@ -154,19 +156,21 @@ export function AuthModal() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4 animate-fade-in">
       <div className="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl sm:p-8">
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={() => {
             closeAuthModal()
             reset()
           }}
-          className="absolute right-4 top-4 rounded-full p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+          className="absolute right-4 top-4 text-slate-400 hover:text-slate-700"
         >
           <X className="h-5 w-5" />
-        </button>
+        </Button>
 
         {step === 'form' && (
           <>
-            <h2 className="text-2xl font-bold text-slate-900">
+            <h2 className="text-card-heading text-slate-900">
               {mode === 'signup' ? "Let's create your account" : 'Log in'}
             </h2>
             <p className="mt-1 text-sm text-slate-500">
@@ -176,7 +180,7 @@ export function AuthModal() {
             <button
               type="button"
               onClick={() => setRole((r) => (r === 'host' ? 'tenant' : 'host'))}
-              className={`mt-6 flex w-full items-center justify-between gap-3 rounded-2xl border-2 p-4 text-left transition ${
+              className={`mt-6 flex w-full items-center justify-between gap-3 rounded-2xl border-2 p-4 text-left transition-all duration-200 ease-smooth ${
                 role === 'host'
                   ? 'border-accent-500 bg-accent-50'
                   : 'border-dashed border-slate-200 hover:border-accent-300 hover:bg-slate-50'
@@ -210,56 +214,44 @@ export function AuthModal() {
 
             <form onSubmit={handleFormSubmit} className="space-y-3">
               {mode === 'signup' && (
-                <>
-                  <p className="text-xs font-semibold text-slate-500">Legal name</p>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Full name (as on your government ID)"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-                  />
-                </>
+                <Input
+                  label="Legal name"
+                  type="text"
+                  required
+                  placeholder="Full name (as on your government ID)"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
               )}
-              <input
+              <Input
                 type="email"
                 required
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
               />
               {mode === 'signup' && (
-                <>
-                  <p className="pt-1 text-xs font-semibold text-slate-500">Date of birth</p>
-                  <input
-                    type="date"
-                    required
-                    value={dob}
-                    onChange={(e) => setDob(e.target.value)}
-                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-                  />
-                </>
+                <Input
+                  label="Date of birth"
+                  type="date"
+                  required
+                  value={dob}
+                  onChange={(e) => setDob(e.target.value)}
+                />
               )}
-              <input
+              <Input
                 type="password"
                 required
                 minLength={8}
                 placeholder="Password (min. 8 characters)"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+                error={mode === 'signup' ? error ?? undefined : undefined}
               />
-              {error && <p className="text-xs font-medium text-rose-600">{error}</p>}
-              <button
-                type="submit"
-                disabled={submitting}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-4 py-3 text-sm font-semibold text-white shadow-card transition hover:bg-accent-600 hover:shadow-card-hover disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+              {mode === 'login' && error && <p className="text-xs font-medium text-rose-600">{error}</p>}
+              <Button type="submit" variant="secondary" size="lg" loading={submitting} className="w-full">
                 {mode === 'signup' ? 'Agree and continue' : 'Log in'}
-              </button>
+              </Button>
             </form>
 
             <p className="mt-4 text-center text-sm text-slate-500">
@@ -282,7 +274,7 @@ export function AuthModal() {
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary-50">
               <KeyRound className="h-6 w-6 text-primary-600" />
             </div>
-            <h2 className="mt-4 text-2xl font-bold text-slate-900">Confirm it's you</h2>
+            <h2 className="mt-4 text-card-heading text-slate-900">Confirm it's you</h2>
             <p className="mt-1 text-sm text-slate-500">We sent a code to {pendingUser.email}.</p>
 
             <div className="mt-6 flex justify-center gap-2">
@@ -298,20 +290,22 @@ export function AuthModal() {
                   value={digit}
                   onChange={(e) => handleOtpChange(i, e.target.value)}
                   onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                  className="h-14 w-11 rounded-xl border border-slate-300 text-center text-lg font-bold outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+                  className="h-14 w-11 rounded-control border border-slate-300 text-center text-lg font-bold outline-none transition-all duration-200 ease-smooth focus:border-primary-500 focus:ring-4 focus:ring-primary-100"
                 />
               ))}
             </div>
 
             {error && <p className="mt-3 text-xs font-medium text-rose-600">{error}</p>}
 
-            <button
+            <Button
               onClick={handleVerifyOtp}
-              disabled={submitting || otpDigits.join('').length !== 6}
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-40"
+              disabled={otpDigits.join('').length !== 6}
+              loading={submitting}
+              size="lg"
+              className="mt-6 w-full"
             >
-              {submitting && <Loader2 className="h-4 w-4 animate-spin" />} Confirm
-            </button>
+              Confirm
+            </Button>
             <button onClick={handleResendOtp} className="mt-4 text-sm font-semibold text-primary-600 hover:underline">
               Didn't get it? Send a new code
             </button>
@@ -323,7 +317,7 @@ export function AuthModal() {
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary-50 text-2xl">
               🏡
             </div>
-            <h2 className="mt-4 text-2xl font-bold text-slate-900">Everyone belongs here</h2>
+            <h2 className="mt-4 text-card-heading text-slate-900">Everyone belongs here</h2>
             <p className="mt-4 text-sm text-slate-600">
               When you join innbly, we ask you to agree to our{' '}
               <a href="/terms" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary-600 hover:underline">
@@ -336,12 +330,13 @@ export function AuthModal() {
               origin, ethnicity, skin colour, disability, sex, gender identity, sexual orientation or
               age — with respect and without judgement or bias.
             </p>
-            <button
+            <Button
               onClick={handleAgreeCommunity}
-              className="mt-6 w-full rounded-xl bg-gradient-to-r from-primary-600 to-accent-500 px-4 py-3 text-sm font-bold text-white shadow-card transition hover:shadow-card-hover"
+              size="lg"
+              className="mt-6 w-full bg-gradient-to-r from-primary-600 to-accent-500 hover:shadow-card-hover"
             >
               Agree and continue
-            </button>
+            </Button>
             <button
               onClick={() => {
                 closeAuthModal()

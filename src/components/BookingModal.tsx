@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import { X, ShieldCheck, Loader2 } from 'lucide-react'
+import { X, ShieldCheck } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { createBookingOrder, verifyBookingPayment, type BookingBreakdown } from '../lib/booking'
 import { openRazorpayCheckout } from '../lib/razorpay'
 import { markPropertyPaid } from '../lib/myBookings'
+import { Button } from './ui/Button'
+import { Input } from './ui/Input'
 import type { Property } from '../types'
 
 interface BookingModalProps {
@@ -95,12 +97,9 @@ export function BookingModal({ property, checkIn, checkOut, guests, onClose, onB
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4 animate-fade-in">
       <div className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl sm:p-8">
-        <button
-          onClick={onClose}
-          className="absolute right-4 top-4 rounded-full p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
-        >
+        <Button variant="ghost" size="icon" onClick={onClose} className="absolute right-4 top-4 text-slate-400 hover:text-slate-700">
           <X className="h-5 w-5" />
-        </button>
+        </Button>
 
         <h2 className="text-xl font-bold text-slate-900">Reserve {property.title}</h2>
 
@@ -111,35 +110,15 @@ export function BookingModal({ property, checkIn, checkOut, guests, onClose, onB
         ) : (
           <>
             <div className="mt-4 grid grid-cols-1 gap-3">
-              <input
-                value={tenantName}
-                onChange={(e) => setTenantName(e.target.value)}
-                placeholder="Full name"
-                className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-              />
-              <input
-                type="email"
-                value={tenantEmail}
-                onChange={(e) => setTenantEmail(e.target.value)}
-                placeholder="Email address"
-                className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-              />
-              <input
-                value={tenantPhone}
-                onChange={(e) => setTenantPhone(e.target.value)}
-                placeholder="Phone number"
-                className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-              />
+              <Input value={tenantName} onChange={(e) => setTenantName(e.target.value)} placeholder="Full name" />
+              <Input type="email" value={tenantEmail} onChange={(e) => setTenantEmail(e.target.value)} placeholder="Email address" />
+              <Input value={tenantPhone} onChange={(e) => setTenantPhone(e.target.value)} placeholder="Phone number" />
             </div>
 
             {!breakdown && (
-              <button
-                onClick={loadBreakdown}
-                disabled={loadingBreakdown}
-                className="mt-4 w-full rounded-xl border border-slate-300 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-primary-400 hover:text-primary-700 disabled:opacity-50"
-              >
+              <Button variant="outline" onClick={loadBreakdown} loading={loadingBreakdown} className="mt-4 w-full">
                 {loadingBreakdown ? 'Calculating…' : 'See price breakdown'}
-              </button>
+              </Button>
             )}
 
             {breakdown && (
@@ -172,14 +151,9 @@ export function BookingModal({ property, checkIn, checkOut, guests, onClose, onB
               <span>Paid securely through innbly. The host's contact details unlock right after payment.</span>
             </div>
 
-            <button
-              onClick={handlePay}
-              disabled={paying}
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-3.5 text-sm font-bold text-white shadow-card transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {paying ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            <Button onClick={handlePay} loading={paying} size="lg" className="mt-4 w-full">
               {paying ? 'Processing…' : breakdown ? `Pay ₹${breakdown.guestTotal.toLocaleString('en-IN')} & Reserve` : 'Pay & Reserve'}
-            </button>
+            </Button>
           </>
         )}
       </div>

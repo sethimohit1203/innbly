@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useForm, type FieldPath } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Check, ImagePlus, UploadCloud, FileText, X, Loader2, AlertCircle, Copy, KeyRound, Home, Minus, Plus, Sparkles, PartyPopper } from 'lucide-react'
+import { Check, ImagePlus, UploadCloud, FileText, X, AlertCircle, Copy, KeyRound, Home, Minus, Plus, Sparkles, PartyPopper } from 'lucide-react'
 import { Footer } from '../components/Footer'
 import { LocationPicker, type LocationValue } from '../components/host/LocationPicker'
+import { Button } from '../components/ui/Button'
+import { Input } from '../components/ui/Input'
 import { usePageMeta } from '../hooks/usePageMeta'
 import { hostFormSchema, submitHostListing, type HostFormValues } from '../lib/hostSubmission'
 import { addMyListingId } from '../lib/myListings'
@@ -402,38 +404,29 @@ export function ListPropertyPage() {
           <div className="mt-8 animate-fade-in rounded-2xl border border-slate-200 bg-white p-8 shadow-card sm:p-10" key={step}>
             {step === 0 && (
               <div className="space-y-4">
-                <div>
-                  <label htmlFor="ownerName" className="mb-1 block text-sm font-medium text-slate-700">Full Name</label>
-                  <input
-                    id="ownerName"
-                    {...register('ownerName')}
-                    placeholder="e.g. Rahul Mehta"
-                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-                  />
-                  {errors.ownerName && <p className="mt-1 text-xs font-medium text-rose-600">{errors.ownerName.message}</p>}
-                </div>
-                <div>
-                  <label htmlFor="ownerEmail" className="mb-1 block text-sm font-medium text-slate-700">Email</label>
-                  <input
-                    id="ownerEmail"
-                    type="email"
-                    {...register('ownerEmail')}
-                    placeholder="you@example.com"
-                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-                  />
-                  {errors.ownerEmail && <p className="mt-1 text-xs font-medium text-rose-600">{errors.ownerEmail.message}</p>}
-                </div>
-                <div>
-                  <label htmlFor="ownerPhone" className="mb-1 block text-sm font-medium text-slate-700">Phone Number</label>
-                  <input
-                    id="ownerPhone"
-                    type="tel"
-                    {...register('ownerPhone')}
-                    placeholder="+91 98765 43210"
-                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-                  />
-                  {errors.ownerPhone && <p className="mt-1 text-xs font-medium text-rose-600">{errors.ownerPhone.message}</p>}
-                </div>
+                <Input
+                  label="Full Name"
+                  id="ownerName"
+                  {...register('ownerName')}
+                  placeholder="e.g. Rahul Mehta"
+                  error={errors.ownerName?.message}
+                />
+                <Input
+                  label="Email"
+                  id="ownerEmail"
+                  type="email"
+                  {...register('ownerEmail')}
+                  placeholder="you@example.com"
+                  error={errors.ownerEmail?.message}
+                />
+                <Input
+                  label="Phone Number"
+                  id="ownerPhone"
+                  type="tel"
+                  {...register('ownerPhone')}
+                  placeholder="+91 98765 43210"
+                  error={errors.ownerPhone?.message}
+                />
               </div>
             )}
 
@@ -487,37 +480,22 @@ export function ListPropertyPage() {
             {step === 3 && (
               <div className="space-y-4">
                 <LocationPicker value={location} onChange={handleLocationChange} />
-                <div>
-                  <label htmlFor="city" className="mb-1 block text-sm font-medium text-slate-700">City</label>
-                  <input
-                    id="city"
-                    {...register('city')}
-                    placeholder="e.g. Bengaluru"
-                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-                  />
-                  {errors.city && <p className="mt-1 text-xs font-medium text-rose-600">{errors.city.message}</p>}
-                </div>
-                <div>
-                  <label htmlFor="neighborhood" className="mb-1 block text-sm font-medium text-slate-700">Neighborhood / Area</label>
-                  <input
-                    id="neighborhood"
-                    {...register('neighborhood')}
-                    placeholder="e.g. Koramangala"
-                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-                  />
-                  {errors.neighborhood && <p className="mt-1 text-xs font-medium text-rose-600">{errors.neighborhood.message}</p>}
-                </div>
-                <div>
-                  <label htmlFor="address" className="mb-1 block text-sm font-medium text-slate-700">Full Address</label>
-                  <input
-                    id="address"
-                    {...register('address')}
-                    placeholder="5th Block, Koramangala, Bengaluru"
-                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-                  />
-                  {errors.address && <p className="mt-1 text-xs font-medium text-rose-600">{errors.address.message}</p>}
-                  <p className="mt-1 text-xs text-slate-400">Only the neighborhood is shown publicly — the full address is shared with confirmed guests only.</p>
-                </div>
+                <Input label="City" id="city" {...register('city')} placeholder="e.g. Bengaluru" error={errors.city?.message} />
+                <Input
+                  label="Neighborhood / Area"
+                  id="neighborhood"
+                  {...register('neighborhood')}
+                  placeholder="e.g. Koramangala"
+                  error={errors.neighborhood?.message}
+                />
+                <Input
+                  label="Full Address"
+                  id="address"
+                  {...register('address')}
+                  placeholder="5th Block, Koramangala, Bengaluru"
+                  error={errors.address?.message}
+                  hint="Only the neighborhood is shown publicly — the full address is shared with confirmed guests only."
+                />
               </div>
             )}
 
@@ -546,16 +524,13 @@ export function ListPropertyPage() {
 
             {step === 6 && (
               <div className="space-y-4">
-                <div>
-                  <label htmlFor="propertyTitle" className="mb-1 block text-sm font-medium text-slate-700">Property Title</label>
-                  <input
-                    id="propertyTitle"
-                    {...register('propertyTitle')}
-                    placeholder="e.g. Palm Grove Villa — Candolim"
-                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-                  />
-                  {errors.propertyTitle && <p className="mt-1 text-xs font-medium text-rose-600">{errors.propertyTitle.message}</p>}
-                </div>
+                <Input
+                  label="Property Title"
+                  id="propertyTitle"
+                  {...register('propertyTitle')}
+                  placeholder="e.g. Palm Grove Villa — Candolim"
+                  error={errors.propertyTitle?.message}
+                />
                 <div>
                   <label htmlFor="propertyType" className="mb-1 block text-sm font-medium text-slate-700">Property Type</label>
                   <select
@@ -716,16 +691,13 @@ export function ListPropertyPage() {
                     Weekend markup and a per-date calendar can be set up after your listing is approved, from Pricing &amp; Calendar in your dashboard.
                   </p>
                 </div>
-                <div>
-                  <label htmlFor="securityDeposit" className="mb-1 block text-sm font-medium text-slate-700">Security Deposit (₹)</label>
-                  <input
-                    id="securityDeposit"
-                    type="number"
-                    {...register('securityDeposit', { valueAsNumber: true })}
-                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-                  />
-                  {errors.securityDeposit && <p className="mt-1 text-xs font-medium text-rose-600">{errors.securityDeposit.message}</p>}
-                </div>
+                <Input
+                  label="Security Deposit (₹)"
+                  id="securityDeposit"
+                  type="number"
+                  {...register('securityDeposit', { valueAsNumber: true })}
+                  error={errors.securityDeposit?.message}
+                />
               </div>
             )}
 
@@ -812,31 +784,22 @@ export function ListPropertyPage() {
           </div>
 
           <div className="mt-6 flex justify-between">
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={() => goToStep(Math.max(0, step - 1))}
               disabled={step === 0}
-              className="rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-600 transition hover:border-slate-400 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Back
-            </button>
+            </Button>
             {step < STEPS.length - 1 ? (
-              <button
-                type="button"
-                onClick={goNext}
-                className="rounded-xl bg-primary-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700"
-              >
+              <Button type="button" onClick={goNext}>
                 Next
-              </button>
+              </Button>
             ) : (
-              <button
-                type="submit"
-                disabled={submitting}
-                className="flex items-center gap-2 rounded-xl bg-accent-500 px-6 py-2.5 text-sm font-bold text-white shadow-card transition hover:bg-accent-600 hover:shadow-card-hover disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+              <Button type="submit" variant="secondary" loading={submitting}>
                 {submitting ? 'Submitting…' : 'Submit Listing'}
-              </button>
+              </Button>
             )}
           </div>
         </form>

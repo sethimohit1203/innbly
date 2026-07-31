@@ -60,6 +60,7 @@ import { useCompare } from '../context/CompareContext'
 import { useToast } from '../context/ToastContext'
 import { useProperties } from '../context/PropertiesContext'
 import { usePageMeta } from '../hooks/usePageMeta'
+import { Button } from '../components/ui/Button'
 import { useJsonLd } from '../hooks/useJsonLd'
 import { breadcrumbSchema, faqSchema, SITE_URL } from '../lib/seo'
 import { getPaidPropertyIds } from '../lib/myBookings'
@@ -703,12 +704,9 @@ export function PropertyDetailPage() {
                 <MessageCircle className="h-4 w-4" /> Chat with Host
               </a>
             ) : (
-              <button
-                onClick={() => setShowBookingModal(true)}
-                className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-3.5 text-sm font-bold text-white shadow-card transition hover:bg-primary-700 hover:shadow-card-hover"
-              >
+              <Button onClick={() => setShowBookingModal(true)} size="lg" className="mt-5 w-full">
                 Reserve & Pay
-              </button>
+              </Button>
             )}
           </div>
         </div>
@@ -815,12 +813,9 @@ export function PropertyDetailPage() {
           <MessageCircle className="h-4 w-4" /> Chat with Host
         </a>
       ) : (
-        <button
-          onClick={() => setShowBookingModal(true)}
-          className="flex items-center gap-1.5 rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-bold text-white shadow-card transition hover:bg-primary-700"
-        >
+        <Button onClick={() => setShowBookingModal(true)}>
           Reserve & Pay
-        </button>
+        </Button>
       )}
     </div>
     <Footer />

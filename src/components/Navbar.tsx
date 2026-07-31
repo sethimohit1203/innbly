@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { TranslateWidget } from './TranslateWidget'
+import { Button } from './ui/Button'
 
 export function Navbar() {
   const { user, openAuthModal, logout, switchRole } = useAuth()
@@ -115,30 +116,24 @@ export function Navbar() {
           <TranslateWidget />
 
           {!isHost && (
-            <button
+            <Button
               onClick={goToListProperty}
-              disabled={switchingToHost}
-              className="hidden items-center gap-1.5 rounded-xl bg-primary-600 px-5 py-2.5 text-[14px] font-semibold text-white shadow-lg shadow-primary-600/10 transition-all hover:bg-primary-700 hover:shadow-primary-600/20 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 sm:inline-flex"
+              loading={switchingToHost}
+              className="hidden sm:inline-flex"
             >
               <PlusCircle className="h-4 w-4" /> {switchingToHost ? 'Switching…' : 'List Your Property'}
-            </button>
+            </Button>
           )}
 
           {isHost && (
             <div className="hidden items-center gap-3 sm:flex">
               <span className="text-sm text-slate-600">Hi, {user!.name.split(' ')[0]}</span>
-              <button
-                onClick={handleSwitchRole}
-                className="flex items-center gap-1.5 rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
-              >
+              <Button variant="outline" size="sm" onClick={handleSwitchRole}>
                 <Repeat className="h-3.5 w-3.5" /> Switch to travelling
-              </button>
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-1.5 rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
-              >
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleLogout}>
                 <LogOut className="h-3.5 w-3.5" /> Log out
-              </button>
+              </Button>
             </div>
           )}
 
@@ -212,22 +207,21 @@ export function Navbar() {
           )}
 
           {!user && (
-            <button
-              onClick={() => openAuthModal()}
-              className="hidden items-center gap-1.5 rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-primary-400 hover:text-primary-700 sm:inline-flex"
-            >
+            <Button variant="outline" onClick={() => openAuthModal()} className="hidden hover:border-primary-400 hover:text-primary-700 sm:inline-flex">
               <User className="h-4 w-4" /> Sign In / Sign Up
-            </button>
+            </Button>
           )}
 
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => setMobileOpen((o) => !o)}
             aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={mobileOpen}
-            className="p-2 text-slate-600 transition-colors hover:text-primary-600 md:hidden"
+            className="md:hidden"
           >
             {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -317,15 +311,15 @@ export function Navbar() {
           )}
 
           {!isHost && (
-            <button
+            <Button
               onClick={() => {
                 goToListProperty()
                 setMobileOpen(false)
               }}
-              className="block w-full rounded-xl bg-primary-600 py-3 text-center font-semibold text-white shadow-lg transition-all hover:bg-primary-700"
+              className="w-full"
             >
               List Your Property
-            </button>
+            </Button>
           )}
         </div>
       )}
