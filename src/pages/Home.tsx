@@ -148,8 +148,6 @@ export function HomePage() {
 
   return (
     <div>
-      <StickyHomeSearchBar onSearchClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} />
-
       {/* Hero — light, compact layout: big heading + inline pill search bar,
           replacing the previous full-bleed dark photo hero + floating card. */}
       <section className="relative overflow-hidden bg-gradient-to-b from-primary-50/70 via-white to-white pb-14 pt-16 sm:pt-20">
