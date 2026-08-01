@@ -177,7 +177,7 @@ export function HomePage() {
             <form onSubmit={handleSearch} className="grid grid-cols-1 items-center gap-2 md:grid-cols-[1.5fr_2fr_1fr_auto]">
               <div className="relative rounded-xl px-4 py-2 transition hover:bg-slate-50 md:rounded-full">
                 <label htmlFor="home-search-location" className="mb-0.5 block text-[11px] font-bold text-slate-400 uppercase tracking-wide flex items-center gap-1">
-                  <MapPin className="h-3.5 w-3.5 text-primary-500" /> Where are you headed?
+                  <MapPin className="h-3.5 w-3.5 text-primary-500" /> Where are you going?
                 </label>
                 <LocationAutocomplete value={locationQuery} onChange={setLocationQuery} placeholder="Search destinations" />
               </div>
@@ -236,29 +236,29 @@ export function HomePage() {
             </form>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <HeroQuickChips />
-          </motion.div>
-        </div>
-
-        {/* Compact feature strip */}
-        <div className="mx-auto mt-12 max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 gap-4 rounded-2xl border border-slate-100 bg-white/70 p-4 backdrop-blur-sm sm:grid-cols-4 sm:gap-6 sm:p-6">
-            {FEATURE_STRIP.map((f) => (
-              <div key={f.title} className="flex items-start gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-600">
-                  <f.icon className="h-5 w-5" />
-                </span>
-                <div>
-                  <p className="text-sm font-bold text-slate-800">{f.title}</p>
-                  <p className="text-xs text-slate-500">{f.text}</p>
-                </div>
-              </div>
-            ))}
+          {/* BestPrice Guarantee, Trusted, 24/7 Support directly beneath Search Bar */}
+          <div className="mx-auto mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs font-bold text-slate-600">
+            <span className="flex items-center gap-1.5">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-50 text-primary-600 border border-rose-100">
+                ✓
+              </span>
+              <span>Best Price Guarantee</span>
+              <span className="text-[10px] text-slate-400 font-medium hidden sm:inline">• Cancel for free first month of</span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-50 text-primary-600 border border-rose-100">
+                ✓
+              </span>
+              <span>Trustworthy Millions</span>
+              <span className="text-[10px] text-slate-400 font-medium hidden sm:inline">• Reliability guarantee worldwide</span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-50 text-primary-600 border border-rose-100">
+                ✓
+              </span>
+              <span>24/7 Support</span>
+              <span className="text-[10px] text-slate-400 font-medium hidden sm:inline">• We are here to help anytime</span>
+            </span>
           </div>
         </div>
       </section>
