@@ -47,15 +47,11 @@
       rel="stylesheet"
     />
 
-    <!-- Preload the homepage hero image — it's the page's LCP element, but
-         it's set as a CSS background-image (src/pages/Home.tsx), which the
-         browser's preload scanner cannot discover early on its own. This
-         `<link rel="preload">` is what actually gets it fetching in
-         parallel with everything else instead of only after CSSOM builds.
-         Also preconnect to picsum.photos itself for the same reason
-         (separate origin from fonts, needs its own connection warm-up). -->
-    <link rel="preconnect" href="https://picsum.photos" crossorigin />
-    <link rel="preload" as="image" href="https://picsum.photos/seed/innbly-hero-villa/1280/720" />
+    <!-- The homepage hero is now a text/gradient design with no background
+         photo (src/pages/Home.tsx), so the picsum.photos preload/preconnect
+         that used to target the old photographic hero image was removed —
+         picsum.photos is still used for other on-page images, but none of
+         them are the LCP element anymore. -->
 
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 

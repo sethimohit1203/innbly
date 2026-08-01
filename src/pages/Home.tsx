@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Link } from '~links'
 import { motion } from 'framer-motion'
-import { Search, MapPin, Users, Wallet } from 'lucide-react'
+import { Search, MapPin, Users, Wallet, ChevronLeft, ChevronRight, BadgeIndianRupee, ShieldCheck, Users2, Headset, Home } from 'lucide-react'
 import { PropertyCard } from '../components/PropertyCard'
 import { BudgetEstimator } from '../components/BudgetEstimator'
 import { AIBudgetPlanner } from '../components/AIBudgetPlanner'
@@ -31,23 +31,22 @@ import { faqSchema, webPageSchema } from '../lib/seo'
 import { DESTINATIONS } from '../data/destinations'
 import type { Property } from '../types'
 
-// Kept at 1280x720 (not 1920x1080) and preloaded (see index.html) — this is
-// the page's LCP element. A CSS background-image is invisible to the
-// browser's preload scanner (only discovered after CSSOM is built), so
-// without the explicit <link rel="preload"> in index.html this image starts
-// downloading late no matter how small it is. picsum.photos is a demo/
-// placeholder image host — swap for a real, CDN-optimized (WebP/AVIF) hero
-// photo before shipping to production; that alone will cut payload further.
-const HERO_IMAGE = 'https://picsum.photos/seed/innbly-hero-villa/1280/720'
 
-const PROPERTY_TYPE_EXPLORE: { label: string; propertyType: string; image: string }[] = [
-  { label: 'Villas', propertyType: 'Villas', image: 'https://picsum.photos/seed/explore-villas/600/450' },
-  { label: 'Apartments', propertyType: 'Apartments', image: 'https://picsum.photos/seed/explore-apartments/600/450' },
-  { label: 'Cabins', propertyType: 'Cabins', image: 'https://picsum.photos/seed/explore-cabins/600/450' },
-  { label: 'Cottages', propertyType: 'Cottages', image: 'https://picsum.photos/seed/explore-cottages/600/450' },
-  { label: 'Farmhouses', propertyType: 'Farm Stays', image: 'https://picsum.photos/seed/explore-farmhouses/600/450' },
-  { label: 'Holiday Homes', propertyType: 'Holiday Homes', image: 'https://picsum.photos/seed/explore-holiday-homes/600/450' },
-  { label: 'Luxury Homes', propertyType: 'Country Houses', image: 'https://picsum.photos/seed/explore-luxury/600/450' },
+const PROPERTY_TYPE_EXPLORE: { label: string; propertyType: string; image: string; subtitle: string }[] = [
+  { label: 'Villas', propertyType: 'Villas', image: 'https://picsum.photos/seed/explore-villas/600/450', subtitle: 'Private villas with luxury & comfort' },
+  { label: 'Apartments', propertyType: 'Apartments', image: 'https://picsum.photos/seed/explore-apartments/600/450', subtitle: 'Modern apartments in prime locations' },
+  { label: 'Cabins', propertyType: 'Cabins', image: 'https://picsum.photos/seed/explore-cabins/600/450', subtitle: 'Cozy cabins surrounded by nature' },
+  { label: 'Cottages', propertyType: 'Cottages', image: 'https://picsum.photos/seed/explore-cottages/600/450', subtitle: 'Charming cottages for peaceful getaways' },
+  { label: 'Farmhouses', propertyType: 'Farm Stays', image: 'https://picsum.photos/seed/explore-farmhouses/600/450', subtitle: 'Spacious farmhouses for family & groups' },
+  { label: 'Holiday Homes', propertyType: 'Holiday Homes', image: 'https://picsum.photos/seed/explore-holiday-homes/600/450', subtitle: 'Perfect homes for holidays' },
+  { label: 'Luxury Homes', propertyType: 'Country Houses', image: 'https://picsum.photos/seed/explore-luxury/600/450', subtitle: 'Premium stays for a luxurious life' },
+]
+
+const FEATURE_STRIP = [
+  { icon: BadgeIndianRupee, title: 'Best Price Guarantee', text: 'Get the best deals or we\'ll match it' },
+  { icon: ShieldCheck, title: 'Free Cancellation', text: 'Cancel for free on selected properties' },
+  { icon: Users2, title: 'Trusted by Thousands', text: 'Join happy travelers across India' },
+  { icon: Headset, title: '24/7 Support', text: 'We\'re here to help anytime, anywhere' },
 ]
 
 const HOW_IT_WORKS = [
@@ -112,6 +111,13 @@ export function HomePage() {
   const [checkIn, setCheckIn] = useState<string | null>(null)
   const [checkOut, setCheckOut] = useState<string | null>(null)
   const [activeCategory, setActiveCategory] = useState<Category>('all')
+  const topStaysRef = useRef<HTMLDivElement>(null)
+
+  const scrollTopStays = (dir: 'left' | 'right') => {
+    topStaysRef.current?.scrollBy({ left: dir === 'left' ? -320 : 320, behavior: 'smooth' })
+  }
+
+  const topStays = useMemo(() => [...properties].sort((a, b) => b.rating - a.rating).slice(0, 8), [properties])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -144,32 +150,21 @@ export function HomePage() {
     <div>
       <StickyHomeSearchBar onSearchClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} />
 
-      {/* Hero */}
-      <section
-        className="relative overflow-hidden bg-slate-900 bg-cover bg-center pb-32 pt-28 text-white sm:pb-40 md:pt-32"
-        style={{ backgroundImage: `linear-gradient(to bottom, rgba(2,6,23,0.75), rgba(2,6,23,0.55) 45%, rgba(2,6,23,0.85)), url(${HERO_IMAGE})` }}
-      >
-        <div className="absolute inset-x-0 bottom-0 -z-10 h-32 bg-gradient-to-b from-transparent to-slate-50" />
-
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      {/* Hero — light, compact layout: big heading + inline pill search bar,
+          replacing the previous full-bleed dark photo hero + floating card. */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-primary-50/70 via-white to-white pb-14 pt-16 sm:pt-20">
+        <div className="mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="mx-auto max-w-3xl text-center"
           >
-            <span className="mb-6 inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-accent-300 backdrop-blur-md">
-              ★ India's Verified Vacation Rental Network
-            </span>
-            <h1 className="mb-6 text-4xl font-extrabold leading-[1.1] tracking-tight sm:text-5xl md:text-6xl">
-              Verified Villas, Holiday Homes <br />
-              <span className="bg-gradient-to-r from-primary-300 to-accent-300 bg-clip-text text-transparent">
-                & Vacation Rentals in India.
-              </span>
+            <h1 className="mb-4 text-4xl font-extrabold leading-[1.1] tracking-tight text-slate-900 sm:text-5xl md:text-6xl">
+              Find stays that <span className="text-primary-600">feel like home</span>
             </h1>
-            <p className="mx-auto mb-2 max-w-2xl text-lg font-medium leading-relaxed text-slate-200">
-              Book fully furnished, verified villas, cabins, cottages, and farmhouses across India's most-loved
-              getaway destinations — transparent pricing, real hosts, no brokerage.
+            <p className="mx-auto mb-8 max-w-xl text-lg font-medium text-slate-500">
+              Discover verified villas, cabins, cottages, and farmhouses across India's most-loved getaway
+              destinations.
             </p>
           </motion.div>
 
@@ -177,79 +172,92 @@ export function HomePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+            className="mx-auto max-w-4xl rounded-2xl border border-slate-200 bg-white p-3 text-left shadow-card-hover md:rounded-full md:p-2"
+          >
+            <form onSubmit={handleSearch} className="grid grid-cols-1 items-center gap-2 md:grid-cols-[1.3fr_1fr_1fr_1fr_auto]">
+              <div className="relative rounded-xl px-4 py-2 transition hover:bg-slate-50 md:rounded-full">
+                <label htmlFor="home-search-location" className="mb-0.5 block text-[11px] font-bold text-slate-400">
+                  <MapPin className="mr-1 inline h-3 w-3 text-primary-500" /> Where are you headed?
+                </label>
+                <LocationAutocomplete value={locationQuery} onChange={setLocationQuery} placeholder="Search destinations" />
+              </div>
+
+              <div className="rounded-xl px-1 py-1 transition hover:bg-slate-50 md:rounded-full md:border-l md:border-slate-100">
+                <span className="mb-0.5 block px-3 text-[11px] font-bold text-slate-400">Check in — Check out</span>
+                <DateRangePicker checkIn={checkIn} checkOut={checkOut} onChange={(a, b) => { setCheckIn(a); setCheckOut(b) }} />
+              </div>
+
+              <div className="relative rounded-xl px-4 py-2 transition hover:bg-slate-50 md:rounded-full md:border-l md:border-slate-100">
+                <label htmlFor="home-search-guests" className="mb-0.5 block text-[11px] font-bold text-slate-400">
+                  <Users className="mr-1 inline h-3 w-3 text-primary-500" /> Guests
+                </label>
+                <select
+                  id="home-search-guests"
+                  value={guests}
+                  onChange={(e) => setGuests(e.target.value)}
+                  className="w-full cursor-pointer bg-transparent text-[15px] font-semibold text-slate-800 outline-none"
+                >
+                  <option value="all">Add guests</option>
+                  <option value="1">1 Guest</option>
+                  <option value="2">2 Guests</option>
+                  <option value="4">4 Guests</option>
+                  <option value="6">6+ Guests</option>
+                </select>
+              </div>
+
+              <div className="relative rounded-xl px-4 py-2 transition hover:bg-slate-50 md:rounded-full md:border-l md:border-slate-100">
+                <label htmlFor="home-search-budget" className="mb-0.5 block text-[11px] font-bold text-slate-400">
+                  <Wallet className="mr-1 inline h-3 w-3 text-primary-500" /> Budget
+                </label>
+                <select
+                  id="home-search-budget"
+                  value={budget}
+                  onChange={(e) => setBudget(e.target.value)}
+                  className="w-full cursor-pointer bg-transparent text-[15px] font-semibold text-slate-800 outline-none"
+                >
+                  <option value="any">Any budget</option>
+                  <option value="1200">Under ₹1,200</option>
+                  <option value="2000">Under ₹2,000</option>
+                  <option value="3500">Under ₹3,500</option>
+                </select>
+              </div>
+
+              <button
+                type="submit"
+                aria-label="Search"
+                className="flex h-12 w-12 items-center justify-center justify-self-center rounded-full bg-primary-600 text-white shadow-lg shadow-primary-500/30 transition-all hover:bg-primary-700 active:scale-95 md:justify-self-auto"
+              >
+                <Search className="h-5 w-5" />
+              </button>
+            </form>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
           >
             <HeroQuickChips />
           </motion.div>
         </div>
+
+        {/* Compact feature strip */}
+        <div className="mx-auto mt-12 max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 gap-4 rounded-2xl border border-slate-100 bg-white/70 p-4 backdrop-blur-sm sm:grid-cols-4 sm:gap-6 sm:p-6">
+            {FEATURE_STRIP.map((f) => (
+              <div key={f.title} className="flex items-start gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-600">
+                  <f.icon className="h-5 w-5" />
+                </span>
+                <div>
+                  <p className="text-sm font-bold text-slate-800">{f.title}</p>
+                  <p className="text-xs text-slate-500">{f.text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
-
-      {/* Search widget — glass card floating over the hero/content boundary */}
-      <div className="relative z-10 mx-auto -mt-24 max-w-5xl px-4 sm:-mt-28 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-          className="rounded-2xl border border-white/60 bg-white/90 p-4 shadow-2xl shadow-slate-900/20 backdrop-blur-xl md:rounded-3xl"
-        >
-          <form onSubmit={handleSearch} className="grid grid-cols-1 items-center gap-3 md:grid-cols-5">
-            <div className="relative border-slate-100 px-3 py-2 md:border-r">
-              <label htmlFor="home-search-location" className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                <MapPin className="mr-1 inline h-3 w-3 text-primary-500" /> Location
-              </label>
-              <LocationAutocomplete value={locationQuery} onChange={setLocationQuery} placeholder="Area / City" />
-            </div>
-
-            <div className="border-slate-100 px-1 py-1 md:border-r">
-              <span className="mb-1 block px-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">Move-in Dates</span>
-              <DateRangePicker checkIn={checkIn} checkOut={checkOut} onChange={(a, b) => { setCheckIn(a); setCheckOut(b) }} />
-            </div>
-
-            <div className="relative border-slate-100 px-3 py-2 md:border-r">
-              <label htmlFor="home-search-guests" className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                <Users className="mr-1 inline h-3 w-3 text-primary-500" /> Guests
-              </label>
-              <select
-                id="home-search-guests"
-                value={guests}
-                onChange={(e) => setGuests(e.target.value)}
-                className="w-full cursor-pointer bg-transparent text-[15px] font-semibold text-slate-800 outline-none"
-              >
-                <option value="all">Number of Guests</option>
-                <option value="1">1 Guest</option>
-                <option value="2">2 Guests</option>
-                <option value="4">4 Guests</option>
-                <option value="6">6+ Guests</option>
-              </select>
-            </div>
-
-            <div className="relative border-slate-100 px-3 py-2 md:border-r">
-              <label htmlFor="home-search-budget" className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                <Wallet className="mr-1 inline h-3 w-3 text-primary-500" /> Max Nightly Rate
-              </label>
-              <select
-                id="home-search-budget"
-                value={budget}
-                onChange={(e) => setBudget(e.target.value)}
-                className="w-full cursor-pointer bg-transparent text-[15px] font-semibold text-slate-800 outline-none"
-              >
-                <option value="any">Budget</option>
-                <option value="1200">Under ₹1,200</option>
-                <option value="2000">Under ₹2,000</option>
-                <option value="3500">Under ₹3,500</option>
-              </select>
-            </div>
-
-            <div className="px-2">
-              <button
-                type="submit"
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary-600 px-6 py-4 font-bold text-white shadow-lg shadow-primary-500/20 transition-all hover:bg-primary-700 active:scale-95 md:rounded-2xl"
-              >
-                <Search className="h-4 w-4" /> Search
-              </button>
-            </div>
-          </form>
-        </motion.div>
-      </div>
 
       {/* Category nav */}
       <section className="border-b border-slate-100 bg-slate-50 pb-5 pt-10">
@@ -258,8 +266,47 @@ export function HomePage() {
         </div>
       </section>
 
-      {recommended.length > 0 && (
+      {/* Top Stays For You — horizontal carousel, handpicked by rating */}
+      {topStays.length > 0 && (
         <section className="bg-white py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <Reveal>
+              <div className="mb-6 flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-900">🔥 Top Stays For You</h2>
+                  <p className="mt-1 text-sm font-medium text-slate-500">Handpicked stays guests love</p>
+                </div>
+                <div className="hidden items-center gap-2 sm:flex">
+                  <button
+                    onClick={() => scrollTopStays('left')}
+                    aria-label="Scroll left"
+                    className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => scrollTopStays('right')}
+                    aria-label="Scroll right"
+                    className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            </Reveal>
+            <div ref={topStaysRef} className="flex snap-x gap-5 overflow-x-auto pb-2 scrollbar-thin">
+              {topStays.map((p) => (
+                <div key={p.id} className="w-72 shrink-0 snap-start sm:w-80">
+                  <PropertyCard property={p} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {recommended.length > 0 && (
+        <section className="bg-slate-50/60 py-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <Reveal>
               <h2 className="mb-2 text-2xl font-bold text-slate-900">Recommended For You</h2>
@@ -331,19 +378,29 @@ export function HomePage() {
             <p className="mb-6 text-sm font-medium text-slate-500">
               Every stay on Innbly falls into one of these categories — pick the kind of space that fits your trip.
             </p>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-7">
-              {PROPERTY_TYPE_EXPLORE.map((t) => (
-                <button
-                  key={t.label}
-                  onClick={() => navigate(`/search?type=${encodeURIComponent(t.propertyType)}`)}
-                  className="group overflow-hidden rounded-2xl border border-slate-100 text-left shadow-card transition hover:-translate-y-0.5 hover:shadow-card-hover"
-                >
-                  <div className="h-24 w-full overflow-hidden">
-                    <img src={t.image} alt={t.label} className="h-full w-full object-cover transition group-hover:scale-105" />
-                  </div>
-                  <p className="px-3 py-2 text-sm font-bold text-slate-800">{t.label}</p>
-                </button>
-              ))}
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+              {PROPERTY_TYPE_EXPLORE.map((t) => {
+                const count = properties.filter((p) => p.propertyType === t.propertyType).length
+                return (
+                  <button
+                    key={t.label}
+                    onClick={() => navigate(`/search?type=${encodeURIComponent(t.propertyType)}`)}
+                    className="group overflow-hidden rounded-2xl border border-slate-100 text-left shadow-card transition hover:-translate-y-0.5 hover:shadow-card-hover"
+                  >
+                    <div className="relative h-36 w-full overflow-hidden">
+                      <img src={t.image} alt={t.label} className="h-full w-full object-cover transition group-hover:scale-105" />
+                      <span className="absolute left-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-primary-600 shadow-sm backdrop-blur-md">
+                        <Home className="h-4 w-4" />
+                      </span>
+                    </div>
+                    <div className="p-3.5">
+                      <p className="text-sm font-bold text-slate-800">{t.label}</p>
+                      <p className="mt-0.5 text-xs text-slate-500">{t.subtitle}</p>
+                      <p className="mt-1.5 text-xs font-semibold text-primary-600">{count}+ stays</p>
+                    </div>
+                  </button>
+                )
+              })}
             </div>
           </Reveal>
         </div>
