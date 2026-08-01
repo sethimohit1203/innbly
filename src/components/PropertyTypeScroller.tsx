@@ -61,17 +61,16 @@ export function PropertyTypeScroller({
   onChange: (type: PropertyType | 'all') => void
 }) {
   return (
-    <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-thin">
+    <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
       <button
         onClick={() => onChange('all')}
-        className={`flex shrink-0 flex-col items-center gap-1.5 rounded-2xl border px-4 py-2.5 text-xs font-bold transition-all ${
+        className={`flex shrink-0 items-center gap-1.5 rounded-xl border px-3.5 py-2 text-xs font-bold transition-all ${
           active === 'all'
             ? 'border-primary-600 bg-primary-600 text-white'
             : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
         }`}
       >
-        <Building2 className="h-4 w-4" />
-        All Types
+        <Building2 className="h-4 w-4" /> All Types
       </button>
       {PROPERTY_TYPES.map((type) => {
         const Icon = ICONS[type]
@@ -79,14 +78,13 @@ export function PropertyTypeScroller({
           <button
             key={type}
             onClick={() => onChange(type)}
-            className={`flex shrink-0 flex-col items-center gap-1.5 rounded-2xl border px-4 py-2.5 text-xs font-bold transition-all ${
+            className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl border px-3.5 py-2 text-xs font-bold transition-all ${
               active === type
                 ? 'border-primary-600 bg-primary-600 text-white'
                 : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
             }`}
           >
-            <Icon className="h-4 w-4" />
-            <span className="whitespace-nowrap">{type}</span>
+            <Icon className="h-4 w-4" /> {type}
           </button>
         )
       })}

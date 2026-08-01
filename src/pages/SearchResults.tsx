@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { ChevronDown, SlidersHorizontal, BellPlus, SearchX, Map as MapIcon, List } from 'lucide-react'
+import { ChevronDown, SlidersHorizontal, BellPlus, SearchX, Map as MapIcon, List, ShieldCheck, Zap, BadgeCheck, Sparkles } from 'lucide-react'
 import { INDIAN_STATES } from '../data/states'
 import { PropertyCard } from '../components/PropertyCard'
 import { MapPlaceholder } from '../components/MapPlaceholder'
@@ -131,6 +131,9 @@ export function SearchResultsPage() {
   const toggleAmenity = (a: string) => setAmenities((prev) => (prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]))
   const [stayDuration, setStayDuration] = useState('all')
   const [verifiedOnly, setVerifiedOnly] = useState(false)
+  const [freeCancellationOnly, setFreeCancellationOnly] = useState(false)
+  const [instantBookOnly, setInstantBookOnly] = useState(false)
+  const [guestFavouriteOnly, setGuestFavouriteOnly] = useState(false)
   const [checkIn, setCheckIn] = useState<string | null>(searchParams.get('checkIn'))
   const [checkOut, setCheckOut] = useState<string | null>(searchParams.get('checkOut'))
   const [collectionSlug, setCollectionSlug] = useState(searchParams.get('collection'))
@@ -159,6 +162,9 @@ export function SearchResultsPage() {
       if (stayDuration === 'weekly' && (p.minStayNights < 7 || p.minStayNights > 29)) return false
       if (stayDuration === 'monthly' && p.minStayNights < 30) return false
       if (verifiedOnly && !p.verified) return false
+      if (freeCancellationOnly && !p.freeCancellation) return false
+      if (instantBookOnly && !p.instantBook) return false
+      if (guestFavouriteOnly && !(p.rating >= 4.5 && p.reviewCount >= 20)) return false
       if (collection && !collection.predicate(p)) return false
       return true
     })
@@ -175,7 +181,24 @@ export function SearchResultsPage() {
       default:
         return result
     }
-  }, [properties, city, state, guests, budget, tenantPref, propertyType, amenities, stayDuration, verifiedOnly, collection, freeTextQuery, sort])
+  }, [
+    properties, city, state, guests, budget, tenantPref, propertyType, amenities, stayDuration,
+    verifiedOnly, freeCancellationOnly, instantBookOnly, guestFavouriteOnly, collection, freeTextQuery, sort,
+  ])
+
+  // Global (unfiltered) counts for the Popular Filters sidebar checkboxes —
+  // matches the mockup's static counts rather than recomputing against the
+  // currently-active filter set, which would make the numbers jump around
+  // as a user toggles the very checkbox they're looking at.
+  const popularFilterCounts = useMemo(
+    () => ({
+      freeCancellation: properties.filter((p) => p.freeCancellation).length,
+      instantBook: properties.filter((p) => p.instantBook).length,
+      verified: properties.filter((p) => p.verified).length,
+      guestFavourite: properties.filter((p) => p.rating >= 4.5 && p.reviewCount >= 20).length,
+    }),
+    [properties],
+  )
 
   const handleSaveSearch = () => {
     const parts = [
@@ -203,6 +226,9 @@ export function SearchResultsPage() {
     setAmenities([])
     setStayDuration('all')
     setVerifiedOnly(false)
+    setFreeCancellationOnly(false)
+    setInstantBookOnly(false)
+    setGuestFavouriteOnly(false)
     setCollectionSlug(null)
   }
 
@@ -301,8 +327,56 @@ export function SearchResultsPage() {
         </div>
       </div>
 
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-5 sm:px-6 md:flex-row">
-        <div className="md:w-3/5">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-5 sm:px-6 lg:flex-row">
+        {/* Popular Filters sidebar — desktop only, real functional checkboxes
+            with global catalog counts (not decorative). */}
+        <aside className="hidden shrink-0 lg:block lg:w-64">
+          <div className="sticky top-52 space-y-5">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-extrabold text-slate-900">Filters</h2>
+              <button onClick={clearAllFilters} className="text-xs font-bold text-primary-600 hover:underline">
+                Clear All
+              </button>
+            </div>
+
+            <div>
+              <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">Popular Filters</p>
+              <div className="space-y-2.5">
+                {[
+                  { key: 'freeCancellation', label: 'Free Cancellation', icon: ShieldCheck, checked: freeCancellationOnly, onChange: setFreeCancellationOnly, count: popularFilterCounts.freeCancellation },
+                  { key: 'instantBook', label: 'Instant Book', icon: Zap, checked: instantBookOnly, onChange: setInstantBookOnly, count: popularFilterCounts.instantBook },
+                  { key: 'verified', label: 'Verified Properties', icon: BadgeCheck, checked: verifiedOnly, onChange: setVerifiedOnly, count: popularFilterCounts.verified },
+                  { key: 'guestFavourite', label: 'Guest Favourite', icon: Sparkles, checked: guestFavouriteOnly, onChange: setGuestFavouriteOnly, count: popularFilterCounts.guestFavourite },
+                ].map((f) => (
+                  <label key={f.key} className="flex cursor-pointer items-center justify-between gap-2 text-sm text-slate-700">
+                    <span className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={f.checked}
+                        onChange={(e) => f.onChange(e.target.checked)}
+                        className="h-4 w-4 rounded accent-primary-600"
+                      />
+                      <f.icon className="h-3.5 w-3.5 text-slate-400" /> {f.label}
+                    </span>
+                    <span className="text-xs font-semibold text-slate-400">{f.count}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">Amenities</p>
+              <MultiSelectFilter label="Select Amenities" values={amenities} options={ALL_AMENITIES} onToggle={toggleAmenity} />
+            </div>
+
+            <div>
+              <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">Sort By</p>
+              <SortDropdown value={sort} onChange={setSort} />
+            </div>
+          </div>
+        </aside>
+
+        <div className="min-w-0 lg:w-3/5">
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             {filtered.map((p, i) => (
               <Reveal key={p.id} delay={(i % 4) * 0.05}>
@@ -343,7 +417,7 @@ export function SearchResultsPage() {
           )}
         </div>
 
-        <div className="hidden shrink-0 md:block md:w-2/5">
+        <div className="hidden shrink-0 lg:block lg:w-2/5">
           <div className="sticky top-52 h-[calc(100vh-14rem)]">
             <MapPlaceholder className="h-full w-full" label={`${filtered.length} pins on map`} />
           </div>
