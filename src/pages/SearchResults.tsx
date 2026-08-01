@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { ChevronDown, SlidersHorizontal, BellPlus, SearchX, Map as MapIcon, List, ShieldCheck, Zap, BadgeCheck, Sparkles } from 'lucide-react'
+import { ChevronDown, SlidersHorizontal, BellPlus, SearchX, Map as MapIcon, List, LayoutGrid, ShieldCheck, Zap, BadgeCheck, Sparkles } from 'lucide-react'
 import { INDIAN_STATES } from '../data/states'
 import { PropertyCard } from '../components/PropertyCard'
 import { MapPlaceholder } from '../components/MapPlaceholder'
@@ -83,6 +83,73 @@ function MultiSelectFilter({
   )
 }
 
+function MoreFiltersPopover({
+  tenantPref,
+  onTenantPrefChange,
+  amenities,
+  amenityOptions,
+  onToggleAmenity,
+}: {
+  tenantPref: string
+  onTenantPrefChange: (v: string) => void
+  amenities: string[]
+  amenityOptions: string[]
+  onToggleAmenity: (v: string) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const activeCount = (tenantPref !== 'all' ? 1 : 0) + (amenities.length > 0 ? 1 : 0)
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="relative flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-100"
+      >
+        <SlidersHorizontal className="h-3.5 w-3.5" /> More Filters
+        {activeCount > 0 && (
+          <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">
+            {activeCount}
+          </span>
+        )}
+        <ChevronDown className="h-3 w-3 text-slate-400" />
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 top-full z-40 mt-2 w-64 space-y-4 rounded-xl border border-slate-200 bg-white p-4 shadow-card-hover">
+            <div>
+              <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-slate-400">Preferred Tenant</p>
+              <select
+                value={tenantPref}
+                onChange={(e) => onTenantPrefChange(e.target.value)}
+                className="w-full cursor-pointer rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 outline-none focus:border-primary-500"
+              >
+                <option value="all">Any</option>
+                <option value="Anyone">Co-ed / Anyone</option>
+                <option value="Boys">Boys Only</option>
+                <option value="Girls">Girls Only</option>
+                <option value="Family">Family</option>
+              </select>
+            </div>
+            <div>
+              <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-slate-400">Amenities</p>
+              <div className="max-h-40 space-y-1 overflow-y-auto">
+                {amenityOptions.map((o) => (
+                  <label key={o} className="flex cursor-pointer items-center gap-2 rounded-lg px-1.5 py-1 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                    <input type="checkbox" checked={amenities.includes(o)} onChange={() => onToggleAmenity(o)} className="accent-primary-600" />
+                    {o}
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
 function SelectFilter({
   label,
   value,
@@ -142,6 +209,7 @@ export function SearchResultsPage() {
   const [quickViewProperty, setQuickViewProperty] = useState<Property | null>(null)
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
   const [mobileMapOpen, setMobileMapOpen] = useState(false)
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
   const collection = getQuickFilter(collectionSlug)
 
@@ -257,18 +325,6 @@ export function SearchResultsPage() {
       />
       <BudgetSlider value={budget} onChange={setBudget} />
       <SelectFilter
-        label="👤 Tenant"
-        value={tenantPref}
-        onChange={setTenantPref}
-        options={[
-          { value: 'Anyone', label: 'Co-ed / Anyone' },
-          { value: 'Boys', label: 'Boys Only' },
-          { value: 'Girls', label: 'Girls Only' },
-          { value: 'Family', label: 'Family' },
-        ]}
-      />
-      <MultiSelectFilter label="🛎️ Amenity" values={amenities} options={ALL_AMENITIES} onToggle={toggleAmenity} />
-      <SelectFilter
         label="📅 Stay Length"
         value={stayDuration}
         onChange={setStayDuration}
@@ -277,6 +333,13 @@ export function SearchResultsPage() {
           { value: 'weekly', label: 'Weekly' },
           { value: 'monthly', label: 'Monthly+' },
         ]}
+      />
+      <MoreFiltersPopover
+        tenantPref={tenantPref}
+        onTenantPrefChange={setTenantPref}
+        amenities={amenities}
+        amenityOptions={ALL_AMENITIES}
+        onToggleAmenity={toggleAmenity}
       />
       <div className={stacked ? 'flex items-center justify-between' : 'ml-auto flex items-center gap-3'}>
         {!stacked && (
@@ -321,6 +384,24 @@ export function SearchResultsPage() {
           <div className="mt-3 flex items-center justify-between gap-3">
             <SearchSummary properties={filtered} />
             <div className="hidden shrink-0 items-center gap-2 sm:flex">
+              <div className="flex items-center overflow-hidden rounded-lg border border-slate-200">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  aria-label="Grid view"
+                  aria-pressed={viewMode === 'grid'}
+                  className={`flex h-8 w-8 items-center justify-center transition ${viewMode === 'grid' ? 'bg-slate-900 text-white' : 'text-slate-400 hover:bg-slate-50'}`}
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  aria-label="List view"
+                  aria-pressed={viewMode === 'list'}
+                  className={`flex h-8 w-8 items-center justify-center transition ${viewMode === 'list' ? 'bg-slate-900 text-white' : 'text-slate-400 hover:bg-slate-50'}`}
+                >
+                  <List className="h-4 w-4" />
+                </button>
+              </div>
               <SortDropdown value={sort} onChange={setSort} />
             </div>
           </div>
@@ -377,7 +458,7 @@ export function SearchResultsPage() {
         </aside>
 
         <div className="min-w-0 lg:w-3/5">
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div className={viewMode === 'grid' ? 'grid grid-cols-1 gap-5 sm:grid-cols-2' : 'flex flex-col gap-4'}>
             {filtered.map((p, i) => (
               <Reveal key={p.id} delay={(i % 4) * 0.05}>
                 <PropertyCard property={p} onQuickView={setQuickViewProperty} />
