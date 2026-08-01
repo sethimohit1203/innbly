@@ -14,7 +14,7 @@ import { getSupabaseAdmin } from './_lib/supabaseAdmin.js'
  * different path (see handleReview below) since it needs a Supabase write,
  * not just a Sheets forward. */
 
-type SubmissionType = 'lead' | 'signup' | 'newsletter' | 'contact' | 'hostListing' | 'review'
+type SubmissionType = 'lead' | 'signup' | 'newsletter' | 'contact' | 'hostListing' | 'review' | 'coHostInvite'
 
 const RATE_LIMITS: Record<SubmissionType, { max: number; windowMs: number; message: string }> = {
   lead: { max: 5, windowMs: 10 * 60 * 1000, message: 'Too many visit requests. Please try again later.' },
@@ -23,6 +23,7 @@ const RATE_LIMITS: Record<SubmissionType, { max: number; windowMs: number; messa
   contact: { max: 5, windowMs: 60 * 60 * 1000, message: 'Too many messages sent. Please try again later.' },
   hostListing: { max: 5, windowMs: 60 * 60 * 1000, message: 'Too many submissions. Please try again later.' },
   review: { max: 10, windowMs: 60 * 60 * 1000, message: 'Too many reviews submitted. Please try again later.' },
+  coHostInvite: { max: 5, windowMs: 60 * 60 * 1000, message: 'Too many invites sent. Please try again later.' },
 }
 
 function isValid(type: SubmissionType, body: Record<string, unknown>): boolean {
@@ -45,6 +46,8 @@ function isValid(type: SubmissionType, body: Record<string, unknown>): boolean {
           body.rating >= 1 &&
           body.rating <= 5,
       )
+    case 'coHostInvite':
+      return Boolean(body.hostEmail && body.coHostEmail)
   }
 }
 

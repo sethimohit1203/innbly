@@ -19,6 +19,7 @@ var SHEET_NAMES = {
   contact: 'Contact',
   hostListing: 'HostListings',
   booking: 'Bookings',
+  coHostInvite: 'CoHostInvites',
 };
 
 var SHEET_HEADERS = {
@@ -39,6 +40,7 @@ var SHEET_HEADERS = {
     'Check-in', 'Check-out', 'Nights', 'Guests',
     'Guest Total', 'Host Payout',
   ],
+  coHostInvite: ['Timestamp', 'Host Email', 'Co-Host Email', 'Co-Host Name', 'Message'],
 };
 
 function doPost(e) {
@@ -65,6 +67,8 @@ function doPost(e) {
       sendNotificationEmail(type, data);
     } else if (type === 'booking') {
       sendBookingEmails(data);
+    } else if (type === 'coHostInvite') {
+      sendCoHostInviteEmail(data);
     }
 
     return jsonResponse({ ok: true });
@@ -155,6 +159,8 @@ function appendRow(sheet, type, data) {
       data.checkIn, data.checkOut, data.nights, data.guests,
       data.guestTotal, data.hostPayoutAmount,
     ]);
+  } else if (type === 'coHostInvite') {
+    sheet.appendRow([now, data.hostEmail, data.coHostEmail, data.coHostName || '', data.message || '']);
   }
 }
 
@@ -211,6 +217,30 @@ function sendNotificationEmail(type, data) {
   if (type === 'hostListing' && data.ownerEmail) {
     sendHostConfirmationEmail(data);
   }
+}
+
+/** Sends the actual invite to the person being asked to co-host — this is
+ * the real notification, not just a sheet row, since "Find a co-host" is a
+ * genuine feature (an email arrives) even though there's no in-app
+ * permission/co-management system behind it yet. */
+function sendCoHostInviteEmail(data) {
+  var subject = data.hostEmail + ' invited you to co-host on innbly';
+  var rows = [
+    ['Invited by', data.hostEmail],
+    ['Your email', data.coHostEmail],
+  ];
+  if (data.message) rows.push(['Message', data.message]);
+
+  MailApp.sendEmail({
+    to: data.coHostEmail,
+    subject: subject,
+    body:
+      (data.coHostName ? 'Hi ' + data.coHostName + ',\n\n' : 'Hi,\n\n') +
+      data.hostEmail + ' has invited you to help co-host their property listings on innbly.\n\n' +
+      (data.message ? 'Their message: ' + data.message + '\n\n' : '') +
+      'Reply to this email or reach out to ' + data.hostEmail + ' directly to coordinate next steps.',
+    htmlBody: emailTemplate(subject, rows, null),
+  });
 }
 
 /** Confirmation email to the host who submitted a listing — separate from the

@@ -27,4 +27,20 @@ export default defineConfig({
     port: 4183,
     strictPort: true,
   },
+  build: {
+    rollupOptions: {
+      output: {
+        // Split heavy, rarely-changing vendor libs into their own chunks so
+        // an app-code change doesn't force revalidating (and re-downloading)
+        // react/framer-motion/leaflet on every deploy, and so the map/form
+        // libraries only load on the pages that actually use them.
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-motion': ['framer-motion'],
+          'vendor-leaflet': ['leaflet', 'react-leaflet'],
+          'vendor-forms': ['react-hook-form', '@hookform/resolvers', 'zod'],
+        },
+      },
+    },
+  },
 })

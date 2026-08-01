@@ -20,6 +20,7 @@ import {
 import { useAuth } from '../context/AuthContext'
 import { TranslateWidget } from './TranslateWidget'
 import { Button } from './ui/Button'
+import { HostMenuPanel } from './HostMenuPanel'
 
 export function Navbar() {
   const { user, openAuthModal, logout, switchRole } = useAuth()
@@ -28,6 +29,7 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [avatarOpen, setAvatarOpen] = useState(false)
   const [switchingToHost, setSwitchingToHost] = useState(false)
+  const [hostMenuOpen, setHostMenuOpen] = useState(false)
 
   const goToListProperty = async () => {
     if (user?.role === 'host') {
@@ -133,6 +135,14 @@ export function Navbar() {
               </Button>
               <Button variant="outline" size="sm" onClick={handleLogout}>
                 <LogOut className="h-3.5 w-3.5" /> Log out
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setHostMenuOpen(true)}
+                aria-label="Open hosting menu"
+              >
+                <Menu className="h-5 w-5" />
               </Button>
             </div>
           )}
@@ -275,15 +285,26 @@ export function Navbar() {
           )}
 
           {isHost && (
-            <button
-              onClick={() => {
-                handleSwitchRole()
-                setMobileOpen(false)
-              }}
-              className="block text-base font-semibold text-slate-700 hover:text-primary-600"
-            >
-              Switch to travelling
-            </button>
+            <>
+              <button
+                onClick={() => {
+                  handleSwitchRole()
+                  setMobileOpen(false)
+                }}
+                className="block text-base font-semibold text-slate-700 hover:text-primary-600"
+              >
+                Switch to travelling
+              </button>
+              <button
+                onClick={() => {
+                  setHostMenuOpen(true)
+                  setMobileOpen(false)
+                }}
+                className="block text-base font-semibold text-slate-700 hover:text-primary-600"
+              >
+                Menu
+              </button>
+            </>
           )}
 
           {!user && (
@@ -323,6 +344,8 @@ export function Navbar() {
           )}
         </div>
       )}
+
+      {isHost && <HostMenuPanel open={hostMenuOpen} onClose={() => setHostMenuOpen(false)} />}
     </header>
   )
 }

@@ -22,6 +22,11 @@ const HostPropertiesPage = lazy(() => import('./pages/host/HostProperties').then
 const HostLeadsPage = lazy(() => import('./pages/host/HostLeads').then((m) => ({ default: m.HostLeadsPage })))
 const HostBookingsPage = lazy(() => import('./pages/host/HostBookings').then((m) => ({ default: m.HostBookingsPage })))
 const HostPricingPage = lazy(() => import('./pages/host/HostPricingPage').then((m) => ({ default: m.HostPricingPage })))
+const HostMessagesPage = lazy(() => import('./pages/host/HostMessages').then((m) => ({ default: m.HostMessagesPage })))
+const HostAppointmentsPage = lazy(() => import('./pages/host/HostAppointments').then((m) => ({ default: m.HostAppointmentsPage })))
+const HostLanguagesPage = lazy(() => import('./pages/host/HostLanguages').then((m) => ({ default: m.HostLanguagesPage })))
+const HostResourcesPage = lazy(() => import('./pages/host/HostResources').then((m) => ({ default: m.HostResourcesPage })))
+const HostCoHostPage = lazy(() => import('./pages/host/HostCoHost').then((m) => ({ default: m.HostCoHostPage })))
 const ListPropertyPage = lazy(() => import('./pages/ListProperty').then((m) => ({ default: m.ListPropertyPage })))
 const ContactPage = lazy(() => import('./pages/Contact').then((m) => ({ default: m.ContactPage })))
 const PrivacyPage = lazy(() => import('./pages/Privacy').then((m) => ({ default: m.PrivacyPage })))
@@ -82,6 +87,11 @@ export default function App() {
             <Route path="pricing" element={<HostPricingPage />} />
             <Route path="bookings" element={<HostBookingsPage />} />
             <Route path="leads" element={<HostLeadsPage />} />
+            <Route path="messages" element={<HostMessagesPage />} />
+            <Route path="appointments" element={<HostAppointmentsPage />} />
+            <Route path="languages" element={<HostLanguagesPage />} />
+            <Route path="resources" element={<HostResourcesPage />} />
+            <Route path="co-host" element={<HostCoHostPage />} />
           </Route>
           <Route
             path="/dashboard/list-property/:step?"
