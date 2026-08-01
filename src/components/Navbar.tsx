@@ -114,6 +114,19 @@ export function Navbar() {
         </Link>
 
         <nav className="hidden items-center gap-6 justify-self-center md:flex">
+          {isHost && (
+            <div className="flex items-center gap-4">
+              <div className="h-5 w-[1.5px] bg-slate-200" />
+              <button
+                type="button"
+                onClick={() => setHostMenuOpen(true)}
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-50 transition"
+                aria-label="Open hosting menu"
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+            </div>
+          )}
           {isHost
             ? hostLinks.map((link) => (
                 <NavLink
@@ -187,39 +200,52 @@ export function Navbar() {
           )}
 
           {isHost && (
-            <div className="hidden items-center gap-3 sm:flex">
-              <Button
-                variant="ghost"
-                size="icon"
+            <div className="hidden items-center gap-3.5 sm:flex">
+              {/* Name & Circular Photo Avatar */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-600 font-bold">Hi, {user!.name.split(' ')[0]}</span>
+                <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-slate-100 text-xs font-bold text-slate-700 shadow-sm border border-slate-200">
+                  {user!.avatarUrl ? (
+                    <img src={user!.avatarUrl} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    user!.name.charAt(0).toUpperCase()
+                  )}
+                </span>
+              </div>
+
+              {/* Notification Bell with Badge */}
+              <button
+                type="button"
                 onClick={() => {
                   navigate('/dashboard/bookings')
                   markBookingsSeen(user!.email)
                 }}
                 aria-label={newBookingsCount > 0 ? `${newBookingsCount} new bookings` : 'Bookings'}
-                className="relative"
+                className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-50 text-slate-700 active:scale-95 transition"
               >
-                <Bell className="h-5 w-5" />
+                <Bell className="h-5 w-5 text-slate-800" />
                 {newBookingsCount > 0 && (
-                  <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">
+                  <span className="absolute right-0.5 top-0.5 flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-rose-500 px-1 text-[9px] font-extrabold text-white ring-2 ring-white">
                     {newBookingsCount}
                   </span>
                 )}
-              </Button>
-              <span className="text-sm text-slate-600 font-semibold">Hi, {user!.name.split(' ')[0]}</span>
-              <Button variant="outline" size="sm" onClick={handleSwitchRole} className="rounded-full">
-                <Repeat className="h-3.5 w-3.5" /> Switch to travelling
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleLogout} className="rounded-full">
-                <LogOut className="h-3.5 w-3.5" /> Log out
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setHostMenuOpen(true)}
-                aria-label="Open hosting menu"
+              </button>
+
+              {/* Switch to Travelling */}
+              <button
+                onClick={handleSwitchRole}
+                className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:border-slate-350 transition active:scale-95 shadow-sm"
               >
-                <Menu className="h-5 w-5" />
-              </Button>
+                Switch to travelling
+              </button>
+
+              {/* Log out */}
+              <button
+                onClick={handleLogout}
+                className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:border-slate-350 transition active:scale-95 shadow-sm"
+              >
+                Log out
+              </button>
             </div>
           )}
 
