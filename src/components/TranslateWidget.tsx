@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Languages } from 'lucide-react'
+import { Globe, ChevronDown } from 'lucide-react'
 import '../lib/googleAuth'
 
 let scriptLoading = false
@@ -39,9 +39,11 @@ export function TranslateWidget() {
       <button
         onClick={() => setOpen((o) => !o)}
         title="Translate this page"
-        className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-primary-600"
+        className="flex items-center gap-1 rounded-xl px-2 py-1 text-xs font-bold text-slate-650 hover:bg-slate-50 transition"
       >
-        <Languages className="h-4.5 w-4.5" />
+        <Globe className="h-4 w-4 text-slate-400" />
+        <span>EN</span>
+        <ChevronDown className="h-3 w-3 text-slate-400" />
       </button>
       {open && (
         <>

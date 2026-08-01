@@ -119,11 +119,15 @@ export function Navbar() {
               <div className="h-5 w-[1.5px] bg-slate-200" />
               <button
                 type="button"
-                onClick={() => setHostMenuOpen(true)}
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-50 transition"
-                aria-label="Open hosting menu"
+                onClick={() => setHostMenuOpen((o) => !o)}
+                className={`flex h-9 w-9 items-center justify-center rounded-xl border transition active:scale-95 ${
+                  hostMenuOpen
+                    ? 'border-rose-200 bg-rose-50/50 text-primary-600 hover:bg-rose-100/50'
+                    : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                }`}
+                aria-label={hostMenuOpen ? 'Close hosting menu' : 'Open hosting menu'}
               >
-                <Menu className="h-5 w-5" />
+                {hostMenuOpen ? <X className="h-4 w-4 stroke-[2.5px]" /> : <Menu className="h-4.5 w-4.5" />}
               </button>
             </div>
           )}
@@ -173,6 +177,10 @@ export function Navbar() {
         <div className="flex items-center gap-4 justify-self-end">
           <TranslateWidget />
 
+          {isHost && (
+            <div className="h-5 w-[1.5px] bg-slate-200 mx-1" />
+          )}
+
           {!isHost && (
             <Link
               to="/saved"
@@ -200,19 +208,7 @@ export function Navbar() {
           )}
 
           {isHost && (
-            <div className="hidden items-center gap-3.5 sm:flex">
-              {/* Name & Circular Photo Avatar */}
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-600 font-bold">Hi, {user!.name.split(' ')[0]}</span>
-                <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-slate-100 text-xs font-bold text-slate-700 shadow-sm border border-slate-200">
-                  {user!.avatarUrl ? (
-                    <img src={user!.avatarUrl} alt="" className="h-full w-full object-cover" />
-                  ) : (
-                    user!.name.charAt(0).toUpperCase()
-                  )}
-                </span>
-              </div>
-
+            <div className="hidden items-center gap-4 sm:flex">
               {/* Notification Bell with Badge */}
               <button
                 type="button"
@@ -221,7 +217,7 @@ export function Navbar() {
                   markBookingsSeen(user!.email)
                 }}
                 aria-label={newBookingsCount > 0 ? `${newBookingsCount} new bookings` : 'Bookings'}
-                className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-50 text-slate-700 active:scale-95 transition"
+                className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-50 text-slate-750 active:scale-95 transition"
               >
                 <Bell className="h-5 w-5 text-slate-800" />
                 {newBookingsCount > 0 && (
@@ -231,21 +227,46 @@ export function Navbar() {
                 )}
               </button>
 
-              {/* Switch to Travelling */}
-              <button
-                onClick={handleSwitchRole}
-                className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:border-slate-350 transition active:scale-95 shadow-sm"
-              >
-                Switch to travelling
-              </button>
+              {/* Profile dropdown trigger */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setAvatarOpen((o) => !o)}
+                  className="flex items-center gap-2 rounded-full border border-slate-200 py-1 pl-1 pr-3 transition hover:border-slate-350 bg-white shadow-sm active:scale-95"
+                >
+                  <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-rose-50 text-xs font-bold text-primary-600 shadow-inner border border-rose-100/50">
+                    {user!.name.charAt(0).toUpperCase()}
+                  </span>
+                  <span className="text-xs font-bold text-slate-750">Hi, {user!.name.split(' ')[0]}</span>
+                  <ChevronDown className={`h-3.5 w-3.5 text-slate-400 transition ${avatarOpen ? 'rotate-180' : ''}`} />
+                </button>
 
-              {/* Log out */}
-              <button
-                onClick={handleLogout}
-                className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:border-slate-350 transition active:scale-95 shadow-sm"
-              >
-                Log out
-              </button>
+                {avatarOpen && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setAvatarOpen(false)} />
+                    <div className="absolute right-0 top-full z-20 mt-2 w-48 rounded-xl border border-slate-200 bg-white p-2 shadow-card-hover text-left">
+                      <button
+                        onClick={() => {
+                          setAvatarOpen(false)
+                          handleSwitchRole()
+                        }}
+                        className="w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
+                      >
+                        Switch to travelling
+                      </button>
+                      <button
+                        onClick={() => {
+                          setAvatarOpen(false)
+                          handleLogout()
+                        }}
+                        className="w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 transition"
+                      >
+                        Log out
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           )}
 
