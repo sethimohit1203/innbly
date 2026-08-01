@@ -106,9 +106,9 @@ export function Navbar() {
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/80 shadow-sm backdrop-blur-md transition-shadow">
-        <div className="mx-auto grid h-18 max-w-7xl grid-cols-[1fr_auto_1fr] items-center px-6 sm:px-8 lg:px-10">
-          {/* Column 1: Menu Toggle & Logo */}
-          <div className="flex items-center gap-3.5 justify-self-start">
+        <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-6 sm:px-8 lg:px-10 gap-4">
+          {/* Left Side: Hamburger, Logo, Search Bar */}
+          <div className="flex items-center gap-3.5 flex-shrink-0">
             {isHost && (
               <button
                 type="button"
@@ -124,38 +124,66 @@ export function Navbar() {
               </button>
             )}
 
-            <Link to="/" className="flex items-center gap-2.5">
+            <Link to="/" className="flex items-center gap-2 flex-shrink-0">
               <img src="/brand/innbly-icon.jpg" alt="innbly" className="h-9 w-9 rounded-xl object-cover shadow-lg shadow-primary-500/20" />
               <span className="bg-gradient-to-r from-primary-900 to-primary-600 bg-clip-text text-xl font-extrabold tracking-tight text-transparent">
                 innbly
               </span>
             </Link>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                const query = (e.currentTarget.elements.namedItem('search') as HTMLInputElement).value
+                if (query.trim()) {
+                  navigate(`/search?city=${encodeURIComponent(query.trim())}`)
+                } else {
+                  navigate('/search')
+                }
+              }}
+              className="hidden md:block w-40 lg:w-48 xl:w-56"
+            >
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  name="search"
+                  placeholder="Search stays, destinations..."
+                  className="w-full rounded-full border border-slate-200 bg-white py-1.5 pl-8 pr-3 text-[11px] font-semibold text-slate-700 outline-none hover:border-slate-350 focus:border-primary-500 shadow-sm transition"
+                />
+              </div>
+            </form>
           </div>
 
-          {/* Column 2: Search Bar */}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault()
-              const query = (e.currentTarget.elements.namedItem('search') as HTMLInputElement).value
-              if (query.trim()) {
-                navigate(`/search?city=${encodeURIComponent(query.trim())}`)
-              } else {
-                navigate('/search')
-              }
-            }}
-            className="hidden md:block justify-self-center w-full max-w-md"
-          >
-            <div className="relative">
-              <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                name="search"
-                placeholder="Search stays, destinations..."
-                className="w-full rounded-full border border-slate-200 bg-white py-2 pl-10 pr-4 text-xs font-semibold text-slate-750 outline-none hover:border-slate-350 focus:border-primary-500 shadow-sm transition"
-              />
-            </div>
-          </form>          {/* Column 3: Actions */}
-          <div className="flex items-center gap-3 justify-self-end">
+          {/* Center Side: Guest Navigation Links */}
+          <div className="hidden lg:flex items-center gap-5 xl:gap-6 flex-shrink-0">
+            <Link to="/search" className="text-xs font-bold text-slate-600 hover:text-primary-600 transition">Explore</Link>
+            <button
+              onClick={async (e) => {
+                e.preventDefault()
+                if (user?.role === 'host') {
+                  navigate('/dashboard')
+                  return
+                }
+                if (user) {
+                  setSwitchingToHost(true)
+                  const updated = await switchRole()
+                  setSwitchingToHost(false)
+                  if (updated) navigate('/dashboard')
+                  return
+                }
+                openAuthModal('host')
+              }}
+              className="text-xs font-bold text-slate-600 hover:text-primary-600 transition"
+            >
+              Become a Host
+            </button>
+            <Link to="/enterprise" className="text-xs font-bold text-slate-600 hover:text-primary-600 transition">About Us</Link>
+            <Link to="/contact" className="text-xs font-bold text-slate-600 hover:text-primary-600 transition">Help</Link>
+          </div>
+
+          {/* Right Side: Actions */}
+          <div className="flex items-center gap-2.5 sm:gap-3 flex-shrink-0">
             <TranslateWidget />
 
             <div className="h-5 w-[1.5px] bg-slate-200 mx-1" />
