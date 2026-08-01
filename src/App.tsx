@@ -92,15 +92,8 @@ export default function App() {
             <Route path="languages" element={<HostLanguagesPage />} />
             <Route path="resources" element={<HostResourcesPage />} />
             <Route path="co-host" element={<HostCoHostPage />} />
+            <Route path="list-property/:step?" element={<ListPropertyPage />} />
           </Route>
-          <Route
-            path="/dashboard/list-property/:step?"
-            element={
-              <HostOnlyRoute>
-                <ListPropertyPage />
-              </HostOnlyRoute>
-            }
-          />
           <Route path="/saved" element={<SavedPropertiesPage />} />
           <Route path="/bookings" element={<MyBookingsPage />} />
           <Route path="/profile" element={<ProfilePage />} />

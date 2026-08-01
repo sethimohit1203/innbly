@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, Link } from 'react-router-dom'
 import { useForm, type FieldPath } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Check, ImagePlus, UploadCloud, FileText, X, AlertCircle, Copy, KeyRound, Home, Minus, Plus, Sparkles, PartyPopper } from 'lucide-react'
+import { Check, ImagePlus, UploadCloud, FileText, X, AlertCircle, Copy, KeyRound, Home, Minus, Plus, Sparkles, PartyPopper, User, Mail, Lock, ChevronDown, Phone, ShieldCheck, BadgeCheck } from 'lucide-react'
 import { Footer } from '../components/Footer'
 import { LocationPicker, type LocationValue } from '../components/host/LocationPicker'
 import { Button } from '../components/ui/Button'
@@ -362,73 +362,140 @@ export function ListPropertyPage() {
   const progressPct = Math.round(((step + 1) / STEPS.length) * 100)
   const minutesLeft = Math.max(1, Math.ceil((STEPS.length - step - 1) * 0.4))
 
-  return (
-    <>
-      <div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
-        <h1 className="text-section-heading text-slate-900">List Your Property</h1>
+  const segments = [
+    { label: 'Owner Info', sublabel: 'Basic details', stepIndices: [0] },
+    { label: 'Structure', sublabel: 'Property type', stepIndices: [1] },
+    { label: 'Privacy Type', sublabel: 'Privacy settings', stepIndices: [2] },
+    { label: 'Location', sublabel: 'Property location', stepIndices: [3] },
+    { label: 'Floor Plan', sublabel: 'Floor details', stepIndices: [4] },
+    { label: 'Standards', sublabel: 'Quality & rules', stepIndices: [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16] },
+  ]
 
-        {/* Progress */}
-        <div className="mt-6">
-          <div className="flex items-center justify-between text-caption font-semibold text-slate-500">
-            <span>Step {step + 1} of {STEPS.length}</span>
-            <span>{progressPct}% complete · ~{minutesLeft} min left</span>
-          </div>
+  return (
+    <div className="w-full">
+      {/* Title & Progress Row */}
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between pb-4 border-b border-slate-100">
+        <div>
+          <h1 className="text-2xl font-extrabold text-slate-900">List Your Property</h1>
+          <p className="text-sm text-slate-500 mt-1">Add your property details to reach thousands of potential guests.</p>
+        </div>
+        <div className="w-full md:w-64 shrink-0 flex flex-col md:items-end">
+          <span className="text-xs font-bold text-slate-500">{progressPct}% complete · ~{minutesLeft} min left</span>
           <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-primary-600 to-accent-500 transition-all duration-300 ease-smooth"
+              className="h-full rounded-full bg-primary-600 transition-all duration-300"
               style={{ width: `${progressPct}%` }}
             />
           </div>
         </div>
+      </div>
 
-        {/* Compact step wayfinding row */}
-        <div className="mt-4 flex items-center gap-1 overflow-x-auto pb-1 scrollbar-thin">
-          {STEPS.map((s, i) => (
-            <div key={s.label} className="flex shrink-0 items-center gap-1">
+      {/* Segments Wayfinding row */}
+      <div className="mt-5 flex flex-wrap items-center gap-4 border-b border-slate-100 pb-5">
+        {segments.map((seg, idx) => {
+          const isActive = seg.stepIndices.includes(step)
+          const isCompleted = step > Math.max(...seg.stepIndices)
+          const isPending = step < Math.min(...seg.stepIndices)
+          return (
+            <div key={seg.label} className="flex items-center gap-2">
               <div
-                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-colors duration-200 ${
-                  i <= step ? 'bg-primary-600 text-white' : 'bg-slate-200 text-slate-500'
+                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all ${
+                  isActive || isCompleted
+                    ? 'bg-primary-600 text-white shadow-sm ring-2 ring-primary-500/20'
+                    : 'bg-slate-100 text-slate-400'
                 }`}
               >
-                {i < step ? <Check className="h-3.5 w-3.5" /> : i + 1}
+                {isCompleted ? <Check className="h-4 w-4 stroke-[3px]" /> : idx + 1}
               </div>
-              <span className={`whitespace-nowrap px-1.5 text-xs font-medium ${i <= step ? 'text-slate-800' : 'text-slate-400'}`}>
-                {s.label}
-              </span>
-              {i < STEPS.length - 1 && <div className="h-0.5 w-4 shrink-0 bg-slate-200" />}
+              <div className="flex flex-col text-left">
+                <span className={`text-[11px] font-bold leading-tight ${isActive || isCompleted ? 'text-slate-800' : 'text-slate-400'}`}>
+                  {seg.label}
+                </span>
+                <span className="text-[10px] font-semibold text-slate-400 mt-0.5">
+                  {seg.sublabel}
+                </span>
+              </div>
+              {idx < segments.length - 1 && (
+                <div className="hidden sm:block h-0.5 w-6 bg-slate-200 mx-2 shrink-0" />
+              )}
             </div>
-          ))}
-        </div>
+          )
+        })}
+      </div>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="mt-8 animate-fade-in rounded-2xl border border-slate-200 bg-white p-8 shadow-card sm:p-10" key={step}>
-            {step === 0 && (
-              <div className="space-y-4">
-                <Input
-                  label="Full Name"
-                  id="ownerName"
-                  {...register('ownerName')}
-                  placeholder="e.g. Rahul Mehta"
-                  error={errors.ownerName?.message}
-                />
-                <Input
-                  label="Email"
-                  id="ownerEmail"
-                  type="email"
-                  {...register('ownerEmail')}
-                  placeholder="you@example.com"
-                  error={errors.ownerEmail?.message}
-                />
-                <Input
-                  label="Phone Number"
-                  id="ownerPhone"
-                  type="tel"
-                  {...register('ownerPhone')}
-                  placeholder="+91 98765 43210"
-                  error={errors.ownerPhone?.message}
-                />
-              </div>
-            )}
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* Left column: Form */}
+        <div className="lg:col-span-2 space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="animate-fade-in rounded-3xl border border-slate-150 bg-white p-6 sm:p-8 shadow-sm" key={step}>
+              {step === 0 && (
+                <div className="space-y-6">
+                  <div className="flex items-center gap-3.5 border-b border-slate-100 pb-4">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-red-50 text-primary-500">
+                      <User className="h-5.5 w-5.5" />
+                    </div>
+                    <div className="text-left">
+                      <h3 className="text-sm font-extrabold text-slate-900">Owner Information</h3>
+                      <p className="text-xs text-slate-500 mt-0.5">Let's start with some basic information about you.</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    {/* Full Name */}
+                    <div className="space-y-1.5 text-left">
+                      <label className="text-xs font-bold text-slate-700">Full Name</label>
+                      <div className="relative">
+                        <User className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                        <input
+                          {...register('ownerName')}
+                          placeholder="e.g. Rahul Mehta"
+                          className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-xs font-semibold text-slate-700 outline-none focus:border-primary-500"
+                        />
+                      </div>
+                      {errors.ownerName && <p className="text-[10px] font-bold text-rose-600">{errors.ownerName.message}</p>}
+                    </div>
+
+                    {/* Email Address */}
+                    <div className="space-y-1.5 text-left">
+                      <label className="text-xs font-bold text-slate-700">Email Address</label>
+                      <div className="relative">
+                        <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                        <input
+                          type="email"
+                          {...register('ownerEmail')}
+                          placeholder="you@example.com"
+                          className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-xs font-semibold text-slate-700 outline-none focus:border-primary-500"
+                        />
+                      </div>
+                      {errors.ownerEmail && <p className="text-[10px] font-bold text-rose-600">{errors.ownerEmail.message}</p>}
+                    </div>
+
+                    {/* Phone Number */}
+                    <div className="space-y-1.5 text-left">
+                      <label className="text-xs font-bold text-slate-700">Phone Number</label>
+                      <div className="flex gap-2">
+                        <div className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-xs font-semibold text-slate-700 select-none">
+                          <img src="https://flagcdn.com/in.svg" alt="India flag" className="h-3.5 w-5 object-cover rounded-sm" />
+                          <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+                        </div>
+                        <div className="relative flex-1">
+                          <input
+                            type="tel"
+                            {...register('ownerPhone')}
+                            placeholder="+91 98765 43210"
+                            className="w-full rounded-xl border border-slate-200 bg-white py-3 px-4 text-xs font-semibold text-slate-700 outline-none focus:border-primary-500"
+                          />
+                        </div>
+                      </div>
+                      {errors.ownerPhone && <p className="text-[10px] font-bold text-rose-600">{errors.ownerPhone.message}</p>}
+                    </div>
+
+                    <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-400">
+                      <Lock className="h-3.5 w-3.5 text-slate-400" /> Your phone number is safe with us. We'll never share it.
+                    </div>
+                  </div>
+                </div>
+              )}
 
             {step === 1 && (
               <div>
@@ -781,29 +848,92 @@ export function ListPropertyPage() {
                 )}
               </div>
             )}
-          </div>
 
-          <div className="mt-6 flex justify-between">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => goToStep(Math.max(0, step - 1))}
-              disabled={step === 0}
-            >
-              Back
-            </Button>
-            {step < STEPS.length - 1 ? (
-              <Button type="button" onClick={goNext}>
-                Next
-              </Button>
-            ) : (
-              <Button type="submit" variant="secondary" loading={submitting}>
-                {submitting ? 'Submitting…' : 'Submit Listing'}
-              </Button>
-            )}
+            <div className="mt-8 flex justify-between border-t border-slate-100 pt-5">
+              <button
+                type="button"
+                onClick={() => goToStep(Math.max(0, step - 1))}
+                disabled={step === 0}
+                className="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-xs font-bold text-slate-500 hover:bg-slate-50 transition active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Back
+              </button>
+              {step < STEPS.length - 1 ? (
+                <button
+                  type="button"
+                  onClick={goNext}
+                  className="rounded-xl bg-gradient-to-r from-red-500 to-primary-600 px-6 py-2.5 text-xs font-bold text-white shadow-md hover:from-red-600 hover:to-primary-700 transition active:scale-95"
+                >
+                  Next &rarr;
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="rounded-xl bg-gradient-to-r from-red-500 to-primary-600 px-6 py-2.5 text-xs font-bold text-white shadow-md hover:from-red-650 hover:to-primary-700 transition active:scale-95 disabled:opacity-50"
+                >
+                  {submitting ? 'Submitting…' : 'Submit Listing'}
+                </button>
+              )}
+            </div>
           </div>
         </form>
+
+        {/* Bottom Security Notice */}
+        <div className="mt-6 flex items-center justify-center gap-1.5 text-center text-xs font-bold text-slate-400">
+          <span className="flex h-4.5 w-4.5 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+            <Check className="h-3 w-3 stroke-[3px]" />
+          </span>
+          Your information is 100% secure and will never be shared with third parties.
+        </div>
       </div>
-    </>
-  )
+
+      {/* Right column: Sidebar Info Cards */}
+      <div className="space-y-4">
+        {/* Why this information? */}
+        <div className="rounded-2xl border border-slate-150 bg-white p-5 shadow-sm">
+          <h3 className="text-xs font-extrabold text-slate-800 mb-4 text-left">Why this information?</h3>
+          <div className="space-y-4 text-left">
+            <div className="flex gap-3">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-500">
+                <ShieldCheck className="h-4.5 w-4.5" />
+              </span>
+              <div>
+                <p className="text-xs font-bold text-slate-800">Secure & Safe</p>
+                <p className="text-[11px] text-slate-450 mt-0.5 leading-relaxed">Your information is encrypted and protected.</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+                <BadgeCheck className="h-4.5 w-4.5" />
+              </span>
+              <div>
+                <p className="text-xs font-bold text-slate-800">Verified Leads</p>
+                <p className="text-[11px] text-slate-450 mt-0.5 leading-relaxed">We use this to verify your identity and connect you with genuine leads.</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-50 text-amber-500">
+                <Sparkles className="h-4.5 w-4.5 animate-pulse" />
+              </span>
+              <div>
+                <p className="text-xs font-bold text-slate-800">Better Experience</p>
+                <p className="text-[11px] text-slate-450 mt-0.5 leading-relaxed">Helps us personalize your experience and provide better support.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Need help? */}
+        <div className="rounded-2xl border border-slate-150 bg-white p-5 shadow-sm">
+          <h3 className="text-xs font-extrabold text-slate-800 mb-2 text-left">Need help?</h3>
+          <p className="text-xs text-slate-450 leading-relaxed mb-4 text-left">Our team is here to help you list your property successfully.</p>
+          <Link to="/contact" className="w-full flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-white py-2.5 text-xs font-bold text-primary-650 hover:bg-red-50/50 transition">
+            <Phone className="h-4 w-4 text-rose-500" /> Contact Support
+          </Link>
+        </div>
+      </div>
+    </div>
+  </div>
+)
 }
