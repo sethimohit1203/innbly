@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Sparkles, X, ArrowRight } from 'lucide-react'
 import { properties } from '../data/properties'
 import { PropertyCard } from './PropertyCard'
@@ -15,6 +15,7 @@ const cities = Array.from(new Set(properties.map((p) => p.city)))
 
 export function QuickMatchAssistant() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState(0)
   const [budget, setBudget] = useState<string | null>(null)
@@ -50,13 +51,19 @@ export function QuickMatchAssistant() {
     setOpen(false)
   }
 
+  const isHome = location.pathname === '/'
+
   if (!open) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-36 right-4 z-40 flex items-center gap-2 rounded-full bg-stone-950 px-5 py-3.5 text-sm font-bold text-white shadow-xl transition hover:bg-black md:bottom-6 md:right-6"
+        className={`fixed bottom-36 right-4 z-45 flex items-center gap-2 rounded-full px-5 py-3.5 text-sm font-bold text-white shadow-xl transition md:bottom-6 md:right-6 active:scale-95 ${
+          isHome
+            ? 'bg-primary-600 hover:bg-primary-700 shadow-primary-500/25'
+            : 'bg-stone-900 hover:bg-black shadow-slate-900/25'
+        }`}
       >
-        <Sparkles className="h-4 w-4 text-accent-400" /> Quick Match
+        <Sparkles className="h-4 w-4 text-white" /> Quick Match
       </button>
     )
   }

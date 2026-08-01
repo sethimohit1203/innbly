@@ -68,8 +68,23 @@ export function PropertyCard({ property, onQuickView }: { property: Property; on
           </div>
         )}
 
-        <span className="absolute left-4 top-4 flex items-center gap-1 rounded-full bg-white/90 px-3.5 py-1.5 text-xs font-extrabold text-slate-900 shadow-sm backdrop-blur-md">
-          <Users className="h-3 w-3" /> {property.maxGuests}
+        {/* Badges on top-left vertically stacked */}
+        <div className="absolute left-3 top-3 flex flex-col gap-1.5 z-10">
+          {property.instantBook && (
+            <span className="flex items-center gap-1 rounded-full bg-primary-600 px-3 py-1 text-[10px] font-bold text-white shadow-sm">
+              <Zap className="h-3 w-3 fill-white" /> Instant Book
+            </span>
+          )}
+          {property.verified && (
+            <span className="flex items-center gap-1 rounded-full bg-white border border-emerald-500 px-3 py-1 text-[10px] font-bold text-emerald-600 shadow-sm">
+              <ShieldCheck className="h-3 w-3 text-emerald-500" /> Audit Pass
+            </span>
+          )}
+        </div>
+
+        {/* Guest count badge on bottom left of image */}
+        <span className="absolute left-3 bottom-3 flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-extrabold text-slate-800 shadow-sm backdrop-blur-md">
+          <Users className="h-3.5 w-3.5 text-slate-500" /> {property.maxGuests}
         </span>
 
         <button
@@ -79,7 +94,7 @@ export function PropertyCard({ property, onQuickView }: { property: Property; on
           }}
           aria-label={isSaved(property.id) ? 'Remove from saved properties' : 'Save property'}
           aria-pressed={isSaved(property.id)}
-          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-md transition hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2"
+          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-md transition hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2"
         >
           <Heart className={`h-4 w-4 ${isSaved(property.id) ? 'fill-rose-500 text-rose-500' : 'text-slate-600'}`} />
         </button>
@@ -97,70 +112,76 @@ export function PropertyCard({ property, onQuickView }: { property: Property; on
           </button>
         )}
 
-        <div className="absolute bottom-3 right-3 flex flex-col items-end gap-1.5">
-          {isGuestFavourite && (
-            <span className="flex items-center gap-1 rounded-full bg-amber-500/95 px-3 py-1 text-[10px] font-bold text-white backdrop-blur-md">
-              <Sparkles className="h-3 w-3" /> Guest Favourite
-            </span>
-          )}
-          {property.verified && (
-            <span className="flex items-center gap-1 rounded-full bg-slate-900/80 px-3 py-1 text-[10px] font-bold text-accent-400 backdrop-blur-md">
-              <BadgeCheck className="h-3 w-3" /> Audit Pass
-            </span>
-          )}
-          {property.instantBook && (
-            <span className="flex items-center gap-1 rounded-full bg-primary-600/90 px-3 py-1 text-[10px] font-bold text-white backdrop-blur-md">
-              <Zap className="h-3 w-3" /> Instant Book
-            </span>
-          )}
-        </div>
-
         {property.availabilityStatus !== 'Available' && (
-          <span className={`absolute left-4 bottom-3 rounded-full px-3 py-1 text-[10px] font-bold ${AVAILABILITY_STYLES[property.availabilityStatus]}`}>
+          <span className={`absolute left-14 bottom-3 rounded-full px-3 py-1 text-[10px] font-bold ${AVAILABILITY_STYLES[property.availabilityStatus]}`}>
             {property.availabilityStatus === 'Booked' ? 'Fully Booked' : 'Limited Availability'}
           </span>
         )}
       </div>
 
-      <div className="flex flex-1 flex-col gap-2 p-4">
+      <div className="flex flex-1 flex-col gap-2.5 p-4">
+        {/* Row 1: Title & Rating */}
         <div className="flex items-start justify-between gap-2">
-          <h3 className="line-clamp-1 font-bold text-slate-900">{property.title}</h3>
+          <h3 className="line-clamp-1 font-bold text-slate-900 text-base">{property.title}</h3>
           <div className="flex shrink-0 items-center gap-1 text-sm font-semibold text-amber-500">
             <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
             {property.rating}
             <span className="font-normal text-slate-400">({property.reviewCount})</span>
           </div>
         </div>
-        <div className="flex items-center gap-1 text-sm text-slate-500">
-          <MapPin className="h-3.5 w-3.5" /> {property.neighborhood}, {property.city}
+
+        {/* Row 2: Location */}
+        <div className="flex items-center gap-1 text-sm text-slate-400 font-medium">
+          <MapPin className="h-3.5 w-3.5 text-slate-400" /> {property.neighborhood}, {property.city}
         </div>
 
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-medium text-slate-500">
-          {nearestMetro && (
-            <span className="flex items-center gap-1">
-              <TrainFront className="h-3.5 w-3.5 text-slate-400" /> {nearestMetro.distanceM}m from Metro
-            </span>
-          )}
-          <span className="flex items-center gap-1">
+        {/* Row 3: Detailed amenities */}
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-semibold text-slate-400">
+          <span className="flex items-center gap-0.5">
             <Wifi className="h-3.5 w-3.5 text-slate-400" /> {property.wifiSpeedMbps} Mbps
+          </span>
+          <span>·</span>
+          <span>
+            {(() => {
+              const t = property.title.toLowerCase()
+              const c = property.city.toLowerCase()
+              if (t.includes('ganga') || c.includes('rishikesh')) return 'Lake View'
+              if (t.includes('pool') || t.includes('monsoon') || c.includes('lonavala')) return 'Pool View'
+              if (t.includes('pinewood') || c.includes('shimla') || c.includes('mussoorie')) return 'Mountain View'
+              if (t.includes('haveli') || c.includes('jaipur')) return 'Garden View'
+              return 'Garden View'
+            })()}
+          </span>
+          <span>·</span>
+          <span>
+            {(() => {
+              const pt = property.propertyType
+              if (pt === 'Villas') return 'Entire Villa'
+              if (pt === 'Cabins') return 'Entire Cabin'
+              if (pt === 'Cottages') return 'Entire Cottage'
+              if (pt === 'Apartments') return 'Entire Apartment'
+              return `Entire ${pt.endsWith('s') ? pt.slice(0, -1) : pt}`
+            })()}
           </span>
         </div>
 
-        <div className="mt-1 flex flex-wrap gap-1.5">
-          <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
+        {/* Row 4: Preference & Free Cancellation */}
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="rounded-lg bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">
             {property.tenantPreference}
           </span>
           {property.freeCancellation && (
-            <span className="flex items-center gap-1 rounded-full bg-accent-50 px-2.5 py-0.5 text-xs font-medium text-accent-700">
-              <ShieldCheck className="h-3 w-3" /> Free Cancellation
+            <span className="flex items-center gap-1 rounded-lg bg-emerald-50 border border-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">
+              <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" /> Free Cancellation
             </span>
           )}
         </div>
 
+        {/* Row 5: Price Footer */}
         <div className="mt-auto flex items-end justify-between border-t border-slate-50 pt-4">
           <div>
             <span className="text-xl font-extrabold text-slate-900">₹{property.price.toLocaleString('en-IN')}</span>
-            <span className="block text-xs font-semibold text-slate-400"> / night</span>
+            <span className="text-xs font-semibold text-slate-400"> / night</span>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -172,13 +193,13 @@ export function PropertyCard({ property, onQuickView }: { property: Property; on
               title="Add to compare"
               aria-label={isComparing(property.id) ? 'Remove from compare' : 'Add to compare'}
               aria-pressed={isComparing(property.id)}
-              className={`flex items-center gap-1 rounded-lg border px-2 py-2 text-[10px] font-bold transition disabled:cursor-not-allowed disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-1 ${
+              className={`flex items-center gap-1 rounded-lg border px-2.5 py-2 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-1 ${
                 isComparing(property.id) ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-slate-200 text-slate-500 hover:border-slate-300'
               }`}
             >
               <Scale className="h-3.5 w-3.5" />
             </button>
-            <span className="rounded-xl bg-primary-50 px-4 py-2.5 text-xs font-bold text-primary-700 transition group-hover:bg-primary-100">
+            <span className="rounded-xl bg-red-50 border border-red-100 px-4 py-2.5 text-xs font-bold text-primary-600 transition group-hover:bg-red-100/50">
               View Stay
             </span>
           </div>

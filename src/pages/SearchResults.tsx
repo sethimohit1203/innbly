@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { ChevronDown, SlidersHorizontal, BellPlus, SearchX, Map as MapIcon, List, LayoutGrid, ShieldCheck, Zap, BadgeCheck, Sparkles } from 'lucide-react'
+import { ChevronDown, SlidersHorizontal, BellPlus, SearchX, Map as MapIcon, List, LayoutGrid, ShieldCheck, Zap, BadgeCheck, Sparkles, Calendar, MapPin, Users, Wallet, ArrowRight, Heart } from 'lucide-react'
 import { INDIAN_STATES } from '../data/states'
 import { PropertyCard } from '../components/PropertyCard'
 import { MapPlaceholder } from '../components/MapPlaceholder'
 import { PropertyTypeScroller } from '../components/PropertyTypeScroller'
-import { DateRangePicker } from '../components/DateRangePicker'
+import { DateRangePicker, formatDisplay } from '../components/DateRangePicker'
 import { Reveal } from '../components/Reveal'
 import { SearchSummary } from '../components/SearchSummary'
 import { SortDropdown, type SortOption } from '../components/SortDropdown'
@@ -26,10 +26,16 @@ const SUGGESTED_FILTER_SLUGS = ['budget-picks', 'top-rated', 'near-metro', 'fami
 
 function BudgetSlider({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   return (
-    <div className="flex min-w-[11rem] items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
-      <label htmlFor="budget-slider" className="shrink-0 text-xs font-bold text-slate-500">
-        💰 ≤ ₹{value === MAX_BUDGET ? `${MAX_BUDGET}+` : value.toLocaleString('en-IN')}
-      </label>
+    <div className="flex items-center gap-2.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 shadow-sm">
+      <span className="text-slate-400 shrink-0">
+        <Wallet className="h-4 w-4 text-slate-400" />
+      </span>
+      <div className="flex flex-col text-left min-w-[5.5rem]">
+        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Price Range</span>
+        <span className="text-xs font-extrabold text-slate-850">
+          ₹0 - ₹{value === MAX_BUDGET ? `${MAX_BUDGET}+` : value.toLocaleString('en-IN')}
+        </span>
+      </div>
       <input
         id="budget-slider"
         type="range"
@@ -38,7 +44,7 @@ function BudgetSlider({ value, onChange }: { value: number; onChange: (v: number
         step={100}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-24 accent-primary-600"
+        className="w-20 h-1 bg-red-100 rounded-lg appearance-none cursor-pointer accent-primary-600 focus:outline-none"
       />
     </div>
   )
@@ -61,10 +67,10 @@ function MultiSelectFilter({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-100"
+        className="flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-50"
       >
-        {values.length ? `🛎️ ${values.length} Amenities` : label}
-        <ChevronDown className="h-3 w-3 text-slate-400" />
+        {values.length ? `🛎️ ${values.length} Selected` : label}
+        <ChevronDown className="h-3.5 w-3.5 text-slate-400 ml-1" />
       </button>
       {open && (
         <>
@@ -104,15 +110,21 @@ function MoreFiltersPopover({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="relative flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-100"
+        className="relative flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-50 shadow-sm"
       >
-        <SlidersHorizontal className="h-3.5 w-3.5" /> More Filters
-        {activeCount > 0 && (
-          <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">
-            {activeCount}
+        <SlidersHorizontal className="h-4 w-4 text-slate-400" />
+        <div className="flex flex-col text-left">
+          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Filters</span>
+          <span className="text-xs font-extrabold text-slate-800 flex items-center gap-1.5">
+            More Filters
+            {activeCount > 0 && (
+              <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-600 px-1 text-[9px] font-bold text-white">
+                {activeCount}
+              </span>
+            )}
           </span>
-        )}
-        <ChevronDown className="h-3 w-3 text-slate-400" />
+        </div>
+        <ChevronDown className="h-3.5 w-3.5 text-slate-400 ml-1" />
       </button>
       {open && (
         <>
@@ -155,27 +167,35 @@ function SelectFilter({
   value,
   onChange,
   options,
+  icon: Icon,
 }: {
   label: string
   value: string
   onChange: (v: string) => void
   options: { value: string; label: string }[]
+  icon: React.ComponentType<{ className?: string }>
 }) {
   return (
-    <div className="relative">
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="cursor-pointer appearance-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 pr-8 text-xs font-bold text-slate-700 outline-none transition-colors hover:bg-slate-100 focus:border-primary-500"
-      >
-        <option value="all">{label}</option>
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-      <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" />
+    <div className="flex items-center gap-2.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 shadow-sm relative">
+      <span className="text-slate-400 shrink-0">
+        <Icon className="h-4 w-4 text-slate-400" />
+      </span>
+      <div className="flex flex-col text-left min-w-[5.5rem] pr-6">
+        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">{label}</span>
+        <select
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="bg-transparent text-xs font-extrabold text-slate-800 outline-none cursor-pointer appearance-none"
+        >
+          <option value="all">Any</option>
+          {options.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
     </div>
   )
 }
@@ -300,164 +320,267 @@ export function SearchResultsPage() {
     setCollectionSlug(null)
   }
 
-  const filterControls = (stacked: boolean) => (
-    <div className={stacked ? 'flex flex-col gap-4' : 'flex flex-wrap items-center gap-2.5'}>
-      <div className={stacked ? 'w-full' : 'w-full max-w-xs sm:w-56'}>
-        <DateRangePicker checkIn={checkIn} checkOut={checkOut} onChange={(a, b) => { setCheckIn(a); setCheckOut(b) }} />
+  const filterControls = (stacked: boolean) => {
+    const activeCount = (tenantPref !== 'all' ? 1 : 0) + (amenities.length > 0 ? 1 : 0)
+    return (
+      <div className={stacked ? 'flex flex-col gap-4' : 'flex flex-wrap items-center gap-2.5'}>
+        <DateRangePicker
+          checkIn={checkIn}
+          checkOut={checkOut}
+          onChange={(a, b) => { setCheckIn(a); setCheckOut(b) }}
+          customTrigger={
+            <button
+              type="button"
+              className="flex items-center gap-2.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 hover:border-slate-300 shadow-sm"
+            >
+              <Calendar className="h-4 w-4 text-slate-400" />
+              <div className="flex flex-col text-left">
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Check-in — Check-out</span>
+                <span className="text-xs font-extrabold text-slate-800 whitespace-nowrap">
+                  {checkIn ? formatDisplay(checkIn) : 'Add dates'} — {checkOut ? formatDisplay(checkOut) : 'Add dates'}
+                </span>
+              </div>
+            </button>
+          }
+        />
+        <SelectFilter label="Location" value={city} onChange={setCity} options={cities.map((c) => ({ value: c, label: c }))} icon={MapPin} />
+        <SelectFilter label="State" value={state} onChange={setState} options={INDIAN_STATES.map((s) => ({ value: s, label: s }))} icon={MapIcon} />
+        <SelectFilter
+          label="Guests"
+          value={guests}
+          onChange={setGuests}
+          options={[
+            { value: '1', label: '1 Guest' },
+            { value: '2', label: '2 Guests' },
+            { value: '4', label: '4 Guests' },
+            { value: '6', label: '6+ Guests' },
+          ]}
+          icon={Users}
+        />
+        <SelectFilter
+          label="Stay Length"
+          value={stayDuration}
+          onChange={setStayDuration}
+          options={[
+            { value: 'short', label: 'Short Stay (< 1 week)' },
+            { value: 'weekly', label: 'Weekly' },
+            { value: 'monthly', label: 'Monthly+' },
+          ]}
+          icon={Calendar}
+        />
+        <BudgetSlider value={budget} onChange={setBudget} />
+        <MoreFiltersPopover
+          tenantPref={tenantPref}
+          onTenantPrefChange={setTenantPref}
+          amenities={amenities}
+          amenityOptions={ALL_AMENITIES}
+          onToggleAmenity={toggleAmenity}
+        />
       </div>
-      {!stacked && (
-        <span className="flex shrink-0 items-center gap-1.5 text-sm font-semibold text-slate-500">
-          <SlidersHorizontal className="h-4 w-4" /> Filters:
-        </span>
-      )}
-      <SelectFilter label="📍 Location" value={city} onChange={setCity} options={cities.map((c) => ({ value: c, label: c }))} />
-      <SelectFilter label="🗺️ State" value={state} onChange={setState} options={INDIAN_STATES.map((s) => ({ value: s, label: s }))} />
-      <SelectFilter
-        label="🧑‍🤝‍🧑 Guests"
-        value={guests}
-        onChange={setGuests}
-        options={[
-          { value: '1', label: '1 Guest' },
-          { value: '2', label: '2 Guests' },
-          { value: '4', label: '4 Guests' },
-          { value: '6', label: '6+ Guests' },
-        ]}
-      />
-      <BudgetSlider value={budget} onChange={setBudget} />
-      <SelectFilter
-        label="📅 Stay Length"
-        value={stayDuration}
-        onChange={setStayDuration}
-        options={[
-          { value: 'short', label: 'Short Stay (< 1 week)' },
-          { value: 'weekly', label: 'Weekly' },
-          { value: 'monthly', label: 'Monthly+' },
-        ]}
-      />
-      <MoreFiltersPopover
-        tenantPref={tenantPref}
-        onTenantPrefChange={setTenantPref}
-        amenities={amenities}
-        amenityOptions={ALL_AMENITIES}
-        onToggleAmenity={toggleAmenity}
-      />
-      <div className={stacked ? 'flex items-center justify-between' : 'ml-auto flex items-center gap-3'}>
-        {!stacked && (
-          <button
-            onClick={handleSaveSearch}
-            className="flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-600 transition hover:border-primary-300 hover:text-primary-700"
-          >
-            <BellPlus className="h-3.5 w-3.5" /> Save Search
-          </button>
-        )}
-        <span className="text-xs font-bold text-slate-500">Verified Only</span>
-        <label className="relative inline-flex cursor-pointer items-center">
-          <input type="checkbox" checked={verifiedOnly} onChange={(e) => setVerifiedOnly(e.target.checked)} className="peer sr-only" />
-          <div className="peer h-5 w-9 rounded-full bg-slate-200 transition-all after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:border after:border-slate-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white" />
-        </label>
-      </div>
-      {stacked && (
-        <button
-          onClick={handleSaveSearch}
-          className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 px-3 py-2.5 text-xs font-bold text-slate-600"
-        >
-          <BellPlus className="h-3.5 w-3.5" /> Save This Search
-        </button>
-      )}
-    </div>
-  )
+    )
+  }
 
   return (
-    <section>
+    <section className="bg-slate-50/30 min-h-screen">
       <h1 className="sr-only">Search villas, holiday homes, cabins, cottages, and farmhouses</h1>
 
       {/* Sticky search & filter bar — stays fixed directly beneath the sticky brand header */}
-      <div className="sticky top-20 z-30 space-y-3 border-b border-slate-200 bg-white px-4 py-4 shadow-sm sm:px-6">
+      <div className="sticky top-20 z-30 space-y-3 border-b border-slate-150 bg-white px-4 py-3 shadow-sm sm:px-6">
         <div className="mx-auto max-w-7xl">
           {collection && (
-            <div className="mb-3 flex items-center gap-2 rounded-xl bg-primary-50 px-4 py-2 text-sm font-bold text-primary-700">
+            <div className="mb-2 flex items-center gap-2 rounded-xl bg-primary-50 px-4 py-1.5 text-xs font-bold text-primary-700">
               Showing: {collection.label}
             </div>
           )}
           <div className="mb-3 hidden sm:block">{filterControls(false)}</div>
-          <PropertyTypeScroller active={propertyType} onChange={setPropertyType} />
-          <div className="mt-3 flex items-center justify-between gap-3">
-            <SearchSummary properties={filtered} />
-            <div className="hidden shrink-0 items-center gap-2 sm:flex">
-              <div className="flex items-center overflow-hidden rounded-lg border border-slate-200">
+          
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <PropertyTypeScroller active={propertyType} onChange={setPropertyType} />
+            </div>
+            <div className="hidden shrink-0 items-center gap-3 sm:flex">
+              <div className="flex items-center gap-1 rounded-xl border border-slate-200 bg-white p-1">
                 <button
                   onClick={() => setViewMode('grid')}
                   aria-label="Grid view"
-                  aria-pressed={viewMode === 'grid'}
-                  className={`flex h-8 w-8 items-center justify-center transition ${viewMode === 'grid' ? 'bg-slate-900 text-white' : 'text-slate-400 hover:bg-slate-50'}`}
+                  className={`flex h-8 px-2.5 items-center gap-1.5 rounded-lg text-xs font-bold transition ${
+                    viewMode === 'grid' ? 'bg-primary-50 text-primary-600' : 'text-slate-400 hover:text-slate-600'
+                  }`}
                 >
-                  <LayoutGrid className="h-4 w-4" />
+                  <LayoutGrid className="h-4 w-4" /> Grid
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
                   aria-label="List view"
-                  aria-pressed={viewMode === 'list'}
-                  className={`flex h-8 w-8 items-center justify-center transition ${viewMode === 'list' ? 'bg-slate-900 text-white' : 'text-slate-400 hover:bg-slate-50'}`}
+                  className={`flex h-8 px-2.5 items-center gap-1.5 rounded-lg text-xs font-bold transition ${
+                    viewMode === 'list' ? 'bg-primary-50 text-primary-600' : 'text-slate-400 hover:text-slate-600'
+                  }`}
                 >
-                  <List className="h-4 w-4" />
+                  <List className="h-4 w-4" /> List
                 </button>
               </div>
-              <SortDropdown value={sort} onChange={setSort} />
             </div>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-5 sm:px-6 lg:flex-row">
-        {/* Popular Filters sidebar — desktop only, real functional checkboxes
-            with global catalog counts (not decorative). */}
-        <aside className="hidden shrink-0 lg:block lg:w-64">
-          <div className="sticky top-52 space-y-5">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:flex-row">
+        {/* Popular Filters sidebar — desktop only */}
+        <aside className="hidden shrink-0 lg:block lg:w-64 bg-white p-5 rounded-3xl border border-slate-150 shadow-sm h-fit">
+          <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-extrabold text-slate-900">Filters</h2>
-              <button onClick={clearAllFilters} className="text-xs font-bold text-primary-600 hover:underline">
+              <button onClick={clearAllFilters} className="text-xs font-bold text-red-500 hover:underline">
                 Clear All
               </button>
             </div>
 
             <div>
               <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">Popular Filters</p>
-              <div className="space-y-2.5">
+              <div className="space-y-3">
                 {[
-                  { key: 'freeCancellation', label: 'Free Cancellation', icon: ShieldCheck, checked: freeCancellationOnly, onChange: setFreeCancellationOnly, count: popularFilterCounts.freeCancellation },
-                  { key: 'instantBook', label: 'Instant Book', icon: Zap, checked: instantBookOnly, onChange: setInstantBookOnly, count: popularFilterCounts.instantBook },
-                  { key: 'verified', label: 'Verified Properties', icon: BadgeCheck, checked: verifiedOnly, onChange: setVerifiedOnly, count: popularFilterCounts.verified },
-                  { key: 'guestFavourite', label: 'Guest Favourite', icon: Sparkles, checked: guestFavouriteOnly, onChange: setGuestFavouriteOnly, count: popularFilterCounts.guestFavourite },
+                  { key: 'freeCancellation', label: 'Free Cancellation', checked: freeCancellationOnly, onChange: setFreeCancellationOnly, count: popularFilterCounts.freeCancellation },
+                  { key: 'instantBook', label: 'Instant Book', checked: instantBookOnly, onChange: setInstantBookOnly, count: popularFilterCounts.instantBook },
+                  { key: 'verified', label: 'Verified Properties', checked: verifiedOnly, onChange: setVerifiedOnly, count: popularFilterCounts.verified },
+                  { key: 'guestFavourite', label: 'Guest Favourite', checked: guestFavouriteOnly, onChange: setGuestFavouriteOnly, count: popularFilterCounts.guestFavourite },
                 ].map((f) => (
-                  <label key={f.key} className="flex cursor-pointer items-center justify-between gap-2 text-sm text-slate-700">
+                  <label key={f.key} className="flex cursor-pointer items-center justify-between gap-2 text-xs text-slate-600 font-semibold hover:text-slate-900">
                     <span className="flex items-center gap-2">
                       <input
                         type="checkbox"
                         checked={f.checked}
                         onChange={(e) => f.onChange(e.target.checked)}
-                        className="h-4 w-4 rounded accent-primary-600"
+                        className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500 accent-primary-600"
                       />
-                      <f.icon className="h-3.5 w-3.5 text-slate-400" /> {f.label}
+                      {f.label}
                     </span>
-                    <span className="text-xs font-semibold text-slate-400">{f.count}</span>
+                    <span className="text-[10px] font-bold text-slate-400 bg-slate-105 px-2 py-0.5 rounded-full">{f.count}</span>
                   </label>
                 ))}
               </div>
             </div>
 
+            {/* Property Type Dropdown */}
             <div>
-              <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">Amenities</p>
-              <MultiSelectFilter label="Select Amenities" values={amenities} options={ALL_AMENITIES} onToggle={toggleAmenity} />
+              <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-slate-400">Property Type</p>
+              <select
+                value={propertyType}
+                onChange={(e) => setPropertyType(e.target.value as any)}
+                className="w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-semibold text-slate-700 outline-none focus:border-primary-500"
+              >
+                <option value="all">Select Type</option>
+                <option value="Villas">Villas</option>
+                <option value="Apartments">Apartments</option>
+                <option value="Cabins">Cabins</option>
+                <option value="Cottages">Cottages</option>
+                <option value="Resorts">Resorts</option>
+                <option value="Hotels">Hotels</option>
+              </select>
             </div>
 
+            {/* Amenities Dropdown */}
             <div>
-              <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">Sort By</p>
-              <SortDropdown value={sort} onChange={setSort} />
+              <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-slate-400">Amenities</p>
+              <select
+                onChange={(e) => {
+                  if (e.target.value !== 'all') {
+                    toggleAmenity(e.target.value)
+                  }
+                }}
+                className="w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-semibold text-slate-700 outline-none focus:border-primary-500"
+              >
+                <option value="all">Select Amenities</option>
+                {ALL_AMENITIES.map((a) => (
+                  <option key={a} value={a}>{a} {amenities.includes(a) ? '✓' : ''}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Room Type Dropdown */}
+            <div>
+              <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-slate-400">Room Type</p>
+              <select
+                value={tenantPref}
+                onChange={(e) => setTenantPref(e.target.value)}
+                className="w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-semibold text-slate-700 outline-none focus:border-primary-500"
+              >
+                <option value="all">Select Room Type</option>
+                <option value="Anyone">Co-ed / Anyone</option>
+                <option value="Boys">Boys Only</option>
+                <option value="Girls">Girls Only</option>
+                <option value="Family">Family Only</option>
+              </select>
+            </div>
+
+            {/* Property Rules Dropdown */}
+            <div>
+              <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-slate-400">Property Rules</p>
+              <select
+                className="w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-semibold text-slate-700 outline-none focus:border-primary-500"
+              >
+                <option value="all">Select Rules</option>
+                <option value="pets">Pets Allowed</option>
+                <option value="smoking">Smoking Allowed</option>
+                <option value="parties">Parties Allowed</option>
+              </select>
+            </div>
+
+            {/* Sort By Dropdown */}
+            <div>
+              <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-slate-400">Sort By</p>
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value as any)}
+                className="w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-semibold text-slate-700 outline-none focus:border-primary-500"
+              >
+                <option value="recommended">Recommended</option>
+                <option value="rating">Rating</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="luxury">Luxury</option>
+              </select>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="pt-2 space-y-2">
+              <button
+                type="button"
+                onClick={() => showToast('Filters applied!')}
+                className="w-full rounded-xl bg-gradient-to-r from-red-500 to-primary-650 py-3 text-xs font-bold text-white shadow-md hover:from-red-650 hover:to-primary-700 active:scale-95 transition"
+              >
+                Apply Filters
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveSearch}
+                className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-slate-205 bg-white py-3 text-xs font-bold text-slate-700 hover:border-slate-350 transition active:scale-95"
+              >
+                <Heart className="h-4 w-4 text-rose-500" /> Save Search
+              </button>
             </div>
           </div>
         </aside>
 
         <div className="min-w-0 lg:w-3/5">
+          {/* Mockup matching stays metadata stats row */}
+          <div className="mb-4 flex flex-wrap items-center gap-3 text-xs text-slate-400 font-semibold bg-white p-3 rounded-2xl border border-slate-100 shadow-sm">
+            <span className="text-slate-900 font-extrabold text-xs">{filtered.length} stays found</span>
+            <span>·</span>
+            <span>Avg ₹4,300/night</span>
+            <span>·</span>
+            <span className="flex items-center gap-1 text-primary-600 font-bold">
+              <Zap className="h-3.5 w-3.5 fill-primary-600 text-primary-600" /> {filtered.filter(p => p.instantBook).length} Instant Book
+            </span>
+            <span>·</span>
+            <span className="flex items-center gap-1 text-emerald-600 font-bold">
+              <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" /> {filtered.filter(p => p.verified).length} Verified
+            </span>
+            <span>·</span>
+            <span className="flex items-center gap-1 text-amber-500 font-bold">
+              <Sparkles className="h-3.5 w-3.5 text-amber-500" /> {filtered.filter(p => p.rating >= 4.5).length} Guest Favourite
+            </span>
+          </div>
+
           <div className={viewMode === 'grid' ? 'grid grid-cols-1 gap-5 sm:grid-cols-2' : 'flex flex-col gap-4'}>
             {filtered.map((p, i) => (
               <Reveal key={p.id} delay={(i % 4) * 0.05}>

@@ -17,8 +17,10 @@ import {
   Receipt,
   Repeat,
   Bell,
+  Home,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { useSavedProperties } from '../context/SavedPropertiesContext'
 import { TranslateWidget } from './TranslateWidget'
 import { Button } from './ui/Button'
 import { HostMenuPanel } from './HostMenuPanel'
@@ -26,6 +28,7 @@ import { useNewBookingsCount, markBookingsSeen } from '../hooks/useNewBookingsCo
 
 export function Navbar() {
   const { user, openAuthModal, logout, switchRole } = useAuth()
+  const { savedIds } = useSavedProperties()
   const navigate = useNavigate()
 
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -67,6 +70,33 @@ export function Navbar() {
     { to: '/dashboard/leads', label: 'Leads Tracker', icon: Users },
   ]
 
+  const guestLinks = [
+    { to: '/search', label: 'Explore', icon: Search },
+    { to: '#list-property', label: 'List Your Property', icon: Home, onClick: goToListProperty },
+    {
+      to: '#become-host',
+      label: 'Become a Host',
+      icon: User,
+      onClick: async (e: React.MouseEvent) => {
+        e.preventDefault()
+        if (user?.role === 'host') {
+          navigate('/dashboard')
+          return
+        }
+        if (user) {
+          setSwitchingToHost(true)
+          const updated = await switchRole()
+          setSwitchingToHost(false)
+          if (updated) navigate('/dashboard')
+          return
+        }
+        openAuthModal('host')
+      },
+    },
+    { to: '/enterprise', label: 'About Us' },
+    { to: '/contact', label: 'Help' },
+  ]
+
   const handleLogout = () => {
     logout()
     setAvatarOpen(false)
@@ -83,7 +113,7 @@ export function Navbar() {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-10 justify-self-center md:flex">
+        <nav className="hidden items-center gap-6 justify-self-center md:flex">
           {isHost
             ? hostLinks.map((link) => (
                 <NavLink
@@ -93,7 +123,7 @@ export function Navbar() {
                   className={({ isActive }) =>
                     `relative flex items-center gap-1.5 py-6 text-[15px] font-semibold transition-colors after:absolute after:-bottom-px after:left-0 after:h-0.5 after:rounded-full after:bg-primary-600 after:transition-all after:duration-200 after:ease-smooth after:content-[''] ${
                       isActive
-                        ? 'text-primary-700 after:w-full'
+                        ? 'text-primary-600 after:w-full'
                         : 'text-slate-600 after:w-0 hover:text-primary-600 hover:after:w-full'
                     }`
                   }
@@ -101,32 +131,58 @@ export function Navbar() {
                   <link.icon className="h-4 w-4" /> {link.label}
                 </NavLink>
               ))
-            : (
-                <NavLink
-                  to="/search"
-                  className={({ isActive }) =>
-                    `relative flex items-center gap-1.5 py-6 text-[15px] font-semibold transition-colors after:absolute after:-bottom-px after:left-0 after:h-0.5 after:rounded-full after:bg-primary-600 after:transition-all after:duration-200 after:ease-smooth after:content-[''] ${
-                      isActive
-                        ? 'text-primary-700 after:w-full'
-                        : 'text-slate-600 after:w-0 hover:text-primary-600 hover:after:w-full'
-                    }`
+            : guestLinks.map((link) => {
+                const handleClick = (e: React.MouseEvent) => {
+                  if (link.onClick) {
+                    e.preventDefault()
+                    link.onClick(e)
                   }
-                >
-                  <Search className="h-4 w-4" /> Explore
-                </NavLink>
-              )}
+                }
+                return (
+                  <NavLink
+                    key={link.label}
+                    to={link.to}
+                    onClick={handleClick}
+                    className={({ isActive }) =>
+                      `flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[15px] font-semibold transition-colors ${
+                        !link.onClick && isActive
+                          ? 'bg-primary-50 text-primary-600 border border-primary-100'
+                          : 'text-slate-600 hover:bg-slate-50 hover:text-primary-600'
+                      }`
+                    }
+                  >
+                    {link.icon && <link.icon className="h-4 w-4" />} {link.label}
+                  </NavLink>
+                )
+              })}
         </nav>
 
-        <div className="flex items-center gap-3 justify-self-end">
+        <div className="flex items-center gap-4 justify-self-end">
           <TranslateWidget />
+
+          {!isHost && (
+            <Link
+              to="/saved"
+              className="relative hidden h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100 text-slate-700 sm:flex"
+              aria-label="Saved properties"
+            >
+              <Heart className="h-5 w-5 text-rose-500 hover:fill-rose-500" />
+              {savedIds.length > 0 && (
+                <span className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-600 px-1 text-[10px] font-bold text-white">
+                  {savedIds.length}
+                </span>
+              )}
+            </Link>
+          )}
 
           {!isHost && (
             <Button
               onClick={goToListProperty}
               loading={switchingToHost}
-              className="hidden sm:inline-flex"
+              className="hidden sm:inline-flex bg-primary-600 hover:bg-primary-700 text-white rounded-full px-5 py-2 font-bold shadow-md items-center gap-2"
             >
-              <PlusCircle className="h-4 w-4" /> {switchingToHost ? 'Switching…' : 'List Your Property'}
+              {switchingToHost ? 'Switching…' : 'List Your Property'}
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white text-primary-600 text-xs font-black">+</span>
             </Button>
           )}
 
@@ -149,11 +205,11 @@ export function Navbar() {
                   </span>
                 )}
               </Button>
-              <span className="text-sm text-slate-600">Hi, {user!.name.split(' ')[0]}</span>
-              <Button variant="outline" size="sm" onClick={handleSwitchRole}>
+              <span className="text-sm text-slate-600 font-semibold">Hi, {user!.name.split(' ')[0]}</span>
+              <Button variant="outline" size="sm" onClick={handleSwitchRole} className="rounded-full">
                 <Repeat className="h-3.5 w-3.5" /> Switch to travelling
               </Button>
-              <Button variant="outline" size="sm" onClick={handleLogout}>
+              <Button variant="outline" size="sm" onClick={handleLogout} className="rounded-full">
                 <LogOut className="h-3.5 w-3.5" /> Log out
               </Button>
               <Button
@@ -171,7 +227,7 @@ export function Navbar() {
             <div className="relative hidden sm:block">
               <button
                 onClick={() => setAvatarOpen((o) => !o)}
-                className="flex items-center gap-2 rounded-full border border-slate-200 py-1 pl-1 pr-3 transition hover:border-slate-300"
+                className="flex items-center gap-2 rounded-full border border-slate-200 py-1 pl-1 pr-3 transition hover:border-slate-300 bg-white shadow-sm"
               >
                 <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-primary-100 text-sm font-bold text-primary-700">
                   {user!.avatarUrl ? (

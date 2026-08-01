@@ -5,13 +5,14 @@ interface DateRangePickerProps {
   checkIn: string | null
   checkOut: string | null
   onChange: (checkIn: string | null, checkOut: string | null) => void
+  customTrigger?: React.ReactNode
 }
 
 function toISO(d: Date) {
   return d.toISOString().split('T')[0]
 }
 
-function formatDisplay(iso: string | null) {
+export function formatDisplay(iso: string | null) {
   if (!iso) return null
   const d = new Date(iso + 'T00:00:00')
   return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
@@ -27,7 +28,7 @@ function buildMonthGrid(year: number, month: number) {
   return cells
 }
 
-export function DateRangePicker({ checkIn, checkOut, onChange }: DateRangePickerProps) {
+export function DateRangePicker({ checkIn, checkOut, onChange, customTrigger }: DateRangePickerProps) {
   const [open, setOpen] = useState(false)
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -72,16 +73,22 @@ export function DateRangePicker({ checkIn, checkOut, onChange }: DateRangePicker
 
   return (
     <div className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-left text-sm font-semibold text-slate-700 outline-none transition hover:border-primary-400"
-      >
-        <CalendarDays className="h-4 w-4 shrink-0 text-slate-400" />
-        <span className="flex-1">
-          {checkIn ? formatDisplay(checkIn) : 'Check-in'} — {checkOut ? formatDisplay(checkOut) : 'Check-out'}
-        </span>
-      </button>
+      {customTrigger ? (
+        <div onClick={() => setOpen((o) => !o)} className="cursor-pointer">
+          {customTrigger}
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          className="flex w-full items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-left text-sm font-semibold text-slate-700 outline-none transition hover:border-primary-400"
+        >
+          <CalendarDays className="h-4 w-4 shrink-0 text-slate-400" />
+          <span className="flex-1">
+            {checkIn ? formatDisplay(checkIn) : 'Check-in'} — {checkOut ? formatDisplay(checkOut) : 'Check-out'}
+          </span>
+        </button>
+      )}
 
       {open && (
         <>

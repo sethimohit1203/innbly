@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Link } from '~links'
 import { motion } from 'framer-motion'
-import { Search, MapPin, Users, Wallet, ChevronLeft, ChevronRight, BadgeIndianRupee, ShieldCheck, Users2, Headset, Home } from 'lucide-react'
+import { Search, MapPin, Users, Wallet, ChevronLeft, ChevronRight, BadgeIndianRupee, ShieldCheck, Users2, Headset, Home, CalendarDays, ArrowRight, AlertCircle } from 'lucide-react'
 import { PropertyCard } from '../components/PropertyCard'
 import { BudgetEstimator } from '../components/BudgetEstimator'
 import { AIBudgetPlanner } from '../components/AIBudgetPlanner'
@@ -16,7 +16,7 @@ import { CollectionsGrid } from '../components/CollectionsGrid'
 import { LifestyleExplorer } from '../components/LifestyleExplorer'
 import { TrustStats } from '../components/TrustStats'
 import { RecentlyViewedSection } from '../components/RecentlyViewedSection'
-import { DateRangePicker } from '../components/DateRangePicker'
+import { DateRangePicker, formatDisplay } from '../components/DateRangePicker'
 import { LocationAutocomplete } from '../components/LocationAutocomplete'
 import { StickyHomeSearchBar } from '../components/StickyHomeSearchBar'
 import { BecomeHostCTA } from '../components/BecomeHostCTA'
@@ -45,7 +45,7 @@ const PROPERTY_TYPE_EXPLORE: { label: string; propertyType: string; image: strin
 const FEATURE_STRIP = [
   { icon: BadgeIndianRupee, title: 'Best Price Guarantee', text: 'Get the best deals or we\'ll match it' },
   { icon: ShieldCheck, title: 'Free Cancellation', text: 'Cancel for free on selected properties' },
-  { icon: Users2, title: 'Trusted by Thousands', text: 'Join happy travelers across India' },
+  { icon: Users2, title: 'Trusted by Millions', text: 'Join millions of happy travelers worldwide' },
   { icon: Headset, title: '24/7 Support', text: 'We\'re here to help anytime, anywhere' },
 ]
 
@@ -174,28 +174,49 @@ export function HomePage() {
             transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
             className="mx-auto max-w-4xl rounded-2xl border border-slate-200 bg-white p-3 text-left shadow-card-hover md:rounded-full md:p-2"
           >
-            <form onSubmit={handleSearch} className="grid grid-cols-1 items-center gap-2 md:grid-cols-[1.3fr_1fr_1fr_1fr_auto]">
+            <form onSubmit={handleSearch} className="grid grid-cols-1 items-center gap-2 md:grid-cols-[1.5fr_2fr_1fr_auto]">
               <div className="relative rounded-xl px-4 py-2 transition hover:bg-slate-50 md:rounded-full">
-                <label htmlFor="home-search-location" className="mb-0.5 block text-[11px] font-bold text-slate-400">
-                  <MapPin className="mr-1 inline h-3 w-3 text-primary-500" /> Where are you headed?
+                <label htmlFor="home-search-location" className="mb-0.5 block text-[11px] font-bold text-slate-400 uppercase tracking-wide flex items-center gap-1">
+                  <MapPin className="h-3.5 w-3.5 text-primary-500" /> Where are you headed?
                 </label>
                 <LocationAutocomplete value={locationQuery} onChange={setLocationQuery} placeholder="Search destinations" />
               </div>
 
-              <div className="rounded-xl px-1 py-1 transition hover:bg-slate-50 md:rounded-full md:border-l md:border-slate-100">
-                <span className="mb-0.5 block px-3 text-[11px] font-bold text-slate-400">Check in — Check out</span>
-                <DateRangePicker checkIn={checkIn} checkOut={checkOut} onChange={(a, b) => { setCheckIn(a); setCheckOut(b) }} />
-              </div>
+              <DateRangePicker
+                checkIn={checkIn}
+                checkOut={checkOut}
+                onChange={(a, b) => { setCheckIn(a); setCheckOut(b) }}
+                customTrigger={
+                  <div className="grid grid-cols-2 md:border-l md:border-slate-100">
+                    <div className="rounded-xl px-4 py-2 transition hover:bg-slate-50 md:rounded-full">
+                      <span className="mb-0.5 block text-[11px] font-bold text-slate-400 uppercase tracking-wide flex items-center gap-1">
+                        <CalendarDays className="h-3.5 w-3.5 text-primary-500" /> Check in
+                      </span>
+                      <span className="block text-[14px] font-bold text-slate-800">
+                        {checkIn ? formatDisplay(checkIn) : 'Add dates'}
+                      </span>
+                    </div>
+                    <div className="rounded-xl px-4 py-2 transition hover:bg-slate-50 md:rounded-full md:border-l md:border-slate-100">
+                      <span className="mb-0.5 block text-[11px] font-bold text-slate-400 uppercase tracking-wide flex items-center gap-1">
+                        <CalendarDays className="h-3.5 w-3.5 text-primary-500" /> Check out
+                      </span>
+                      <span className="block text-[14px] font-bold text-slate-800">
+                        {checkOut ? formatDisplay(checkOut) : 'Add dates'}
+                      </span>
+                    </div>
+                  </div>
+                }
+              />
 
               <div className="relative rounded-xl px-4 py-2 transition hover:bg-slate-50 md:rounded-full md:border-l md:border-slate-100">
-                <label htmlFor="home-search-guests" className="mb-0.5 block text-[11px] font-bold text-slate-400">
-                  <Users className="mr-1 inline h-3 w-3 text-primary-500" /> Guests
+                <label htmlFor="home-search-guests" className="mb-0.5 block text-[11px] font-bold text-slate-400 uppercase tracking-wide flex items-center gap-1">
+                  <Users className="h-3.5 w-3.5 text-primary-500" /> Guests
                 </label>
                 <select
                   id="home-search-guests"
                   value={guests}
                   onChange={(e) => setGuests(e.target.value)}
-                  className="w-full cursor-pointer bg-transparent text-[15px] font-semibold text-slate-800 outline-none"
+                  className="w-full cursor-pointer bg-transparent text-[14px] font-bold text-slate-800 outline-none"
                 >
                   <option value="all">Add guests</option>
                   <option value="1">1 Guest</option>
@@ -205,27 +226,10 @@ export function HomePage() {
                 </select>
               </div>
 
-              <div className="relative rounded-xl px-4 py-2 transition hover:bg-slate-50 md:rounded-full md:border-l md:border-slate-100">
-                <label htmlFor="home-search-budget" className="mb-0.5 block text-[11px] font-bold text-slate-400">
-                  <Wallet className="mr-1 inline h-3 w-3 text-primary-500" /> Budget
-                </label>
-                <select
-                  id="home-search-budget"
-                  value={budget}
-                  onChange={(e) => setBudget(e.target.value)}
-                  className="w-full cursor-pointer bg-transparent text-[15px] font-semibold text-slate-800 outline-none"
-                >
-                  <option value="any">Any budget</option>
-                  <option value="1200">Under ₹1,200</option>
-                  <option value="2000">Under ₹2,000</option>
-                  <option value="3500">Under ₹3,500</option>
-                </select>
-              </div>
-
               <button
                 type="submit"
                 aria-label="Search"
-                className="flex h-12 w-12 items-center justify-center justify-self-center rounded-full bg-primary-600 text-white shadow-lg shadow-primary-500/30 transition-all hover:bg-primary-700 active:scale-95 md:justify-self-auto"
+                className="flex h-12 w-12 items-center justify-center justify-self-center rounded-full bg-primary-600 text-white shadow-lg shadow-primary-500/30 transition-all hover:bg-primary-700 active:scale-95 md:mr-2"
               >
                 <Search className="h-5 w-5" />
               </button>
@@ -271,26 +275,31 @@ export function HomePage() {
         <section className="bg-white py-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <Reveal>
-              <div className="mb-6 flex items-center justify-between">
-                <div>
+              <div className="mb-6 flex items-baseline justify-between">
+                <div className="flex items-baseline gap-3">
                   <h2 className="text-2xl font-bold text-slate-900">🔥 Top Stays For You</h2>
-                  <p className="mt-1 text-sm font-medium text-slate-500">Handpicked stays guests love</p>
+                  <span className="text-sm font-semibold text-slate-400 hidden sm:inline">Handpicked stays guests love</span>
                 </div>
-                <div className="hidden items-center gap-2 sm:flex">
-                  <button
-                    onClick={() => scrollTopStays('left')}
-                    aria-label="Scroll left"
-                    className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => scrollTopStays('right')}
-                    aria-label="Scroll right"
-                    className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
+                <div className="flex items-center gap-4">
+                  <Link to="/search" className="text-sm font-bold text-slate-800 hover:text-primary-600 flex items-center gap-1">
+                    View all <ArrowRight className="h-4 w-4" />
+                  </Link>
+                  <div className="hidden items-center gap-2 sm:flex">
+                    <button
+                      onClick={() => scrollTopStays('left')}
+                      aria-label="Scroll left"
+                      className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:bg-slate-50"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => scrollTopStays('right')}
+                      aria-label="Scroll right"
+                      className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:bg-slate-50"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </Reveal>
@@ -374,29 +383,39 @@ export function HomePage() {
       <section className="bg-white py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Reveal>
-            <h2 className="mb-2 text-2xl font-bold text-slate-900">Explore By Property Type</h2>
-            <p className="mb-6 text-sm font-medium text-slate-500">
-              Every stay on Innbly falls into one of these categories — pick the kind of space that fits your trip.
+            <div className="mb-6 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <h2 className="text-2xl font-bold text-slate-900">Explore By Property Type</h2>
+              </div>
+              <Link to="/search" className="text-sm font-bold text-slate-800 hover:text-primary-600 flex items-center gap-1">
+                View all categories <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+            <p className="mb-8 text-sm font-medium text-slate-500 flex items-center gap-1.5">
+              <AlertCircle className="h-4 w-4 text-red-500" /> Every stay on Innbly falls into one of these categories — pick the kind of space that fits your trip.
             </p>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {PROPERTY_TYPE_EXPLORE.map((t) => {
                 const count = properties.filter((p) => p.propertyType === t.propertyType).length
                 return (
                   <button
                     key={t.label}
                     onClick={() => navigate(`/search?type=${encodeURIComponent(t.propertyType)}`)}
-                    className="group overflow-hidden rounded-2xl border border-slate-100 text-left shadow-card transition hover:-translate-y-0.5 hover:shadow-card-hover"
+                    className="relative h-64 overflow-hidden rounded-3xl text-left transition hover:-translate-y-1 hover:shadow-lg group shadow-card"
                   >
-                    <div className="relative h-36 w-full overflow-hidden">
-                      <img src={t.image} alt={t.label} className="h-full w-full object-cover transition group-hover:scale-105" />
-                      <span className="absolute left-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-primary-600 shadow-sm backdrop-blur-md">
-                        <Home className="h-4 w-4" />
-                      </span>
-                    </div>
-                    <div className="p-3.5">
-                      <p className="text-sm font-bold text-slate-800">{t.label}</p>
-                      <p className="mt-0.5 text-xs text-slate-500">{t.subtitle}</p>
-                      <p className="mt-1.5 text-xs font-semibold text-primary-600">{count}+ stays</p>
+                    <img src={t.image} alt={t.label} className="absolute inset-0 h-full w-full object-cover transition group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
+                    
+                    {/* White overlay content at the bottom */}
+                    <div className="absolute bottom-3 left-3 right-3 rounded-2xl bg-white/95 p-3 shadow-md backdrop-blur-sm">
+                      <div className="flex items-center gap-2">
+                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-50 text-primary-600">
+                          <Home className="h-3.5 w-3.5" />
+                        </span>
+                        <p className="text-sm font-bold text-slate-800">{t.label}</p>
+                      </div>
+                      <p className="mt-1 text-[11px] text-slate-500 leading-normal line-clamp-2">{t.subtitle}</p>
+                      <p className="mt-1.5 text-[11px] font-bold text-primary-600">{count}+ stays</p>
                     </div>
                   </button>
                 )
