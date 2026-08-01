@@ -16,11 +16,13 @@ import {
   Gift,
   Receipt,
   Repeat,
+  Bell,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { TranslateWidget } from './TranslateWidget'
 import { Button } from './ui/Button'
 import { HostMenuPanel } from './HostMenuPanel'
+import { useNewBookingsCount, markBookingsSeen } from '../hooks/useNewBookingsCount'
 
 export function Navbar() {
   const { user, openAuthModal, logout, switchRole } = useAuth()
@@ -30,6 +32,7 @@ export function Navbar() {
   const [avatarOpen, setAvatarOpen] = useState(false)
   const [switchingToHost, setSwitchingToHost] = useState(false)
   const [hostMenuOpen, setHostMenuOpen] = useState(false)
+  const newBookingsCount = useNewBookingsCount(user?.role === 'host' ? user.email : undefined)
 
   const goToListProperty = async () => {
     if (user?.role === 'host') {
@@ -129,6 +132,23 @@ export function Navbar() {
 
           {isHost && (
             <div className="hidden items-center gap-3 sm:flex">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  navigate('/dashboard/bookings')
+                  markBookingsSeen(user!.email)
+                }}
+                aria-label={newBookingsCount > 0 ? `${newBookingsCount} new bookings` : 'Bookings'}
+                className="relative"
+              >
+                <Bell className="h-5 w-5" />
+                {newBookingsCount > 0 && (
+                  <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">
+                    {newBookingsCount}
+                  </span>
+                )}
+              </Button>
               <span className="text-sm text-slate-600">Hi, {user!.name.split(' ')[0]}</span>
               <Button variant="outline" size="sm" onClick={handleSwitchRole}>
                 <Repeat className="h-3.5 w-3.5" /> Switch to travelling
