@@ -148,57 +148,51 @@ export function HomePage() {
 
   return (
     <div>
-      {/* Hero — light, compact layout: big heading + inline pill search bar,
-          replacing the previous full-bleed dark photo hero + floating card. */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-primary-50/70 via-white to-white pb-14 pt-16 sm:pt-20">
-        <div className="mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <h1 className="mb-4 text-4xl font-extrabold leading-[1.1] tracking-tight text-slate-900 sm:text-5xl md:text-6xl">
-              Find stays that <span className="text-primary-600">feel like home</span>
+      {/* Hero — premium layout: 2-column left heading + right search card */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-primary-50/40 via-white to-white pb-20 pt-16 md:pt-24">
+        <div className="mx-auto max-w-[1440px] px-6 sm:px-8 lg:px-20 flex flex-col lg:flex-row items-center justify-between gap-12">
+          
+          {/* Left Column: Heading */}
+          <div className="flex-1 max-w-xl text-left">
+            <h1 className="mb-4 text-4xl font-extrabold leading-[1.15] tracking-tight text-slate-900 sm:text-5xl md:text-6xl animate-fade-in">
+              Find stays that <span className="text-primary-650">feel like home</span>
             </h1>
-            <p className="mx-auto mb-8 max-w-xl text-lg font-medium text-slate-500">
-              Discover verified villas, cabins, cottages, and farmhouses across India's most-loved getaway
-              destinations.
+            <p className="text-base sm:text-lg font-semibold text-slate-500 max-w-md leading-relaxed animate-fade-in">
+              Discover unique places to stay around the world.
             </p>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="mx-auto max-w-4xl rounded-2xl border border-slate-200 bg-white p-3 text-left shadow-card-hover md:rounded-full md:p-2"
-          >
-            <form onSubmit={handleSearch} className="grid grid-cols-1 items-center gap-2 md:grid-cols-[1.5fr_2fr_1fr_auto]">
-              <div className="relative rounded-xl px-4 py-2 transition hover:bg-slate-50 md:rounded-full">
-                <label htmlFor="home-search-location" className="mb-0.5 block text-[11px] font-bold text-slate-400 uppercase tracking-wide flex items-center gap-1">
-                  <MapPin className="h-3.5 w-3.5 text-primary-500" /> Where are you going?
+          {/* Right Column: Search Card */}
+          <div className="w-full lg:max-w-3xl bg-white rounded-[28px] border border-slate-100 p-4 shadow-xl hover:shadow-2xl transition duration-300 animate-slide-in">
+            <form onSubmit={handleSearch} className="flex flex-col md:flex-row items-center justify-between gap-2 md:gap-0">
+              <div className="flex-1 w-full relative rounded-2xl px-5 py-2.5 transition hover:bg-slate-50 md:rounded-full flex flex-col items-start gap-1">
+                <label htmlFor="home-search-location" className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <MapPin className="h-4 w-4 text-primary-500" /> Where are you going?
                 </label>
                 <LocationAutocomplete value={locationQuery} onChange={setLocationQuery} placeholder="Search destinations" />
               </div>
+
+              <div className="hidden md:block h-10 w-[1.5px] bg-slate-100" />
 
               <DateRangePicker
                 checkIn={checkIn}
                 checkOut={checkOut}
                 onChange={(a, b) => { setCheckIn(a); setCheckOut(b) }}
                 customTrigger={
-                  <div className="grid grid-cols-2 md:border-l md:border-slate-100">
-                    <div className="rounded-xl px-4 py-2 transition hover:bg-slate-50 md:rounded-full">
-                      <span className="mb-0.5 block text-[11px] font-bold text-slate-400 uppercase tracking-wide flex items-center gap-1">
-                        <CalendarDays className="h-3.5 w-3.5 text-primary-500" /> Check in
+                  <div className="flex-1 w-full grid grid-cols-2">
+                    <div className="rounded-2xl px-5 py-2.5 transition hover:bg-slate-50 md:rounded-full flex flex-col items-start gap-1">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <CalendarDays className="h-4 w-4 text-primary-500" /> Check in
                       </span>
-                      <span className="block text-[14px] font-bold text-slate-800">
+                      <span className="block text-sm font-bold text-slate-800">
                         {checkIn ? formatDisplay(checkIn) : 'Add dates'}
                       </span>
                     </div>
-                    <div className="rounded-xl px-4 py-2 transition hover:bg-slate-50 md:rounded-full md:border-l md:border-slate-100">
-                      <span className="mb-0.5 block text-[11px] font-bold text-slate-400 uppercase tracking-wide flex items-center gap-1">
-                        <CalendarDays className="h-3.5 w-3.5 text-primary-500" /> Check out
+                    <div className="rounded-2xl px-5 py-2.5 transition hover:bg-slate-50 md:rounded-full flex flex-col items-start gap-1 md:border-l md:border-slate-100">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <CalendarDays className="h-4 w-4 text-primary-500" /> Check out
                       </span>
-                      <span className="block text-[14px] font-bold text-slate-800">
+                      <span className="block text-sm font-bold text-slate-800">
                         {checkOut ? formatDisplay(checkOut) : 'Add dates'}
                       </span>
                     </div>
@@ -206,15 +200,17 @@ export function HomePage() {
                 }
               />
 
-              <div className="relative rounded-xl px-4 py-2 transition hover:bg-slate-50 md:rounded-full md:border-l md:border-slate-100">
-                <label htmlFor="home-search-guests" className="mb-0.5 block text-[11px] font-bold text-slate-400 uppercase tracking-wide flex items-center gap-1">
-                  <Users className="h-3.5 w-3.5 text-primary-500" /> Guests
+              <div className="hidden md:block h-10 w-[1.5px] bg-slate-100" />
+
+              <div className="flex-1 w-full relative rounded-2xl px-5 py-2.5 transition hover:bg-slate-50 md:rounded-full flex flex-col items-start gap-1">
+                <label htmlFor="home-search-guests" className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <Users className="h-4 w-4 text-primary-500" /> Guests
                 </label>
                 <select
                   id="home-search-guests"
                   value={guests}
                   onChange={(e) => setGuests(e.target.value)}
-                  className="w-full cursor-pointer bg-transparent text-[14px] font-bold text-slate-800 outline-none"
+                  className="w-full cursor-pointer bg-transparent text-sm font-bold text-slate-800 outline-none"
                 >
                   <option value="all">Add guests</option>
                   <option value="1">1 Guest</option>
@@ -227,37 +223,37 @@ export function HomePage() {
               <button
                 type="submit"
                 aria-label="Search"
-                className="flex h-12 w-12 items-center justify-center justify-self-center rounded-full bg-primary-600 text-white shadow-lg shadow-primary-500/30 transition-all hover:bg-primary-700 active:scale-95 md:mr-2"
+                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary-600 text-white shadow-lg shadow-primary-500/20 transition-all hover:bg-primary-700 active:scale-95 md:mr-2"
               >
-                <Search className="h-5 w-5" />
+                <Search className="h-5 w-5 stroke-[2.5px]" />
               </button>
             </form>
-          </motion.div>
-
-          {/* BestPrice Guarantee, Trusted, 24/7 Support directly beneath Search Bar */}
-          <div className="mx-auto mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs font-bold text-slate-600">
-            <span className="flex items-center gap-1.5">
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-50 text-primary-600 border border-rose-100">
-                ✓
-              </span>
-              <span>Best Price Guarantee</span>
-              <span className="text-[10px] text-slate-400 font-medium hidden sm:inline">• Cancel for free first month of</span>
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-50 text-primary-600 border border-rose-100">
-                ✓
-              </span>
-              <span>Trustworthy Millions</span>
-              <span className="text-[10px] text-slate-400 font-medium hidden sm:inline">• Reliability guarantee worldwide</span>
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-50 text-primary-600 border border-rose-100">
-                ✓
-              </span>
-              <span>24/7 Support</span>
-              <span className="text-[10px] text-slate-400 font-medium hidden sm:inline">• We are here to help anytime</span>
-            </span>
           </div>
+        </div>
+
+        {/* BestPrice Guarantee, Trusted, 24/7 Support directly beneath Search Bar */}
+        <div className="mx-auto mt-8 flex flex-wrap items-center justify-center gap-x-10 gap-y-3 text-xs font-bold text-slate-600 px-6">
+          <span className="flex items-center gap-1.5">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-50 text-primary-600 border border-rose-100">
+              ✓
+            </span>
+            <span>Best Price Guarantee</span>
+            <span className="text-[10px] text-slate-400 font-medium hidden sm:inline">• Cancel for free first month of</span>
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-50 text-primary-600 border border-rose-100">
+              ✓
+            </span>
+            <span>Trustworthy Millions</span>
+            <span className="text-[10px] text-slate-400 font-medium hidden sm:inline">• Reliability guarantee worldwide</span>
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-50 text-primary-600 border border-rose-100">
+              ✓
+            </span>
+            <span>24/7 Support</span>
+            <span className="text-[10px] text-slate-400 font-medium hidden sm:inline">• We are here to help anytime</span>
+          </span>
         </div>
       </section>
 

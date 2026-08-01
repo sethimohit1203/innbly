@@ -1,20 +1,25 @@
-// Placeholder marketing figures — replace with real numbers before launch.
 const STATS = [
-  { value: '10,000+', label: 'Bookings' },
-  { value: '98%', label: 'Customer Satisfaction' },
-  { value: '300+', label: 'Verified Properties' },
+  { value: '10,000+', label: 'Unique Properties' },
+  { value: '95%', label: 'Happy Travelers' },
+  { value: '300+', label: 'Destinations' },
   { value: '4.9★', label: 'Average Rating' },
 ]
 
 export function TrustStats() {
   return (
-    <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
-      {STATS.map((s) => (
-        <div key={s.label} className="text-center">
-          <p className="text-3xl font-extrabold text-primary-700 sm:text-4xl">{s.value}</p>
-          <p className="mt-1 text-sm font-semibold text-slate-500">{s.label}</p>
-        </div>
-      ))}
-    </div>
+    <section className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-rose-50/60 via-red-50/40 to-amber-50/30 border border-rose-100/50 py-20 my-16">
+      <div className="mx-auto max-w-[1440px] px-6 sm:px-8 lg:px-20 grid grid-cols-2 gap-8 md:grid-cols-4 items-center">
+        {STATS.map((s) => (
+          <div key={s.label} className="text-center group">
+            <p className="text-4xl sm:text-5xl md:text-6xl font-black text-primary-650 tracking-tight transition-transform duration-300 group-hover:scale-105">
+              {s.value}
+            </p>
+            <p className="mt-2.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+              {s.label}
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
   )
 }
