@@ -104,7 +104,8 @@ export function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/80 shadow-sm backdrop-blur-md transition-shadow">
+    <>
+      <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/80 shadow-sm backdrop-blur-md transition-shadow">
       <div className="mx-auto grid h-18 max-w-7xl grid-cols-[1fr_auto_1fr] items-center px-6 sm:px-8 lg:px-10">
         <Link to="/" className="flex items-center gap-2.5 justify-self-start">
           <img src="/brand/innbly-icon.jpg" alt="innbly" className="h-9 w-9 rounded-xl object-cover shadow-lg shadow-primary-500/20" />
@@ -467,8 +468,8 @@ export function Navbar() {
           )}
         </div>
       )}
-
-      {isHost && <HostMenuPanel open={hostMenuOpen} onClose={() => setHostMenuOpen(false)} />}
     </header>
+    {isHost && <HostMenuPanel open={hostMenuOpen} onClose={() => setHostMenuOpen(false)} />}
+    </>
   )
 }
