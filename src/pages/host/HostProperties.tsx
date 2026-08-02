@@ -27,7 +27,7 @@ export function HostPropertiesPage() {
         {/* Horizontal Stats Row */}
         <div className="flex flex-wrap items-center gap-3">
           {/* Live */}
-          <div className="flex items-center gap-3 rounded-2xl border border-slate-150 bg-white px-4 py-2 shadow-sm min-w-[5.5rem]">
+          <div className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white px-4 py-2 shadow-sm min-w-[5.5rem]">
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-red-50 text-primary-600">
               <Building2 className="h-4 w-4" />
             </span>
@@ -37,7 +37,7 @@ export function HostPropertiesPage() {
             </div>
           </div>
           {/* Pending */}
-          <div className="flex items-center gap-3 rounded-2xl border border-slate-150 bg-white px-4 py-2 shadow-sm min-w-[5.5rem]">
+          <div className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white px-4 py-2 shadow-sm min-w-[5.5rem]">
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-50 text-amber-500">
               <Clock className="h-4 w-4" />
             </span>
@@ -47,7 +47,7 @@ export function HostPropertiesPage() {
             </div>
           </div>
           {/* Inactive */}
-          <div className="flex items-center gap-3 rounded-2xl border border-slate-150 bg-white px-4 py-2 shadow-sm min-w-[5.5rem]">
+          <div className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white px-4 py-2 shadow-sm min-w-[5.5rem]">
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-50 text-purple-500">
               <Power className="h-4 w-4" />
             </span>
@@ -57,7 +57,7 @@ export function HostPropertiesPage() {
             </div>
           </div>
           {/* Total */}
-          <div className="flex items-center gap-3 rounded-2xl border border-slate-150 bg-white px-4 py-2 shadow-sm min-w-[5.5rem]">
+          <div className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white px-4 py-2 shadow-sm min-w-[5.5rem]">
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 text-blue-500">
               <Briefcase className="h-4 w-4" />
             </span>
@@ -71,7 +71,7 @@ export function HostPropertiesPage() {
 
       {/* Main Container */}
       {myListingIds.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-3xl border border-slate-150 bg-white p-8 py-20 text-center shadow-sm">
+        <div className="flex flex-col items-center justify-center rounded-3xl border border-slate-100 bg-white p-8 py-20 text-center shadow-sm">
           {/* Custom SVG house vector with plus symbol illustration matching Image 1 */}
           <div className="relative mb-6 flex h-36 w-36 items-center justify-center">
             {/* Background vector lines / clouds */}

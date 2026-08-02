@@ -32,7 +32,7 @@ function BudgetSlider({ value, onChange }: { value: number; onChange: (v: number
       </span>
       <div className="flex flex-col text-left min-w-[5.5rem]">
         <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Price Range</span>
-        <span className="text-xs font-extrabold text-slate-850">
+        <span className="text-xs font-extrabold text-slate-800">
           ₹0 - ₹{value === MAX_BUDGET ? `${MAX_BUDGET}+` : value.toLocaleString('en-IN')}
         </span>
       </div>
@@ -44,6 +44,7 @@ function BudgetSlider({ value, onChange }: { value: number; onChange: (v: number
         step={100}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
+        aria-label={`Maximum nightly price, up to ₹${value === MAX_BUDGET ? `${MAX_BUDGET}+` : value}`}
         className="w-20 h-1 bg-red-100 rounded-lg appearance-none cursor-pointer accent-primary-600 focus:outline-none"
       />
     </div>
@@ -385,7 +386,7 @@ export function SearchResultsPage() {
       <h1 className="sr-only">Search villas, holiday homes, cabins, cottages, and farmhouses</h1>
 
       {/* Sticky search & filter bar — stays fixed directly beneath the sticky brand header */}
-      <div className="sticky top-20 z-30 space-y-3 border-b border-slate-150 bg-white px-4 py-3 shadow-sm sm:px-6">
+      <div className="sticky top-20 z-30 space-y-3 border-b border-slate-100 bg-white px-4 py-3 shadow-sm sm:px-6">
         <div className="mx-auto max-w-7xl">
           {collection && (
             <div className="mb-2 flex items-center gap-2 rounded-xl bg-primary-50 px-4 py-1.5 text-xs font-bold text-primary-700">
@@ -426,7 +427,7 @@ export function SearchResultsPage() {
 
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:flex-row">
         {/* Popular Filters sidebar — desktop only */}
-        <aside className="hidden shrink-0 lg:block lg:w-64 bg-white p-5 rounded-3xl border border-slate-150 shadow-sm h-fit">
+        <aside className="hidden shrink-0 lg:block lg:w-64 bg-white p-5 rounded-3xl border border-slate-100 shadow-sm h-fit">
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-extrabold text-slate-900">Filters</h2>
@@ -546,14 +547,14 @@ export function SearchResultsPage() {
               <button
                 type="button"
                 onClick={() => showToast('Filters applied!')}
-                className="w-full rounded-xl bg-gradient-to-r from-red-500 to-primary-650 py-3 text-xs font-bold text-white shadow-md hover:from-red-650 hover:to-primary-700 active:scale-95 transition"
+                className="w-full rounded-xl bg-gradient-to-r from-red-500 to-primary-600 py-3 text-xs font-bold text-white shadow-md hover:from-red-600 hover:to-primary-700 active:scale-95 transition"
               >
                 Apply Filters
               </button>
               <button
                 type="button"
                 onClick={handleSaveSearch}
-                className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-slate-205 bg-white py-3 text-xs font-bold text-slate-700 hover:border-slate-350 transition active:scale-95"
+                className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-slate-205 bg-white py-3 text-xs font-bold text-slate-700 hover:border-slate-300 transition active:scale-95"
               >
                 <Heart className="h-4 w-4 text-rose-500" /> Save Search
               </button>

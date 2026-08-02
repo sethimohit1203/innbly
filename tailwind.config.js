@@ -60,6 +60,12 @@ export default {
       },
       spacing: {
         18: '4.5rem', // 72px — used for the trimmed navbar height
+        // 4.5 (18px) isn't in Tailwind's default scale, but h-4.5/w-4.5 is used
+        // ~50 times across the app as the standard icon size between h-4 (16px)
+        // and h-5 (20px) — without this, every one of those classes silently
+        // generated no CSS at all (confirmed via the compiled output), so those
+        // icons were rendering at their raw SVG default size instead.
+        4.5: '1.125rem',
       },
       transitionTimingFunction: {
         smooth: 'cubic-bezier(0.16, 1, 0.3, 1)',

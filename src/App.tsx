@@ -47,6 +47,7 @@ const ComparePage = lazy(() => import('./pages/Compare').then((m) => ({ default:
 const HostProfilePage = lazy(() => import('./pages/HostProfile').then((m) => ({ default: m.HostProfilePage })))
 const DestinationPage = lazy(() => import('./pages/Destination').then((m) => ({ default: m.DestinationPage })))
 const ProgrammaticListingPage = lazy(() => import('./pages/ProgrammaticListingPage').then((m) => ({ default: m.ProgrammaticListingPage })))
+const NotFoundPage = lazy(() => import('./pages/NotFound').then((m) => ({ default: m.NotFoundPage })))
 
 function RouteLoading() {
   return (
@@ -119,6 +120,7 @@ export default function App() {
           {PROGRAMMATIC_PAGES.map((c) => (
             <Route key={c.path} path={c.path} element={<ProgrammaticListingPage path={c.path} />} />
           ))}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
         </div>
         </Suspense>

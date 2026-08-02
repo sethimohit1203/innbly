@@ -155,7 +155,7 @@ export function HomePage() {
           {/* Left Column: Heading */}
           <div className="flex-1 max-w-xl text-left">
             <h1 className="mb-4 text-4xl font-extrabold leading-[1.15] tracking-tight text-slate-900 sm:text-5xl md:text-6xl animate-fade-in">
-              Find stays that <span className="text-primary-650">feel like home</span>
+              Find stays that <span className="text-primary-600">feel like home</span>
             </h1>
             <p className="text-base sm:text-lg font-semibold text-slate-500 max-w-md leading-relaxed animate-fade-in">
               Discover unique places to stay around the world.

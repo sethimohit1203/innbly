@@ -21,7 +21,7 @@ export function Footer() {
   }
 
   return (
-    <footer className="border-t border-slate-150 bg-white pb-8 pt-16 text-slate-500">
+    <footer className="border-t border-slate-100 bg-white pb-8 pt-16 text-slate-500">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-10 border-b border-slate-100 pb-12 sm:grid-cols-2 lg:grid-cols-5">
           {/* Brand Info */}
@@ -74,7 +74,7 @@ export function Footer() {
                 ['Manali', '/manali'],
                 ['Shimla', '/shimla'],
                 ['Jaipur', '/jaipur'],
-                ['Kerala', '/kerala'],
+                ['Udaipur', '/udaipur'],
               ].map(([city, path]) => (
                 <li key={city}>
                   <Link to={path} className="transition-colors hover:text-primary-600 text-slate-500">

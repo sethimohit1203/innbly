@@ -78,7 +78,7 @@ export function HostDashboardLayout() {
                         end={item.end}
                         className={({ isActive }) =>
                           `flex shrink-0 items-center gap-2.5 whitespace-nowrap rounded-xl px-3 py-2.5 text-xs font-bold transition ${
-                            isActive ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-slate-650 hover:bg-slate-100'
+                            isActive ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-slate-600 hover:bg-slate-100'
                           }`
                         }
                       >

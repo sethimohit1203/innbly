@@ -43,7 +43,7 @@ export function CategoryScroller() {
             className={`flex shrink-0 items-center gap-2 rounded-full border px-4.5 py-2.5 text-xs font-bold transition-all active:scale-95 ${
               isActive
                 ? 'bg-primary-600 border-primary-600 text-white shadow-md shadow-primary-500/10'
-                : 'border-slate-200 bg-white text-slate-650 hover:bg-slate-50 hover:border-slate-300 shadow-sm'
+                : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300 shadow-sm'
             }`}
           >
             <c.icon className="h-4.5 w-4.5" />

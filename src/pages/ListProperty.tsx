@@ -427,12 +427,12 @@ export function ListPropertyPage() {
         {/* Left column: Form */}
         <div className="lg:col-span-2 space-y-4">
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="animate-fade-in rounded-3xl border border-slate-150 bg-white p-6 sm:p-8 shadow-sm" key={step}>
+            <div className="animate-fade-in rounded-3xl border border-slate-100 bg-white p-6 sm:p-8 shadow-sm" key={step}>
               {step === 0 && (
                 <div className="space-y-6">
                   <div className="flex items-center gap-3.5 border-b border-slate-100 pb-4">
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-red-50 text-primary-500">
-                      <User className="h-5.5 w-5.5" />
+                      <User className="h-5 w-5" />
                     </div>
                     <div className="text-left">
                       <h3 className="text-sm font-extrabold text-slate-900">Owner Information</h3>
@@ -870,7 +870,7 @@ export function ListPropertyPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="rounded-xl bg-gradient-to-r from-red-500 to-primary-600 px-6 py-2.5 text-xs font-bold text-white shadow-md hover:from-red-650 hover:to-primary-700 transition active:scale-95 disabled:opacity-50"
+                  className="rounded-xl bg-gradient-to-r from-red-500 to-primary-600 px-6 py-2.5 text-xs font-bold text-white shadow-md hover:from-red-600 hover:to-primary-700 transition active:scale-95 disabled:opacity-50"
                 >
                   {submitting ? 'Submitting…' : 'Submit Listing'}
                 </button>
@@ -891,7 +891,7 @@ export function ListPropertyPage() {
       {/* Right column: Sidebar Info Cards */}
       <div className="space-y-4">
         {/* Why this information? */}
-        <div className="rounded-2xl border border-slate-150 bg-white p-5 shadow-sm">
+        <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
           <h3 className="text-xs font-extrabold text-slate-800 mb-4 text-left">Why this information?</h3>
           <div className="space-y-4 text-left">
             <div className="flex gap-3">
@@ -900,7 +900,7 @@ export function ListPropertyPage() {
               </span>
               <div>
                 <p className="text-xs font-bold text-slate-800">Secure & Safe</p>
-                <p className="text-[11px] text-slate-450 mt-0.5 leading-relaxed">Your information is encrypted and protected.</p>
+                <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">Your information is encrypted and protected.</p>
               </div>
             </div>
             <div className="flex gap-3">
@@ -909,7 +909,7 @@ export function ListPropertyPage() {
               </span>
               <div>
                 <p className="text-xs font-bold text-slate-800">Verified Leads</p>
-                <p className="text-[11px] text-slate-450 mt-0.5 leading-relaxed">We use this to verify your identity and connect you with genuine leads.</p>
+                <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">We use this to verify your identity and connect you with genuine leads.</p>
               </div>
             </div>
             <div className="flex gap-3">
@@ -918,17 +918,17 @@ export function ListPropertyPage() {
               </span>
               <div>
                 <p className="text-xs font-bold text-slate-800">Better Experience</p>
-                <p className="text-[11px] text-slate-450 mt-0.5 leading-relaxed">Helps us personalize your experience and provide better support.</p>
+                <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">Helps us personalize your experience and provide better support.</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Need help? */}
-        <div className="rounded-2xl border border-slate-150 bg-white p-5 shadow-sm">
+        <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
           <h3 className="text-xs font-extrabold text-slate-800 mb-2 text-left">Need help?</h3>
-          <p className="text-xs text-slate-450 leading-relaxed mb-4 text-left">Our team is here to help you list your property successfully.</p>
-          <Link to="/contact" className="w-full flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-white py-2.5 text-xs font-bold text-primary-650 hover:bg-red-50/50 transition">
+          <p className="text-xs text-slate-400 leading-relaxed mb-4 text-left">Our team is here to help you list your property successfully.</p>
+          <Link to="/contact" className="w-full flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-white py-2.5 text-xs font-bold text-primary-600 hover:bg-red-50/50 transition">
             <Phone className="h-4 w-4 text-rose-500" /> Contact Support
           </Link>
         </div>

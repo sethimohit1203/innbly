@@ -39,7 +39,7 @@ export function TranslateWidget() {
       <button
         onClick={() => setOpen((o) => !o)}
         title="Translate this page"
-        className="flex items-center gap-1 rounded-xl px-2 py-1 text-xs font-bold text-slate-650 hover:bg-slate-50 transition"
+        className="flex items-center gap-1 rounded-xl px-2 py-1 text-xs font-bold text-slate-600 hover:bg-slate-50 transition"
       >
         <Globe className="h-4 w-4 text-slate-400" />
         <span>EN</span>

@@ -11,7 +11,7 @@ export function TrustStats() {
       <div className="mx-auto max-w-[1440px] px-6 sm:px-8 lg:px-20 grid grid-cols-2 gap-8 md:grid-cols-4 items-center">
         {STATS.map((s) => (
           <div key={s.label} className="text-center group">
-            <p className="text-4xl sm:text-5xl md:text-6xl font-black text-primary-650 tracking-tight transition-transform duration-300 group-hover:scale-105">
+            <p className="text-4xl sm:text-5xl md:text-6xl font-black text-primary-600 tracking-tight transition-transform duration-300 group-hover:scale-105">
               {s.value}
             </p>
             <p className="mt-2.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
