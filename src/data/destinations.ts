@@ -13,19 +13,19 @@ export interface Destination {
 }
 
 const UNSPLASH_IMAGES: Record<string, string> = {
-  'dest-goa': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&h=900&q=80',
-  'dest-manali': 'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?auto=format&fit=crop&w=1600&h=900&q=80',
-  'dest-shimla': 'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=1600&h=900&q=80',
-  'dest-jaipur': 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1600&h=900&q=80',
-  'dest-udaipur': 'https://images.unsplash.com/photo-1595658658481-d53d3f999875?auto=format&fit=crop&w=1600&h=900&q=80',
-  'dest-mussoorie': 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1600&h=900&q=80',
-  'dest-coorg': 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1600&h=900&q=80',
-  'dest-ooty': 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1600&h=900&q=80',
-  'dest-rishikesh': 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=1600&h=900&q=80',
-  'dest-lonavala': 'https://images.unsplash.com/photo-1581888227599-779811939961?auto=format&fit=crop&w=1600&h=900&q=80',
+  'dest-goa': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&h=562&q=75&fm=webp',
+  'dest-manali': 'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?auto=format&fit=crop&w=1000&h=562&q=75&fm=webp',
+  'dest-shimla': 'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=1000&h=562&q=75&fm=webp',
+  'dest-jaipur': 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1000&h=562&q=75&fm=webp',
+  'dest-udaipur': 'https://images.unsplash.com/photo-1595658658481-d53d3f999875?auto=format&fit=crop&w=1000&h=562&q=75&fm=webp',
+  'dest-mussoorie': 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1000&h=562&q=75&fm=webp',
+  'dest-coorg': 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1000&h=562&q=75&fm=webp',
+  'dest-ooty': 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1000&h=562&q=75&fm=webp',
+  'dest-rishikesh': 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=1000&h=562&q=75&fm=webp',
+  'dest-lonavala': 'https://images.unsplash.com/photo-1581888227599-779811939961?auto=format&fit=crop&w=1000&h=562&q=75&fm=webp',
 }
 
-const img = (seed: string) => UNSPLASH_IMAGES[seed] || `https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&h=900&q=80`
+const img = (seed: string) => UNSPLASH_IMAGES[seed] || `https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&h=562&q=75&fm=webp`
 
 export const DESTINATIONS: Destination[] = [
   {

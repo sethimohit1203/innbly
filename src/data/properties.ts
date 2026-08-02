@@ -95,7 +95,9 @@ const PROPERTY_IMAGES: Record<string, string> = {
 }
 
 const img = (seed: string, w = 800, h = 600) => {
-  return PROPERTY_IMAGES[seed] || `https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=${w}&h=${h}&q=80`
+  const base = PROPERTY_IMAGES[seed] || 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop'
+  const urlWithoutParams = base.split('?')[0]
+  return `${urlWithoutParams}?auto=format&fit=crop&w=${w}&h=${h}&q=75&fm=webp`
 }
 
 export const properties: Property[] = [

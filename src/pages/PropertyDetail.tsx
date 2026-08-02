@@ -186,6 +186,7 @@ export function PropertyDetailPage() {
     property
       ? `${property.title} — ₹${property.price.toLocaleString('en-IN')}/night for up to ${property.maxGuests} guests in ${property.neighborhood}, ${property.city}. ${property.verified ? 'Verified property.' : ''} Book directly on Innbly.`
       : undefined,
+    property?.images[0],
   )
 
   const propertyFaqs: FAQItem[] = property
@@ -199,12 +200,8 @@ export function PropertyDetailPage() {
           a: `Yes — the ₹${property.deposit.toLocaleString('en-IN')} security deposit is refundable and returned by the host after checkout, provided the property is left in good condition.`,
         },
         {
-          q: 'How quickly will the host respond?',
-          a: `Based on past guest interactions, ${property.ownerName} has a ${property.hostResponseRate}% response rate and typically replies within ${property.hostResponseTime.replace(/^Usually responds within /i, '')}.`,
-        },
-        {
-          q: 'Can I bring more guests than listed?',
-          a: `This space is set up for up to ${property.maxGuests} guest${property.maxGuests > 1 ? 's' : ''}. Message the host before booking if you need to bring more.`,
+          q: 'Are pets and smoking allowed?',
+          a: `Smoking is not allowed inside the rooms, and pet policies differ by listing — please request check-in preferences from ${property.ownerName} over WhatsApp chat.`,
         },
       ]
     : []
@@ -266,7 +263,7 @@ export function PropertyDetailPage() {
     )
   }
 
-  const whatsappUrl = `https://wa.me/${property.ownerPhone.replace('+', '')}?text=${encodeURIComponent(
+  const whatsappUrl = `https://wa.me/${property.ownerPhone.replace(/\D/g, '')}?text=${encodeURIComponent(
     `Hi ${property.ownerName}, I'm interested in "${property.title}" listed on innbly. Could you share more details?`,
   )}`
 

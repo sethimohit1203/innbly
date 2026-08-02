@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { ChevronDown, SlidersHorizontal, BellPlus, SearchX, Map as MapIcon, List, LayoutGrid, ShieldCheck, Zap, BadgeCheck, Sparkles, Calendar, MapPin, Users, Wallet, ArrowRight, Heart } from 'lucide-react'
 import { INDIAN_STATES } from '../data/states'
 import { PropertyCard } from '../components/PropertyCard'
+import { PropertyCardSkeleton } from '../components/SkeletonLoader'
 import { MapPlaceholder } from '../components/MapPlaceholder'
 import { PropertyTypeScroller } from '../components/PropertyTypeScroller'
 import { DateRangePicker, formatDisplay } from '../components/DateRangePicker'
@@ -231,6 +232,29 @@ export function SearchResultsPage() {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
   const [mobileMapOpen, setMobileMapOpen] = useState(false)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+
+  const [isSearching, setIsSearching] = useState(false)
+
+  useEffect(() => {
+    setIsSearching(true)
+    const timer = setTimeout(() => setIsSearching(false), 300)
+    return () => clearTimeout(timer)
+  }, [
+    city,
+    state,
+    guests,
+    budget,
+    tenantPref,
+    propertyType,
+    amenities,
+    stayDuration,
+    verifiedOnly,
+    freeCancellationOnly,
+    instantBookOnly,
+    guestFavouriteOnly,
+    sort,
+    collectionSlug,
+  ])
 
   const collection = getQuickFilter(collectionSlug)
 
@@ -582,13 +606,21 @@ export function SearchResultsPage() {
             </span>
           </div>
 
-          <div className={viewMode === 'grid' ? 'grid grid-cols-1 gap-5 sm:grid-cols-2' : 'flex flex-col gap-4'}>
-            {filtered.map((p, i) => (
-              <Reveal key={p.id} delay={(i % 4) * 0.05}>
-                <PropertyCard property={p} onQuickView={setQuickViewProperty} />
-              </Reveal>
-            ))}
-          </div>
+          {isSearching ? (
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <PropertyCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : (
+            <div className={viewMode === 'grid' ? 'grid grid-cols-1 gap-5 sm:grid-cols-2' : 'flex flex-col gap-4'}>
+              {filtered.map((p, i) => (
+                <Reveal key={p.id} delay={(i % 4) * 0.05}>
+                  <PropertyCard property={p} onQuickView={setQuickViewProperty} />
+                </Reveal>
+              ))}
+            </div>
+          )}
           {filtered.length === 0 && (
             <div className="mt-12 flex flex-col items-center rounded-3xl border border-dashed border-slate-200 py-16 text-center">
               <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-slate-400">

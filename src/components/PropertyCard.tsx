@@ -47,7 +47,7 @@ export function PropertyCard({ property, onQuickView }: { property: Property; on
       transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
       className="group flex flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-card transition-shadow hover:shadow-card-hover"
     >
-      <div className="relative h-52 w-full overflow-hidden bg-slate-100">
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100">
         <motion.div whileHover={{ scale: 1.08 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }} className="absolute inset-0">
           {previewImages.map((src, i) => (
             <img

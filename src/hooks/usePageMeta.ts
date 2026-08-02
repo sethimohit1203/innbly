@@ -4,7 +4,7 @@ import { setCanonical } from '../lib/seo'
 
 const SITE_NAME = 'innbly'
 
-export function usePageMeta(title: string, description?: string) {
+export function usePageMeta(title: string, description?: string, imageUrl?: string) {
   const location = useLocation()
 
   useEffect(() => {
@@ -24,9 +24,6 @@ export function usePageMeta(title: string, description?: string) {
       metaDescription.setAttribute('content', description)
     }
 
-    // Keep Open Graph/Twitter title+description roughly in sync too — real
-    // per-route OG only matters to crawlers that execute JS (Googlebot does;
-    // social link-preview bots generally don't, see index.html's note).
     const ogTitle = document.querySelector<HTMLMetaElement>('meta[property="og:title"]')
     const prevOgTitle = ogTitle?.getAttribute('content') ?? ''
     if (ogTitle) ogTitle.setAttribute('content', fullTitle)
@@ -34,6 +31,17 @@ export function usePageMeta(title: string, description?: string) {
     const ogDescription = document.querySelector<HTMLMetaElement>('meta[property="og:description"]')
     const prevOgDescription = ogDescription?.getAttribute('content') ?? ''
     if (description && ogDescription) ogDescription.setAttribute('content', description)
+
+    let ogImage = document.querySelector<HTMLMetaElement>('meta[property="og:image"]')
+    const prevOgImage = ogImage?.getAttribute('content') ?? ''
+    if (imageUrl) {
+      if (!ogImage) {
+        ogImage = document.createElement('meta')
+        ogImage.setAttribute('property', 'og:image')
+        document.head.appendChild(ogImage)
+      }
+      ogImage.setAttribute('content', imageUrl)
+    }
 
     setCanonical(location.pathname)
 
@@ -44,6 +52,7 @@ export function usePageMeta(title: string, description?: string) {
       }
       if (ogTitle) ogTitle.setAttribute('content', prevOgTitle)
       if (description && ogDescription) ogDescription.setAttribute('content', prevOgDescription)
+      if (imageUrl && ogImage) ogImage.setAttribute('content', prevOgImage)
     }
-  }, [title, description, location.pathname])
+  }, [title, description, imageUrl, location.pathname])
 }
