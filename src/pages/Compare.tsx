@@ -13,7 +13,7 @@ const ROWS: { label: string; render: (p: (typeof properties)[number]) => React.R
   { label: 'Rating', render: (p) => `${p.rating} ★ (${p.reviewCount})` },
   { label: 'Meals Included', render: (p) => (p.amenities.includes('Meals') ? 'Yes' : 'No') },
   { label: 'Nearest Metro', render: (p) => {
-    const metro = p.landmarks.find((l) => l.type === 'Metro')
+    const metro = p.landmarks.find((l: any) => l.type === 'Metro')
     return metro ? `${metro.distanceM}m` : '—'
   } },
   { label: 'Area', render: (p) => `${p.neighborhood}, ${p.city}` },

@@ -1,6 +1,102 @@
 import type { Property } from '../types'
 
-const img = (seed: string, w = 800, h = 600) => `https://picsum.photos/seed/${seed}/${w}/${h}`
+const PROPERTY_IMAGES: Record<string, string> = {
+  // Villas
+  'villa1': 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&h=600&q=80',
+  'villa2': 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=800&h=600&q=80',
+  'villa3': 'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=800&h=600&q=80',
+  'villa4': 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&h=600&q=80',
+  'villa5': 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&h=600&q=80',
+
+  // Cottages
+  'cottage1': 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&h=600&q=80',
+  'cottage2': 'https://images.unsplash.com/photo-1500076656116-558758c991c1?auto=format&fit=crop&w=800&h=600&q=80',
+  'cottage3': 'https://images.unsplash.com/photo-1475855581690-80acf433061c?auto=format&fit=crop&w=800&h=600&q=80',
+  'cottage4': 'https://images.unsplash.com/photo-1449034446853-66c86144b0ad?auto=format&fit=crop&w=800&h=600&q=80',
+  'cottage5': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&h=600&q=80',
+
+  // Cabins
+  'cabin1': 'https://images.unsplash.com/photo-1449034446853-66c86144b0ad?auto=format&fit=crop&w=800&h=600&q=80',
+  'cabin2': 'https://images.unsplash.com/photo-1475855581690-80acf433061c?auto=format&fit=crop&w=800&h=600&q=80',
+  'cabin3': 'https://images.unsplash.com/photo-1500076656116-558758c991c1?auto=format&fit=crop&w=800&h=600&q=80',
+  'cabin4': 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&w=800&h=600&q=80',
+  'cabin5': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&h=600&q=80',
+
+  // Havelis
+  'haveli1': 'https://images.unsplash.com/photo-1598977123418-45f04b615d0e?auto=format&fit=crop&w=800&h=600&q=80',
+  'haveli2': 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&h=600&q=80',
+  'haveli3': 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&h=600&q=80',
+  'haveli4': 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&h=600&q=80',
+  'haveli5': 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&h=600&q=80',
+
+  // Udaipur
+  'udaipur1': 'https://images.unsplash.com/photo-1595658658481-d53d3f999875?auto=format&fit=crop&w=800&h=600&q=80',
+  'udaipur2': 'https://images.unsplash.com/photo-1598977123418-45f04b615d0e?auto=format&fit=crop&w=800&h=600&q=80',
+  'udaipur3': 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&h=600&q=80',
+  'udaipur4': 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&h=600&q=80',
+  'udaipur5': 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&h=600&q=80',
+
+  // Farm stays
+  'farm1': 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&h=600&q=80',
+  'farm2': 'https://images.unsplash.com/photo-1500076656116-558758c991c1?auto=format&fit=crop&w=800&h=600&q=80',
+  'farm3': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&h=600&q=80',
+  'farm4': 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&w=800&h=600&q=80',
+  'farm5': 'https://images.unsplash.com/photo-1449034446853-66c86144b0ad?auto=format&fit=crop&w=800&h=600&q=80',
+
+  // Coorg
+  'coorg1': 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&h=600&q=80',
+  'coorg2': 'https://images.unsplash.com/photo-1500076656116-558758c991c1?auto=format&fit=crop&w=800&h=600&q=80',
+  'coorg3': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&h=600&q=80',
+  'coorg4': 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&w=800&h=600&q=80',
+  'coorg5': 'https://images.unsplash.com/photo-1449034446853-66c86144b0ad?auto=format&fit=crop&w=800&h=600&q=80',
+
+  // Ooty
+  'ooty1': 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=800&h=600&q=80',
+  'ooty2': 'https://images.unsplash.com/photo-1500076656116-558758c991c1?auto=format&fit=crop&w=800&h=600&q=80',
+  'ooty3': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&h=600&q=80',
+  'ooty4': 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&w=800&h=600&q=80',
+  'ooty5': 'https://images.unsplash.com/photo-1449034446853-66c86144b0ad?auto=format&fit=crop&w=800&h=600&q=80',
+
+  // Rishikesh
+  'rishikesh1': 'https://images.unsplash.com/photo-1598977123418-45f04b615d0e?auto=format&fit=crop&w=800&h=600&q=80',
+  'rishikesh2': 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&h=600&q=80',
+  'rishikesh3': 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&h=600&q=80',
+  'rishikesh4': 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&h=600&q=80',
+  'rishikesh5': 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&h=600&q=80',
+
+  // Mussoorie
+  'mussoorie1': 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=800&h=600&q=80',
+  'mussoorie2': 'https://images.unsplash.com/photo-1500076656116-558758c991c1?auto=format&fit=crop&w=800&h=600&q=80',
+  'mussoorie3': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&h=600&q=80',
+  'mussoorie4': 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&w=800&h=600&q=80',
+  'mussoorie5': 'https://images.unsplash.com/photo-1449034446853-66c86144b0ad?auto=format&fit=crop&w=800&h=600&q=80',
+
+  // Lonavala
+  'lonavala1': 'https://images.unsplash.com/photo-1581888227599-779811939961?auto=format&fit=crop&w=800&h=600&q=80',
+  'lonavala2': 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=800&h=600&q=80',
+  'lonavala3': 'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=800&h=600&q=80',
+  'lonavala4': 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&h=600&q=80',
+  'lonavala5': 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&h=600&q=80',
+
+  // Avatars
+  'karan': 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&h=100&q=80',
+  'ananya': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&h=100&q=80',
+  'meera': 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=100&h=100&q=80',
+  'kavya': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&h=100&q=80',
+  'sandeep': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&h=100&q=80',
+  'ishaan': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&h=100&q=80',
+  'priya': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=100&h=100&q=80',
+  'harpreet': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=100&h=100&q=80',
+  'vikram': 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=100&h=100&q=80',
+  'nisha': 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=100&h=100&q=80',
+  'rohan': 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=100&h=100&q=80',
+  'sanya': 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=100&h=100&q=80',
+  'aditya': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&h=100&q=80',
+}
+
+const img = (seed: string, w = 800, h = 600) => {
+  return PROPERTY_IMAGES[seed] || `https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=${w}&h=${h}&q=80`
+}
 
 export const properties: Property[] = [
   {
