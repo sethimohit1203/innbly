@@ -37,7 +37,7 @@ export const properties: Property[] = [
     freeCancellation: true,
     instantBook: true,
     availabilityStatus: 'Limited',
-    lifestyleTags: ['Couple', 'Family', 'Digital Nomad'],
+    lifestyleTags: ['Couple', 'Family', 'Digital Nomad', 'Corporate'],
     landmarks: [
       { name: 'Candolim Beach', type: 'Beach', distanceM: 350, walkMin: 4 },
       { name: 'Fort Aguada', type: 'Attraction', distanceM: 2200, walkMin: 27 },

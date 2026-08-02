@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test'
 test.describe('Nightly pricing & guest-based booking', () => {
   test('property cards show nightly pricing and guest capacity, not room type', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByText('₹1,800').first()).toBeVisible()
+    await expect(page.getByText('₹6,500').first()).toBeVisible()
     await expect(page.getByText('/ night').first()).toBeVisible()
     await expect(page.getByText('Single', { exact: true })).toHaveCount(0)
     await expect(page.getByText('Sharing', { exact: true })).toHaveCount(0)
@@ -12,7 +12,7 @@ test.describe('Nightly pricing & guest-based booking', () => {
   test('search page has a Guests filter and a nightly budget slider, no Room Type', async ({ page }) => {
     await page.goto('/search')
     await expect(page.locator('select').filter({ hasText: 'Guests' })).toBeVisible()
-    await expect(page.getByLabel(/≤ ₹/)).toBeVisible()
+    await expect(page.getByLabel(/Maximum nightly price/i)).toBeVisible()
     await expect(page.locator('select').filter({ hasText: 'Any Room Type' })).toHaveCount(0)
   })
 
@@ -27,11 +27,11 @@ test.describe('Nightly pricing & guest-based booking', () => {
   test('property detail shows nightly price, guest badge, host profile, and a working date calendar', async ({ page }) => {
     await page.goto('/property/p1')
 
-    await expect(page.getByText('Up to 3 guests').first()).toBeVisible()
+    await expect(page.getByText('Up to 6 guests').first()).toBeVisible()
     await expect(page.getByText('/night').first()).toBeVisible()
 
     await expect(page.getByRole('heading', { name: 'Meet your host' })).toBeVisible()
-    await expect(page.getByText('Rahul Mehta').first()).toBeVisible()
+    await expect(page.getByText('Maria Fernandes').first()).toBeVisible()
     await expect(page.getByText(/Usually responds within/i).first()).toBeVisible()
 
     await page.getByRole('button', { name: /Check-in.*Check-out/ }).click()

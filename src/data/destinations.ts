@@ -12,7 +12,20 @@ export interface Destination {
   propertyTypes: string[]
 }
 
-const img = (seed: string) => `https://picsum.photos/seed/${seed}/1600/900`
+const UNSPLASH_IMAGES: Record<string, string> = {
+  'dest-goa': 'https://images.unsplash.com/photo-1614082242765-7c98aa0ee3df?auto=format&fit=crop&w=1600&h=900&q=80',
+  'dest-manali': 'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=1600&h=900&q=80',
+  'dest-shimla': 'https://images.unsplash.com/photo-1597075095400-b6da10c85c4b?auto=format&fit=crop&w=1600&h=900&q=80',
+  'dest-jaipur': 'https://images.unsplash.com/photo-1477587458883-47135a57b30f?auto=format&fit=crop&w=1600&h=900&q=80',
+  'dest-udaipur': 'https://images.unsplash.com/photo-1595658658481-d53d3f999875?auto=format&fit=crop&w=1600&h=900&q=80',
+  'dest-mussoorie': 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=1600&h=900&q=80',
+  'dest-coorg': 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1600&h=900&q=80',
+  'dest-ooty': 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1600&h=900&q=80',
+  'dest-rishikesh': 'https://images.unsplash.com/photo-1607519139593-3b6dcd4266e7?auto=format&fit=crop&w=1600&h=900&q=80',
+  'dest-lonavala': 'https://images.unsplash.com/photo-1581888227599-779811939961?auto=format&fit=crop&w=1600&h=900&q=80',
+}
+
+const img = (seed: string) => UNSPLASH_IMAGES[seed] || `https://picsum.photos/seed/${seed}/1600/900`
 
 export const DESTINATIONS: Destination[] = [
   {

@@ -9,12 +9,18 @@ test.describe('Phase 1 discovery & booking features', () => {
     await expect(page.getByText(/Palm Grove Villa/i)).toBeVisible()
   })
 
-  test('category scroller and collections grid link into filtered search results', async ({ page }) => {
+  test('category scroller and collections grid link into filtered search results', async ({ page, context }) => {
     await page.goto('/')
-    await page.getByRole('link', { name: 'Corporate' }).first().click()
-    await expect(page).toHaveURL(/collection=corporate/)
-    await expect(page.getByText('Showing: Corporate')).toBeVisible()
-    await expect(page.getByText(/Sunrise Coliving/i)).toBeVisible()
+    // Every internal link opens in a new tab (see ~links/NewTabLinks.tsx),
+    // so this opens a popup rather than navigating `page` itself.
+    const [popup] = await Promise.all([
+      context.waitForEvent('page'),
+      page.getByRole('link', { name: 'Corporate' }).first().click(),
+    ])
+    await popup.waitForLoadState()
+    await expect(popup).toHaveURL(/collection=corporate/)
+    await expect(popup.getByText('Showing: Corporate')).toBeVisible()
+    await expect(popup.getByText(/Palm Grove Villa/i)).toBeVisible()
   })
 
   test('wishlist heart on a property card persists to the saved properties page', async ({ page }) => {
@@ -35,12 +41,18 @@ test.describe('Phase 1 discovery & booking features', () => {
     await expect(page.getByText('Room Size')).toBeVisible()
   })
 
-  test('host profile page shows host stats and their listings', async ({ page }) => {
+  test('host profile page shows host stats and their listings', async ({ page, context }) => {
     await page.goto('/property/p1')
-    await page.getByText('View host profile →').click()
-    await expect(page.getByRole('heading', { name: 'Rahul Mehta', exact: true })).toBeVisible()
-    await expect(page.getByText('Response Rate')).toBeVisible()
-    await expect(page.getByText(/Sunrise Coliving/i)).toBeVisible()
+    // The whole "Meet your host" block is a Link, which opens in a new tab
+    // (see ~links/NewTabLinks.tsx).
+    const [popup] = await Promise.all([
+      context.waitForEvent('page'),
+      page.getByText('View host profile →').click(),
+    ])
+    await popup.waitForLoadState()
+    await expect(popup.getByRole('heading', { name: 'Maria Fernandes', exact: true })).toBeVisible()
+    await expect(popup.getByText('Response Rate')).toBeVisible()
+    await expect(popup.getByText(/Palm Grove Villa/i)).toBeVisible()
   })
 
   test('recently viewed section appears on Home after visiting a property', async ({ page }) => {
@@ -48,7 +60,7 @@ test.describe('Phase 1 discovery & booking features', () => {
     // Wait for the property page to actually finish mounting (and its
     // addRecentlyViewed effect to fire) before navigating away — otherwise
     // a slow lazy-chunk load can race the localStorage write.
-    await expect(page.getByRole('heading', { name: 'Urban Stay Homes' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Pinewood Cabin — Kufri, Shimla' })).toBeVisible()
     await page.goto('/')
     await expect(page.getByRole('heading', { name: 'Recently Viewed' })).toBeVisible()
   })

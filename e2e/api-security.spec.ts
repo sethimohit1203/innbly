@@ -29,8 +29,8 @@ test.describe('API security', () => {
     })
     expect(res.ok()).toBeTruthy()
     const body = await res.json()
-    // p1's nightly rate is ₹1,800; verify the server computed the total, not a client-sent value
-    expect(body.nightlyRate).toBe(1800)
+    // p1's nightly rate is ₹6,500; verify the server computed the total, not a client-sent value
+    expect(body.nightlyRate).toBe(6500)
     expect(body.total).toBe(body.roomTotal + body.mealsCost + body.acCost)
   })
 

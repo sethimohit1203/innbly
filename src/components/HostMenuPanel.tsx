@@ -9,6 +9,9 @@ import {
   LogOut,
   ArrowRight,
   Home,
+  Globe,
+  BookOpen,
+  UserPlus,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useNewBookingsCount } from '../hooks/useNewBookingsCount'
@@ -37,6 +40,12 @@ export function HostMenuPanel({ open, onClose }: { open: boolean; onClose: () =>
     { to: '/dashboard/appointments', label: 'Appointments', icon: CalendarClock },
     { to: '/profile', label: 'Profile Settings', icon: Settings },
     { to: '/contact', label: 'Help & Support', icon: HelpCircle },
+  ]
+
+  const MORE_LINKS = [
+    { to: '/dashboard/languages', label: 'Languages & Currency', icon: Globe },
+    { to: '/dashboard/resources', label: 'Hosting Resources', icon: BookOpen },
+    { to: '/dashboard/co-host', label: 'Find a Co-Host', icon: UserPlus },
   ]
 
   return (
@@ -79,6 +88,30 @@ export function HostMenuPanel({ open, onClose }: { open: boolean; onClose: () =>
             <p className="mb-2 px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">Account</p>
             <div className="space-y-1">
               {ACCOUNT_LINKS.map((link) => {
+                const isActive = location.pathname === link.to
+                return (
+                  <button
+                    key={link.to}
+                    onClick={() => go(link.to)}
+                    className={`w-full flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-bold transition text-left ${
+                      isActive ? 'bg-primary-50 text-primary-600' : 'text-slate-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    <span className="flex items-center gap-2.5">
+                      <link.icon className={`h-4.5 w-4.5 shrink-0 ${isActive ? 'text-primary-600' : 'text-slate-400'}`} />
+                      {link.label}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* More Links */}
+          <div className="mb-6">
+            <p className="mb-2 px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">More</p>
+            <div className="space-y-1">
+              {MORE_LINKS.map((link) => {
                 const isActive = location.pathname === link.to
                 return (
                   <button

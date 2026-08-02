@@ -33,7 +33,7 @@ export function CategoryScroller() {
   }
 
   return (
-    <div className="flex gap-3 overflow-x-auto pb-3 pt-2 scrollbar-none items-center justify-start sm:justify-center">
+    <div className="flex gap-3 overflow-x-auto pb-1 pt-1 no-scrollbar items-center justify-start sm:justify-center">
       {CATEGORIES.map((c) => {
         const isActive = activeSlug === c.slug
         return (

@@ -19,7 +19,7 @@ export function AIBudgetPlanner() {
     return properties
       .filter((p) => p.price <= perNightBudget && p.maxGuests >= guests)
       .sort((a, b) => b.rating - a.rating)
-      .slice(0, 3)
+      .slice(0, 2)
   }, [perNightBudget, guests])
 
   const seeAllResults = () => {
@@ -30,8 +30,8 @@ export function AIBudgetPlanner() {
   }
 
   return (
-    <section className="border-y border-slate-100 bg-white py-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section className="border-y border-slate-100 bg-white py-24">
+      <div className="mx-auto max-w-[1440px] px-6 sm:px-8 lg:px-20">
         <div className="mx-auto mb-12 max-w-3xl text-center">
           <span className="rounded-full bg-primary-100 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-primary-700">
             Rule-Based Trip Planner

@@ -33,13 +33,14 @@ import type { Property } from '../types'
 
 
 const PROPERTY_TYPE_EXPLORE: { label: string; propertyType: string; image: string; subtitle: string }[] = [
-  { label: 'Villas', propertyType: 'Villas', image: 'https://picsum.photos/seed/explore-villas/600/450', subtitle: 'Private villas with luxury & comfort' },
-  { label: 'Apartments', propertyType: 'Apartments', image: 'https://picsum.photos/seed/explore-apartments/600/450', subtitle: 'Modern apartments in prime locations' },
-  { label: 'Cabins', propertyType: 'Cabins', image: 'https://picsum.photos/seed/explore-cabins/600/450', subtitle: 'Cozy cabins surrounded by nature' },
-  { label: 'Cottages', propertyType: 'Cottages', image: 'https://picsum.photos/seed/explore-cottages/600/450', subtitle: 'Charming cottages for peaceful getaways' },
-  { label: 'Farmhouses', propertyType: 'Farm Stays', image: 'https://picsum.photos/seed/explore-farmhouses/600/450', subtitle: 'Spacious farmhouses for family & groups' },
-  { label: 'Holiday Homes', propertyType: 'Holiday Homes', image: 'https://picsum.photos/seed/explore-holiday-homes/600/450', subtitle: 'Perfect homes for holidays' },
-  { label: 'Luxury Homes', propertyType: 'Country Houses', image: 'https://picsum.photos/seed/explore-luxury/600/450', subtitle: 'Premium stays for a luxurious life' },
+  { label: 'Villas', propertyType: 'Villas', image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=600&h=450&q=80', subtitle: 'Private villas with luxury & comfort' },
+  { label: 'Apartments', propertyType: 'Apartments', image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=600&h=450&q=80', subtitle: 'Modern apartments in prime locations' },
+  { label: 'Cabins', propertyType: 'Cabins', image: 'https://images.unsplash.com/photo-1449034446853-66c86144b0ad?auto=format&fit=crop&w=600&h=450&q=80', subtitle: 'Cozy cabins surrounded by nature' },
+  { label: 'Cottages', propertyType: 'Cottages', image: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=600&h=450&q=80', subtitle: 'Charming cottages for peaceful getaways' },
+  { label: 'Farmhouses', propertyType: 'Farm Stays', image: 'https://images.unsplash.com/photo-1500076656116-558758c991c1?auto=format&fit=crop&w=600&h=450&q=80', subtitle: 'Spacious farmhouses for family & groups' },
+  { label: 'Holiday Homes', propertyType: 'Holiday Homes', image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&h=450&q=80', subtitle: 'Perfect homes for holidays' },
+  { label: 'Luxury Homes', propertyType: 'Country Houses', image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&h=450&q=80', subtitle: 'Premium stays for a luxurious life' },
+  { label: 'Resorts', propertyType: 'Resorts', image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=600&h=450&q=80', subtitle: 'Premium resort packages and suites' },
 ]
 
 const FEATURE_STRIP = [
@@ -255,6 +256,8 @@ export function HomePage() {
             <span className="text-[10px] text-slate-400 font-medium hidden sm:inline">• We are here to help anytime</span>
           </span>
         </div>
+
+        <HeroQuickChips />
       </section>
 
       {/* Category nav */}

@@ -16,7 +16,7 @@ test.describe('Enterprise area', () => {
 
   test('booking drawer opens with a server-computed live receipt', async ({ page }) => {
     await page.goto('/enterprise/search')
-    await page.getByRole('button', { name: /Sunrise Coliving/i }).click()
+    await page.getByRole('button', { name: /Palm Grove Villa/i }).click()
     await expect(page.getByRole('heading', { name: 'Checkout Calculator' })).toBeVisible()
     await expect(page.getByText('Live Price Receipt')).toBeVisible()
     await expect(page.getByText(/^Total$/)).toBeVisible()
