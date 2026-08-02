@@ -84,7 +84,7 @@ export function Navbar() {
               <button
                 type="button"
                 onClick={() => setHostMenuOpen((o) => !o)}
-                className={`flex h-9 w-9 items-center justify-center rounded-xl border transition active:scale-95 ${
+                className={`hidden md:flex h-9 w-9 items-center justify-center rounded-xl border transition active:scale-95 ${
                   hostMenuOpen
                     ? 'border-rose-200 bg-rose-50/50 text-primary-600 hover:bg-rose-100/50'
                     : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
@@ -172,14 +172,16 @@ export function Navbar() {
 
           {/* Right Side: Actions */}
           <div className="flex items-center gap-2.5 sm:gap-3 flex-shrink-0">
-            <TranslateWidget />
+            <div className="hidden md:block">
+              <TranslateWidget />
+            </div>
 
-            <div className="h-5 w-[1.5px] bg-slate-200 mx-1" />
+            <div className="hidden md:block h-5 w-[1.5px] bg-slate-200 mx-1" />
 
             {/* Heart Wishlist Icon */}
             <Link
               to="/saved"
-              className="relative flex h-9 w-9 items-center justify-center rounded-full hover:bg-slate-50 text-slate-700 active:scale-95 transition animate-fade-in"
+              className="hidden md:flex relative h-9 w-9 items-center justify-center rounded-full hover:bg-slate-50 text-slate-700 active:scale-95 transition animate-fade-in"
               aria-label="Saved properties"
             >
               <Heart className="h-4.5 w-4.5 text-rose-500 hover:fill-rose-500" />
@@ -194,7 +196,7 @@ export function Navbar() {
             <button
               type="button"
               onClick={goToListProperty}
-              className="flex items-center gap-1.5 rounded-full bg-primary-600 hover:bg-primary-700 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition active:scale-95"
+              className="hidden md:flex items-center gap-1.5 rounded-full bg-primary-600 hover:bg-primary-700 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition active:scale-95"
             >
               List Your Property
               <span className="flex h-4 w-4 items-center justify-center rounded-full bg-white text-[10px] font-black text-primary-600">+</span>
@@ -209,7 +211,7 @@ export function Navbar() {
                   markBookingsSeen(user!.email)
                 }}
                 aria-label={newBookingsCount > 0 ? `${newBookingsCount} new bookings` : 'Bookings'}
-                className="relative flex h-9 w-9 items-center justify-center rounded-full hover:bg-slate-50 text-slate-700 active:scale-95 transition"
+                className="hidden md:flex relative h-9 w-9 items-center justify-center rounded-full hover:bg-slate-50 text-slate-700 active:scale-95 transition"
               >
                 <Bell className="h-4.5 w-4.5 text-slate-800" />
                 {newBookingsCount > 0 && (
@@ -222,7 +224,7 @@ export function Navbar() {
 
             {/* Profile Dropdown Trigger */}
             {user ? (
-              <div className="relative">
+              <div className="relative hidden md:block">
                 <button
                   type="button"
                   onClick={() => setAvatarOpen((o) => !o)}
