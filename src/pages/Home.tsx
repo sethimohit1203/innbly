@@ -164,7 +164,7 @@ export function HomePage() {
           </div>
 
           {/* Right Column: Search Card */}
-          <div className="w-full lg:max-w-3xl bg-white rounded-[28px] border border-slate-100 p-4 shadow-xl hover:shadow-2xl transition duration-300 animate-slide-in">
+          <div className="w-full lg:max-w-3xl bg-white rounded-[28px] border border-slate-100 p-4 shadow-xl hover:shadow-2xl transition duration-300 animate-slide-in relative z-20">
             <form onSubmit={handleSearch} className="flex flex-col md:flex-row items-center justify-between gap-2 md:gap-0">
               <div className="flex-1 w-full relative rounded-2xl px-5 py-2.5 transition hover:bg-slate-50 md:rounded-full flex flex-col items-start gap-1">
                 <label htmlFor="home-search-location" className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
