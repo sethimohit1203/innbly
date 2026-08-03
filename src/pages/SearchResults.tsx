@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { ChevronDown, SlidersHorizontal, BellPlus, SearchX, Map as MapIcon, List, LayoutGrid, ShieldCheck, Zap, BadgeCheck, Sparkles, Calendar, MapPin, Users, Wallet, ArrowRight, Heart } from 'lucide-react'
+import { ChevronDown, SlidersHorizontal, BellPlus, SearchX, Map as MapIcon, List, LayoutGrid, ShieldCheck, Zap, BadgeCheck, Sparkles, Calendar, MapPin, Users, Wallet, ArrowRight, Heart, Search, Check } from 'lucide-react'
 import { INDIAN_STATES } from '../data/states'
 import { PropertyCard } from '../components/PropertyCard'
 import { PropertyCardSkeleton } from '../components/SkeletonLoader'
@@ -202,6 +202,151 @@ function SelectFilter({
   )
 }
 
+function SearchableLocationFilter({
+  valueCity,
+  valueState,
+  onChange,
+  properties,
+}: {
+  valueCity: string
+  valueState: string
+  onChange: (city: string, state: string) => void
+  properties: Property[]
+}) {
+  const [open, setOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const cities = useMemo(() => Array.from(new Set(properties.map((p) => p.city))).sort(), [properties])
+  const states = useMemo(() => Array.from(new Set(properties.map((p) => p.state))).sort(), [properties])
+
+  const displayLabel = useMemo(() => {
+    if (valueCity !== 'all') return valueCity
+    if (valueState !== 'all') return valueState
+    return 'Any Location'
+  }, [valueCity, valueState])
+
+  const filteredCities = useMemo(() => {
+    return cities.filter((c) => c.toLowerCase().includes(searchQuery.toLowerCase()))
+  }, [cities, searchQuery])
+
+  const filteredStates = useMemo(() => {
+    return states.filter((s) => s.toLowerCase().includes(searchQuery.toLowerCase()))
+  }, [states, searchQuery])
+
+  const handleSelect = (type: 'all' | 'city' | 'state', name: string) => {
+    if (type === 'all') {
+      onChange('all', 'all')
+    } else if (type === 'city') {
+      onChange(name, 'all')
+    } else if (type === 'state') {
+      onChange('all', name)
+    }
+    setOpen(false)
+    setSearchQuery('')
+  }
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex items-center gap-2.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 shadow-sm hover:border-slate-300 transition text-left min-w-[7.5rem] pr-8 active:scale-98 relative"
+      >
+        <span className="text-slate-400 shrink-0">
+          <MapPin className="h-4 w-4 text-slate-400" />
+        </span>
+        <div className="flex flex-col text-left">
+          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Location</span>
+          <span className="text-xs font-extrabold text-slate-800 whitespace-nowrap">
+            {displayLabel}
+          </span>
+        </div>
+        <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+      </button>
+
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => { setOpen(false); setSearchQuery(''); }} />
+          
+          <div className="absolute left-0 top-full z-50 mt-2 w-64 rounded-2xl border border-slate-200 bg-white p-3 shadow-card-hover animate-slide-in">
+            <div className="relative mb-2.5">
+              <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search city or state..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full rounded-lg border border-slate-200 bg-slate-50/50 py-1.5 pl-8 pr-3 text-xs font-semibold text-slate-700 outline-none focus:border-primary-400 focus:bg-white transition"
+              />
+            </div>
+
+            <div className="max-h-60 overflow-y-auto space-y-2.5 scrollbar-thin">
+              <button
+                type="button"
+                onClick={() => handleSelect('all', '')}
+                className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
+              >
+                <span>Any Location</span>
+                {valueCity === 'all' && valueState === 'all' && (
+                  <Check className="h-3.5 w-3.5 text-primary-600" />
+                )}
+              </button>
+
+              {filteredCities.length > 0 && (
+                <div>
+                  <p className="px-2 text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Cities</p>
+                  <div className="space-y-0.5">
+                    {filteredCities.map((c) => (
+                      <button
+                        key={c}
+                        type="button"
+                        onClick={() => handleSelect('city', c)}
+                        className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-650 hover:bg-slate-50 transition text-left"
+                      >
+                        <span>{c}</span>
+                        {valueCity === c && (
+                          <Check className="h-3.5 w-3.5 text-primary-600" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {filteredStates.length > 0 && (
+                <div>
+                  <p className="px-2 text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1 mt-1">States</p>
+                  <div className="space-y-0.5">
+                    {filteredStates.map((s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => handleSelect('state', s)}
+                        className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-650 hover:bg-slate-50 transition text-left"
+                      >
+                        <span>{s}</span>
+                        {valueState === s && (
+                          <Check className="h-3.5 w-3.5 text-primary-600" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {filteredCities.length === 0 && filteredStates.length === 0 && (
+                <p className="px-2 py-3 text-center text-xs font-medium text-slate-400">
+                  No matching locations
+                </p>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
 export function SearchResultsPage() {
   usePageMeta('Search Villas, Holiday Homes & Vacation Rentals', 'Search verified villas, cabins, cottages, and farmhouses by destination, budget, guests, and amenities on innbly.')
   const [searchParams] = useSearchParams()
@@ -368,8 +513,15 @@ export function SearchResultsPage() {
             </button>
           }
         />
-        <SelectFilter label="Location" value={city} onChange={setCity} options={cities.map((c) => ({ value: c, label: c }))} icon={MapPin} />
-        <SelectFilter label="State" value={state} onChange={setState} options={INDIAN_STATES.map((s) => ({ value: s, label: s }))} icon={MapIcon} />
+        <SearchableLocationFilter
+          valueCity={city}
+          valueState={state}
+          onChange={(newCity, newState) => {
+            setCity(newCity)
+            setState(newState)
+          }}
+          properties={properties}
+        />
         <SelectFilter
           label="Guests"
           value={guests}
