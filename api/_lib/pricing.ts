@@ -4,29 +4,36 @@ import { properties } from '../../src/data/properties.js'
  * add-ons, nights); every rupee amount shown to a user is computed here so
  * nothing can be tampered with in the browser. */
 
-export const ESTIMATOR_BASE_PRICES: Record<'Single' | 'Double' | 'Triple', number> = {
-  Single: 15000,
-  Double: 9000,
-  Triple: 7000,
+export const ESTIMATOR_BASE_PRICES = {
+  Villa: 6500,
+  Cottage: 5000,
+  Cabin: 4000,
 }
 
 export const ADDON_PRICES = {
-  meals: 2500,
-  ac: 1500,
+  meals: 1500,
+  ac: 500,
 }
 
 export interface EstimatorInput {
-  roomType: 'Single' | 'Double' | 'Triple'
+  roomType: 'Villa' | 'Cottage' | 'Cabin' | 'Single' | 'Double' | 'Triple'
   meals: boolean
   ac: boolean
+  nights?: number
 }
 
 export function computeEstimatorTotal(input: EstimatorInput) {
-  const baseRent = ESTIMATOR_BASE_PRICES[input.roomType] ?? ESTIMATOR_BASE_PRICES.Single
-  const mealRent = input.meals ? ADDON_PRICES.meals : 0
-  const acRent = input.ac ? ADDON_PRICES.ac : 0
+  const nights = input.nights ?? 2
+  let type: 'Villa' | 'Cottage' | 'Cabin' = 'Villa'
+  if (input.roomType === 'Cottage' || input.roomType === 'Double') type = 'Cottage'
+  if (input.roomType === 'Cabin' || input.roomType === 'Triple') type = 'Cabin'
+
+  const basePricePerNight = ESTIMATOR_BASE_PRICES[type]
+  const baseRent = basePricePerNight * nights
+  const mealRent = input.meals ? ADDON_PRICES.meals * nights : 0
+  const acRent = input.ac ? ADDON_PRICES.ac * nights : 0
   const totalMonthly = baseRent + mealRent + acRent
-  return { baseRent, mealRent, acRent, totalMonthly, securityDeposit: totalMonthly }
+  return { baseRent, mealRent, acRent, totalMonthly, securityDeposit: 5000 }
 }
 
 export interface BookingInput {

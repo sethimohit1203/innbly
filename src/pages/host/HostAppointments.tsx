@@ -8,7 +8,7 @@ import { usePageMeta } from '../../hooks/usePageMeta'
  * appointments backend exists, so this reuses LeadsContext rather than
  * inventing a second, disconnected data source. */
 export function HostAppointmentsPage() {
-  usePageMeta('Appointments', 'Upcoming property visits scheduled by tenants.')
+  usePageMeta('Appointments', 'Upcoming property visits scheduled by guests.')
   const { leads } = useLeads()
 
   const upcoming = [...leads].sort((a, b) => a.visitDate.localeCompare(b.visitDate))
@@ -16,14 +16,14 @@ export function HostAppointmentsPage() {
   return (
     <div>
       <h2 className="mb-1 text-xl font-bold text-slate-900">Appointments</h2>
-      <p className="mb-6 text-sm text-slate-500">Property visits tenants have scheduled with you.</p>
+      <p className="mb-6 text-sm text-slate-500">Property visits guests have scheduled with you.</p>
 
       {upcoming.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white py-16 text-center">
           <CalendarClock className="h-8 w-8 text-slate-300" />
           <p className="mt-3 font-semibold text-slate-600">No appointments yet</p>
           <p className="mt-1 max-w-sm text-sm text-slate-400">
-            When a tenant schedules a visit to one of your properties, it'll show up here.
+            When a guest schedules a visit to one of your properties, it'll show up here.
           </p>
         </div>
       ) : (

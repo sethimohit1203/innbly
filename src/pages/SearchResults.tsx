@@ -92,20 +92,16 @@ function MultiSelectFilter({
 }
 
 function MoreFiltersPopover({
-  tenantPref,
-  onTenantPrefChange,
   amenities,
   amenityOptions,
   onToggleAmenity,
 }: {
-  tenantPref: string
-  onTenantPrefChange: (v: string) => void
   amenities: string[]
   amenityOptions: string[]
   onToggleAmenity: (v: string) => void
 }) {
   const [open, setOpen] = useState(false)
-  const activeCount = (tenantPref !== 'all' ? 1 : 0) + (amenities.length > 0 ? 1 : 0)
+  const activeCount = amenities.length > 0 ? 1 : 0
 
   return (
     <div className="relative">
@@ -132,20 +128,6 @@ function MoreFiltersPopover({
         <>
           <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
           <div className="absolute right-0 top-full z-40 mt-2 w-64 space-y-4 rounded-xl border border-slate-200 bg-white p-4 shadow-card-hover">
-            <div>
-              <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-slate-400">Preferred Tenant</p>
-              <select
-                value={tenantPref}
-                onChange={(e) => onTenantPrefChange(e.target.value)}
-                className="w-full cursor-pointer rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 outline-none focus:border-primary-500"
-              >
-                <option value="all">Any</option>
-                <option value="Anyone">Co-ed / Anyone</option>
-                <option value="Boys">Boys Only</option>
-                <option value="Girls">Girls Only</option>
-                <option value="Family">Family</option>
-              </select>
-            </div>
             <div>
               <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-slate-400">Amenities</p>
               <div className="max-h-40 space-y-1 overflow-y-auto">
@@ -359,7 +341,6 @@ export function SearchResultsPage() {
   const [state, setState] = useState('all')
   const [guests, setGuests] = useState(searchParams.get('guests') ?? 'all')
   const [budget, setBudget] = useState(Number(searchParams.get('budget')) || MAX_BUDGET)
-  const [tenantPref, setTenantPref] = useState('all')
   const [propertyType, setPropertyType] = useState<PropertyType | 'all'>('all')
   const [amenities, setAmenities] = useState<string[]>([])
   const toggleAmenity = (a: string) => setAmenities((prev) => (prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]))
@@ -389,7 +370,6 @@ export function SearchResultsPage() {
     state,
     guests,
     budget,
-    tenantPref,
     propertyType,
     amenities,
     stayDuration,
@@ -413,7 +393,6 @@ export function SearchResultsPage() {
       if (state !== 'all' && p.state !== state) return false
       if (guests !== 'all' && p.maxGuests < Number(guests)) return false
       if (budget < MAX_BUDGET && p.price > budget) return false
-      if (tenantPref !== 'all' && p.tenantPreference !== tenantPref) return false
       if (propertyType !== 'all' && p.propertyType !== propertyType) return false
       if (amenities.length > 0 && !amenities.every((a) => p.amenities.includes(a))) return false
       if (stayDuration === 'short' && p.minStayNights > 6) return false
@@ -440,7 +419,7 @@ export function SearchResultsPage() {
         return result
     }
   }, [
-    properties, city, state, guests, budget, tenantPref, propertyType, amenities, stayDuration,
+    properties, city, state, guests, budget, propertyType, amenities, stayDuration,
     verifiedOnly, freeCancellationOnly, instantBookOnly, guestFavouriteOnly, collection, freeTextQuery, sort,
   ])
 
@@ -479,7 +458,6 @@ export function SearchResultsPage() {
     setState('all')
     setGuests('all')
     setBudget(MAX_BUDGET)
-    setTenantPref('all')
     setPropertyType('all')
     setAmenities([])
     setStayDuration('all')
@@ -491,7 +469,7 @@ export function SearchResultsPage() {
   }
 
   const filterControls = (stacked: boolean) => {
-    const activeCount = (tenantPref !== 'all' ? 1 : 0) + (amenities.length > 0 ? 1 : 0)
+    const activeCount = amenities.length > 0 ? 1 : 0
     return (
       <div className={stacked ? 'flex flex-col gap-4' : 'flex flex-wrap items-center gap-2.5'}>
         <DateRangePicker
@@ -547,8 +525,6 @@ export function SearchResultsPage() {
         />
         <BudgetSlider value={budget} onChange={setBudget} />
         <MoreFiltersPopover
-          tenantPref={tenantPref}
-          onTenantPrefChange={setTenantPref}
           amenities={amenities}
           amenityOptions={ALL_AMENITIES}
           onToggleAmenity={toggleAmenity}
@@ -673,21 +649,7 @@ export function SearchResultsPage() {
               </select>
             </div>
 
-            {/* Room Type Dropdown */}
-            <div>
-              <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-slate-400">Room Type</p>
-              <select
-                value={tenantPref}
-                onChange={(e) => setTenantPref(e.target.value)}
-                className="w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-semibold text-slate-700 outline-none focus:border-primary-500"
-              >
-                <option value="all">Select Room Type</option>
-                <option value="Anyone">Co-ed / Anyone</option>
-                <option value="Boys">Boys Only</option>
-                <option value="Girls">Girls Only</option>
-                <option value="Family">Family Only</option>
-              </select>
-            </div>
+
 
             {/* Property Rules Dropdown */}
             <div>

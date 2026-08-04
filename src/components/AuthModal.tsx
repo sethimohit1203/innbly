@@ -190,7 +190,7 @@ export function AuthModal() {
                 <Building2 className={`h-6 w-6 ${role === 'host' ? 'text-accent-600' : 'text-slate-400'}`} />
                 <span>
                   <span className="block font-semibold text-slate-800">List a property instead</span>
-                  <span className="block text-xs text-slate-500">Become a host and reach verified tenants</span>
+                  <span className="block text-xs text-slate-500">Become a host and reach verified guests</span>
                 </span>
               </span>
               <span

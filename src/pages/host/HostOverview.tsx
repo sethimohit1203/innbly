@@ -103,7 +103,7 @@ export function HostOverviewPage() {
               {recentLeads.length === 0 && (
                 <tr>
                   <td colSpan={4} className="px-5 py-8 text-center text-slate-400">
-                    No leads yet. Once tenants schedule a visit, they'll show up here.
+                    No leads yet. Once guests schedule a visit, they'll show up here.
                   </td>
                 </tr>
               )}

@@ -533,7 +533,7 @@ export function HomePage() {
             </h2>
             <p className="mx-auto mt-6 max-w-3xl text-left leading-relaxed text-slate-600 sm:text-center">
               Innbly is a vacation rental and unique-stays marketplace built for travelers planning short getaways
-              across India — not a long-term rental, PG, or coliving platform. Every listing on Innbly is a
+              across India. Every listing on Innbly is a
               short-stay property: a private villa, a mountain cabin, a heritage haveli, or a working farmhouse,
               bookable by the night rather than by the month. Our team physically audits and photographs each
               property before it goes live, hosts set their own nightly pricing with no brokerage cut, and guests

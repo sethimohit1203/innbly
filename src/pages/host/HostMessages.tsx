@@ -1,7 +1,7 @@
 import { MessageSquare } from 'lucide-react'
 import { usePageMeta } from '../../hooks/usePageMeta'
 
-/** There's no host-tenant messaging system in this app yet (bookings unlock
+/** There's no host-guest messaging system in this app yet (bookings unlock
  * a WhatsApp deep-link instead, see CLAUDE.md's "Chat with Host" section) —
  * this page is honest about that rather than showing fabricated threads,
  * matching the "no leads yet" pattern already used on HostLeads. */

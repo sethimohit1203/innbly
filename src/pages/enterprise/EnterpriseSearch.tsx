@@ -47,13 +47,12 @@ export function EnterpriseSearchPage() {
                 <div className="p-4">
                   <div className="mb-1.5 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-400">
                     <span>{p.city}</span>
-                    <span>{p.tenantPreference}</span>
                   </div>
                   <h3 className="line-clamp-1 text-sm font-extrabold text-slate-800">{p.title}</h3>
                   <div className="mt-3 flex items-center justify-between border-t border-slate-50 pt-3">
                     <div>
                       <span className="text-base font-extrabold text-slate-900">₹{p.price.toLocaleString('en-IN')}</span>
-                      <span className="block text-[10px] font-semibold text-slate-400">/ month</span>
+                      <span className="block text-[10px] font-semibold text-slate-400">/ night</span>
                     </div>
                     <span className="rounded-lg bg-primary-50 px-3 py-2 text-[11px] font-bold text-primary-700 transition group-hover:bg-primary-100">
                       Explore / Book

@@ -1,20 +1,24 @@
 import { useMemo, useState } from 'react'
 import { Link } from '~links'
-import { SlidersHorizontal, UtensilsCrossed, Snowflake, ShieldCheck, Receipt, Loader2 } from 'lucide-react'
+import { SlidersHorizontal, UtensilsCrossed, Snowflake, ShieldCheck, Receipt, Loader2, Calendar } from 'lucide-react'
 import { useServerPrice } from '../hooks/useServerPrice'
 
-type RoomConfig = 'Single' | 'Double' | 'Triple'
+type StayConfig = 'Villa' | 'Cottage' | 'Cabin'
 
-// Display-only reference prices for the room picker cards — the receipt
-// itself always reflects the server's authoritative computation below.
-const DISPLAY_PRICES: Record<RoomConfig, number> = { Single: 15000, Double: 9000, Triple: 7000 }
-const MEALS_PRICE = 2500
-const AC_PRICE = 1500
+const DISPLAY_PRICES: Record<StayConfig, number> = { Villa: 6500, Cottage: 5000, Cabin: 4000 }
+const MEALS_PRICE_PER_NIGHT = 1500
+const AC_PRICE_PER_NIGHT = 500
 
-const configOptions: { key: RoomConfig; label: string; icon: string }[] = [
-  { key: 'Single', label: 'Single Occupancy', icon: '🧍' },
-  { key: 'Double', label: 'Double Sharing', icon: '👥' },
-  { key: 'Triple', label: 'Triple Sharing', icon: '👨‍👩‍👦' },
+const configOptions: { key: StayConfig; label: string; icon: string }[] = [
+  { key: 'Villa', label: 'Private Villa', icon: '🏡' },
+  { key: 'Cottage', label: 'Cozy Cottage', icon: '🏡' },
+  { key: 'Cabin', label: 'Mountain Cabin', icon: '🏔️' },
+]
+
+const durationOptions = [
+  { label: 'Weekend (2 Nights)', value: 2 },
+  { label: 'Short Break (3 Nights)', value: 3 },
+  { label: 'Week Stay (7 Nights)', value: 7 },
 ]
 
 interface EstimatorTotal {
@@ -26,31 +30,37 @@ interface EstimatorTotal {
 }
 
 export function BudgetEstimator() {
-  const [roomType, setRoomType] = useState<RoomConfig>('Single')
+  const [roomType, setRoomType] = useState<StayConfig>('Villa')
+  const [nights, setNights] = useState<number>(2)
   const [meals, setMeals] = useState(false)
   const [ac, setAc] = useState(false)
 
-  const request = useMemo(() => ({ kind: 'estimator', roomType, meals, ac }), [roomType, meals, ac])
-  const fallback = useMemo<EstimatorTotal>(
-    () => ({ baseRent: DISPLAY_PRICES[roomType], mealRent: 0, acRent: 0, totalMonthly: DISPLAY_PRICES[roomType], securityDeposit: DISPLAY_PRICES[roomType] }),
-    [roomType],
-  )
+  const request = useMemo(() => ({ kind: 'estimator', roomType, nights, meals, ac }), [roomType, nights, meals, ac])
+  
+  const fallback = useMemo<EstimatorTotal>(() => {
+    const basePricePerNight = DISPLAY_PRICES[roomType]
+    const baseRent = basePricePerNight * nights
+    const mealRent = meals ? MEALS_PRICE_PER_NIGHT * nights : 0
+    const acRent = ac ? AC_PRICE_PER_NIGHT * nights : 0
+    const totalMonthly = baseRent + mealRent + acRent
+    return { baseRent, mealRent, acRent, totalMonthly, securityDeposit: 5000 }
+  }, [roomType, nights, meals, ac])
+
   const { data, loading, error } = useServerPrice<EstimatorTotal>({ request, fallback })
-  const { baseRent, mealRent, acRent, totalMonthly } = data
+  const { baseRent, mealRent, acRent, totalMonthly, securityDeposit } = data
 
   return (
     <section id="estimator" className="border-y border-slate-100 bg-slate-50/70 py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto mb-16 max-w-3xl text-center">
           <span className="rounded-full bg-accent-100 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-accent-800">
-            Instant Pricing Planner
+            Instant Stay Planner
           </span>
           <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 md:text-4xl">
-            Estimate Your Living Budget
+            Estimate Your Vacation Stays
           </h2>
           <p className="mt-4 font-medium leading-relaxed text-slate-500">
-            No hidden security deposit surprises. Configure room sharing preferences, meal add-ons, and utility
-            upgrades to preview a direct receipt.
+            No hidden pricing surprises. Select your property type, stay duration, and luxury add-ons to preview an instant price breakdown.
           </p>
         </div>
 
@@ -66,7 +76,7 @@ export function BudgetEstimator() {
               </h3>
 
               <div>
-                <label className="mb-3.5 block text-sm font-bold text-slate-700">Select Sharing Configuration</label>
+                <label className="mb-3.5 block text-sm font-bold text-slate-700">Select Stay Type</label>
                 <div className="grid grid-cols-3 gap-3">
                   {configOptions.map((opt) => (
                     <button
@@ -81,8 +91,28 @@ export function BudgetEstimator() {
                       <span className="text-xl">{opt.icon}</span>
                       <span className="text-sm font-bold">{opt.label}</span>
                       <span className="mt-1 text-xs font-semibold text-slate-500">
-                        ₹{DISPLAY_PRICES[opt.key].toLocaleString('en-IN')}/mo
+                        ₹{DISPLAY_PRICES[opt.key].toLocaleString('en-IN')}/night
                       </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-3.5 block text-sm font-bold text-slate-700">Stay Duration</label>
+                <div className="grid grid-cols-3 gap-3">
+                  {durationOptions.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => setNights(opt.value)}
+                      className={`flex flex-col items-center justify-center rounded-2xl border-2 p-3 transition-all ${
+                        nights === opt.value
+                          ? 'border-primary-500 bg-primary-50/50 text-primary-700'
+                          : 'border-slate-200 text-slate-600 hover:border-slate-300'
+                      }`}
+                    >
+                      <Calendar className="h-4 w-4 mb-1" />
+                      <span className="text-xs font-bold text-center">{opt.label}</span>
                     </button>
                   ))}
                 </div>
@@ -95,8 +125,8 @@ export function BudgetEstimator() {
                       <UtensilsCrossed className="h-4.5 w-4.5" />
                     </div>
                     <div>
-                      <p className="text-[14px] font-bold text-slate-800">3 Daily Meals</p>
-                      <p className="text-xs font-semibold text-slate-500">+ ₹{MEALS_PRICE.toLocaleString('en-IN')}/month</p>
+                      <p className="text-[14px] font-bold text-slate-800">Private Chef & Meals</p>
+                      <p className="text-xs font-semibold text-slate-500">+ ₹{MEALS_PRICE_PER_NIGHT.toLocaleString('en-IN')}/night</p>
                     </div>
                   </div>
                   <label className="relative inline-flex cursor-pointer items-center">
@@ -111,8 +141,8 @@ export function BudgetEstimator() {
                       <Snowflake className="h-4.5 w-4.5" />
                     </div>
                     <div>
-                      <p className="text-[14px] font-bold text-slate-800">High-End AC</p>
-                      <p className="text-xs font-semibold text-slate-500">+ ₹{AC_PRICE.toLocaleString('en-IN')}/month</p>
+                      <p className="text-[14px] font-bold text-slate-800">AC / Climate Upgrade</p>
+                      <p className="text-xs font-semibold text-slate-500">+ ₹{AC_PRICE_PER_NIGHT.toLocaleString('en-IN')}/night</p>
                     </div>
                   </div>
                   <label className="relative inline-flex cursor-pointer items-center">
@@ -124,8 +154,7 @@ export function BudgetEstimator() {
             </div>
 
             <div className="mt-8 flex items-center gap-2 border-t border-slate-100 pt-4 text-xs font-semibold text-slate-400">
-              <ShieldCheck className="h-4 w-4 text-accent-500" /> Refundable security deposits are securely processed
-              through automated escrow.
+              <ShieldCheck className="h-4 w-4 text-accent-500" /> Refundable security deposits are handled securely and returned after checkout.
             </div>
           </div>
 
@@ -136,39 +165,39 @@ export function BudgetEstimator() {
             <div>
               <div className="flex items-center justify-between border-b border-white/10 pb-6">
                 <div>
-                  <h4 className="text-lg font-bold tracking-tight text-white">Your Stay Plan</h4>
-                  <p className="text-xs font-medium text-slate-400">Auto-calculating billing schedule</p>
+                  <h4 className="text-lg font-bold tracking-tight text-white">Your Stay Estimate</h4>
+                  <p className="text-xs font-medium text-slate-400">Auto-calculating stay breakdown</p>
                 </div>
                 <span className="flex items-center gap-1.5 rounded-lg border border-primary-500/20 bg-primary-500/10 px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-primary-400">
-                  {loading && <Loader2 className="h-3 w-3 animate-spin" />} Live Receipt
+                  {loading && <Loader2 className="h-3 w-3 animate-spin" />} Live Quote
                 </span>
               </div>
               {error && <p className="mt-2 text-xs font-medium text-rose-400">Showing an estimate — pricing service unreachable.</p>}
 
               <div className="space-y-4 py-8">
                 <div className="flex justify-between text-sm">
-                  <span className="font-semibold text-slate-300">Monthly Room Rent</span>
+                  <span className="font-semibold text-slate-300">Base Stay Cost ({nights} Nights)</span>
                   <span className="font-bold tracking-wide">₹{baseRent.toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="font-semibold text-slate-300">3 Meals Food Plan Addon</span>
+                  <span className="font-semibold text-slate-300">Meals Add-on ({nights} Nights)</span>
                   <span className="font-bold tracking-wide">₹{mealRent.toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex justify-between border-b border-white/10 pb-4 text-sm">
-                  <span className="font-semibold text-slate-300">AC Climate Upgrade Addon</span>
+                  <span className="font-semibold text-slate-300">AC Climate Upgrade ({nights} Nights)</span>
                   <span className="font-bold tracking-wide">₹{acRent.toLocaleString('en-IN')}</span>
                 </div>
 
                 <div className="flex items-baseline justify-between pt-4">
-                  <span className="text-base font-bold text-slate-200">Total Monthly</span>
+                  <span className="text-base font-bold text-slate-200">Total Stay Price</span>
                   <span className="text-3xl font-extrabold tracking-tight text-white">
                     ₹{totalMonthly.toLocaleString('en-IN')}
                   </span>
                 </div>
 
                 <div className="flex justify-between pt-2 text-xs">
-                  <span className="font-semibold text-slate-400">One-time Security Deposit</span>
-                  <span className="font-bold tracking-wide text-accent-400">₹{totalMonthly.toLocaleString('en-IN')}</span>
+                  <span className="font-semibold text-slate-400">Refundable Security Deposit</span>
+                  <span className="font-bold tracking-wide text-accent-400">₹{securityDeposit.toLocaleString('en-IN')}</span>
                 </div>
               </div>
             </div>

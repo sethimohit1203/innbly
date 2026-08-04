@@ -21,25 +21,22 @@ export function QuickMatchAssistant() {
   const [budget, setBudget] = useState<string | null>(null)
   const [city, setCity] = useState<string | null>(null)
   const [guests, setGuests] = useState<string | null>(null)
-  const [tenant, setTenant] = useState<string | null>(null)
 
   const matches = useMemo(() => {
-    if (step < 4) return []
+    if (step < 3) return []
     return properties.filter((p) => {
       if (budget && budget !== 'any' && p.price > Number(budget)) return false
       if (city && p.city !== city) return false
       if (guests && p.maxGuests < Number(guests)) return false
-      if (tenant && tenant !== 'Anyone' && p.tenantPreference !== tenant) return false
       return true
     })
-  }, [step, budget, city, guests, tenant])
+  }, [step, budget, city, guests])
 
   const reset = () => {
     setStep(0)
     setBudget(null)
     setCity(null)
     setGuests(null)
-    setTenant(null)
   }
 
   const seeAllResults = () => {
@@ -142,23 +139,6 @@ export function QuickMatchAssistant() {
         )}
 
         {step === 3 && (
-          <div>
-            <p className="mb-3 text-sm font-semibold text-slate-700">Preferred tenant type?</p>
-            <div className="flex flex-wrap gap-2">
-              {['Boys', 'Girls', 'Family', 'Anyone'].map((t) => (
-                <button
-                  key={t}
-                  onClick={() => { setTenant(t); setStep(4) }}
-                  className="rounded-full border border-slate-200 px-3.5 py-2 text-xs font-bold text-slate-700 transition hover:border-primary-400 hover:text-primary-700"
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {step === 4 && (
           <div>
             <div className="mb-3 flex items-center justify-between">
               <p className="text-sm font-semibold text-slate-700">{matches.length} matches found</p>

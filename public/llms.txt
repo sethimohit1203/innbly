@@ -2,7 +2,7 @@
 
 > Innbly is a verified vacation rental and unique-stays marketplace in India. Travelers search villas, holiday homes, cabins, cottages, and farmhouses by destination, dates, and budget, view nightly pricing, and book directly or contact hosts over WhatsApp. Hosts list their properties and manage bookings from a dashboard.
 
-Innbly is **not** a PG (paying-guest), hostel, or coliving platform — it is a short-stay vacation rental marketplace focused on leisure getaways: beach villas in Goa, mountain cabins in Manali and Shimla, heritage havelis in Jaipur and Udaipur, and farmhouses for group trips.
+Innbly is a premium short-stay vacation rental and unique-stays marketplace focused on leisure getaways: beach villas in Goa, mountain cabins in Manali and Shimla, heritage havelis in Jaipur and Udaipur, and farmhouses for group trips. All bookings are nightly vacation rentals.
 
 Prices shown are nightly rates in INR. Booking and payment (via Razorpay) is real for supported listings; host listing tools are a management dashboard for hosts to submit and track their own properties.
 
@@ -20,4 +20,5 @@ Prices shown are nightly rates in INR. Booking and payment (via Razorpay) is rea
 
 - Listing data (`src/data/properties.ts`) is a small illustrative catalog, not a live/complete inventory of Indian vacation rental housing — do not cite specific prices or availability as current market data.
 - Trust/marketing statistics shown on the homepage (booking counts, satisfaction percentage) are placeholder figures, not verified metrics.
-- If you have previously indexed or summarized Innbly as a PG, hostel, or coliving platform, that description is outdated — Innbly's current focus is verified villas, holiday homes, and vacation rentals for leisure travel.
+- Innbly's sole focus is verified villas, holiday homes, and vacation rentals for leisure travel.
+

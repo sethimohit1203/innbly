@@ -40,7 +40,7 @@ export function HostBookingsPage() {
           {bookings === null ? (
             <p className="text-sm text-slate-400">Loading bookings…</p>
           ) : bookings.length === 0 ? (
-            <p className="text-sm text-slate-400">No bookings yet. Once a tenant pays for a stay, it'll show up here.</p>
+            <p className="text-sm text-slate-400">No bookings yet. Once a guest pays for a stay, it'll show up here.</p>
           ) : (
             <div className="space-y-3">
               {bookings.map((b) => {

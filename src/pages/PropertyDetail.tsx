@@ -451,11 +451,6 @@ export function PropertyDetailPage() {
             <span className="flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
               <Users className="h-3.5 w-3.5" /> Up to {property.maxGuests} guests
             </span>
-            {property.tenantPreference !== 'Anyone' && (
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-                For {property.tenantPreference}
-              </span>
-            )}
             {property.instantBook && (
               <span className="flex items-center gap-1 rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700">
                 <Zap className="h-3.5 w-3.5" /> Instant Book
@@ -594,11 +589,6 @@ export function PropertyDetailPage() {
               <div className="flex items-center gap-2 text-sm text-slate-600">
                 <Volume2 className="h-4 w-4 shrink-0 text-slate-400" /> Quiet hours 10 PM – 7 AM
               </div>
-              {property.tenantPreference !== 'Anyone' && (
-                <div className="flex items-center gap-2 text-sm text-slate-600">
-                  <ShieldCheck className="h-4 w-4 shrink-0 text-slate-400" /> This stay is for {property.tenantPreference.toLowerCase()}
-                </div>
-              )}
             </div>
           </Reveal>
 

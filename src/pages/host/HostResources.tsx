@@ -20,7 +20,7 @@ const GUIDES = [
   {
     icon: MessageCircle,
     title: 'Respond quickly to leads',
-    body: 'Check your Leads Tracker and Appointments regularly — tenants scheduling a visit expect a callback within a day.',
+    body: 'Check your Leads Tracker and Appointments regularly — guests scheduling a visit expect a callback within a day.',
   },
 ]
 

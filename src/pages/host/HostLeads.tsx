@@ -3,7 +3,7 @@ import { useLeads } from '../../context/LeadsContext'
 import { usePageMeta } from '../../hooks/usePageMeta'
 
 export function HostLeadsPage() {
-  usePageMeta('Leads Tracker', 'Track incoming tenant leads and visit requests on innbly.')
+  usePageMeta('Leads Tracker', 'Track incoming guest leads and visit requests on innbly.')
   const { leads } = useLeads()
 
   return (
@@ -25,7 +25,7 @@ export function HostLeadsPage() {
             {leads.length === 0 && (
               <tr>
                 <td colSpan={4} className="px-5 py-8 text-center text-slate-400">
-                  No leads yet. Once tenants schedule a visit, they'll show up here.
+                  No leads yet. Once guests schedule a visit, they'll show up here.
                 </td>
               </tr>
             )}

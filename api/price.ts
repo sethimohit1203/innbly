@@ -6,7 +6,7 @@ import { computeHostWeeklyCalendar } from './_lib/stayBooking.js'
 
 interface PriceRequest {
   kind: 'estimator' | 'booking' | 'roi' | 'calendar'
-  roomType?: 'Single' | 'Double' | 'Triple'
+  roomType?: 'Villa' | 'Cottage' | 'Cabin' | 'Single' | 'Double' | 'Triple'
   meals?: boolean
   ac?: boolean
   propertyId?: string
@@ -31,9 +31,10 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
 
   if (body.kind === 'estimator') {
     const result = computeEstimatorTotal({
-      roomType: body.roomType ?? 'Single',
+      roomType: body.roomType ?? 'Villa',
       meals: Boolean(body.meals),
       ac: Boolean(body.ac),
+      nights: body.nights,
     })
     res.status(200).json(result)
     return

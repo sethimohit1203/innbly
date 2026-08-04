@@ -10,7 +10,7 @@ export interface FAQItem {
 export const DEFAULT_FAQS: FAQItem[] = [
   {
     q: 'What kind of properties does Innbly list?',
-    a: 'Innbly lists verified villas, holiday homes, cabins, cottages, farmhouses, and apartments for short getaways and vacations across India — not shared rooms, PGs, or coliving spaces.',
+    a: 'Innbly lists verified villas, holiday homes, cabins, cottages, farmhouses, and apartments for short getaways and vacations across India.',
   },
   {
     q: 'Is booking on Innbly really instant?',
