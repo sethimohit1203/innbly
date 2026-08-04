@@ -66,7 +66,7 @@ export default function App() {
   const routeSection = location.pathname.split('/')[1] || 'home'
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50">
+    <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-stone-900 transition-colors duration-300">
       <Navbar />
       <main className="flex-1 pb-16 md:pb-0">
         <Suspense fallback={<RouteLoading />}>

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Link, NavLink } from '~links'
 import {
@@ -16,6 +16,8 @@ import {
   Receipt,
   Repeat,
   Bell,
+  Sun,
+  Moon,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useSavedProperties } from '../context/SavedPropertiesContext'
@@ -28,6 +30,29 @@ export function Navbar() {
   const { user, openAuthModal, logout, switchRole } = useAuth()
   const { savedIds } = useSavedProperties()
   const navigate = useNavigate()
+
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('innbly_theme')
+      if (saved === 'dark' || saved === 'light') return saved
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    }
+    return 'light'
+  })
+
+  useEffect(() => {
+    const root = window.document.documentElement
+    if (theme === 'dark') {
+      root.classList.add('dark')
+    } else {
+      root.classList.remove('dark')
+    }
+    localStorage.setItem('innbly_theme', theme)
+  }, [theme])
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'))
+  }
 
   const [mobileOpen, setMobileOpen] = useState(false)
   const [avatarOpen, setAvatarOpen] = useState(false)
@@ -76,7 +101,7 @@ export function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/80 shadow-sm backdrop-blur-md transition-shadow">
+      <header className="sticky top-0 z-50 border-b border-slate-100 dark:border-stone-800 bg-white/80 dark:bg-stone-950/80 shadow-sm backdrop-blur-md transition-all duration-300">
         <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-6 sm:px-8 lg:px-10 gap-4">
           {/* Left Side: Hamburger, Logo, Search Bar */}
           <div className="flex items-center gap-3.5 flex-shrink-0">
@@ -87,7 +112,7 @@ export function Navbar() {
                 className={`hidden md:flex h-9 w-9 items-center justify-center rounded-xl border transition active:scale-95 ${
                   hostMenuOpen
                     ? 'border-rose-200 bg-rose-50/50 text-primary-600 hover:bg-rose-100/50'
-                    : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                    : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-stone-800 dark:bg-stone-900 dark:text-slate-300 dark:hover:bg-stone-800'
                 }`}
                 aria-label={hostMenuOpen ? 'Close hosting menu' : 'Open hosting menu'}
               >
@@ -97,7 +122,7 @@ export function Navbar() {
 
             <Link to="/" className="flex items-center gap-2 flex-shrink-0">
               <img src="/brand/innbly-icon.jpg" alt="innbly" className="h-9 w-9 rounded-xl object-cover shadow-lg shadow-primary-500/20" />
-              <span className="bg-gradient-to-r from-primary-900 to-primary-600 bg-clip-text text-xl font-extrabold tracking-tight text-transparent">
+              <span className="bg-gradient-to-r from-primary-900 to-primary-600 dark:from-white dark:to-primary-400 bg-clip-text text-xl font-extrabold tracking-tight text-transparent">
                 innbly
               </span>
             </Link>
@@ -120,7 +145,7 @@ export function Navbar() {
                   type="text"
                   name="search"
                   placeholder="Search stays, destinations..."
-                  className="w-full rounded-full border border-slate-200 bg-white py-1.5 pl-8 pr-3 text-[11px] font-semibold text-slate-700 outline-none hover:border-slate-300 focus:border-primary-500 shadow-sm transition"
+                  className="w-full rounded-full border border-slate-200 bg-white py-1.5 pl-8 pr-3 text-[11px] font-semibold text-slate-700 outline-none hover:border-slate-300 focus:border-primary-500 shadow-sm transition dark:border-stone-800 dark:bg-stone-900 dark:text-slate-200 dark:placeholder-slate-500 dark:focus:border-primary-500"
                 />
               </div>
             </form>
@@ -138,7 +163,9 @@ export function Navbar() {
                   end={link.to === '/dashboard'}
                   className={({ isActive }) =>
                     `flex items-center gap-1.5 text-xs font-bold transition ${
-                      isActive ? 'text-primary-600' : 'text-slate-600 hover:text-primary-600'
+                      isActive 
+                        ? 'text-primary-600 dark:text-primary-400' 
+                        : 'text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400'
                     }`
                   }
                 >
@@ -147,7 +174,7 @@ export function Navbar() {
               ))
             ) : (
               <>
-                <Link to="/search" className="text-xs font-bold text-slate-600 hover:text-primary-600 transition">Explore</Link>
+                <Link to="/search" className="text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition">Explore</Link>
                 <button
                   onClick={async (e) => {
                     e.preventDefault()
@@ -160,12 +187,12 @@ export function Navbar() {
                     }
                     openAuthModal('host')
                   }}
-                  className="text-xs font-bold text-slate-600 hover:text-primary-600 transition"
+                  className="text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition"
                 >
                   Become a Host
                 </button>
-                <Link to="/enterprise" className="text-xs font-bold text-slate-600 hover:text-primary-600 transition">About Us</Link>
-                <Link to="/contact" className="text-xs font-bold text-slate-600 hover:text-primary-600 transition">Help</Link>
+                <Link to="/enterprise" className="text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition">About Us</Link>
+                <Link to="/contact" className="text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition">Help</Link>
               </>
             )}
           </div>
@@ -175,6 +202,16 @@ export function Navbar() {
             <div className="hidden md:block">
               <TranslateWidget />
             </div>
+
+            {/* Theme Toggle Button */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 dark:border-stone-800 dark:bg-stone-950 dark:text-stone-300 dark:hover:bg-stone-900 active:scale-95"
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? <Sun className="h-4.5 w-4.5 text-amber-500" /> : <Moon className="h-4.5 w-4.5 text-slate-700" />}
+            </button>
 
             <div className="hidden md:block h-5 w-[1.5px] bg-slate-200 mx-1" />
 
