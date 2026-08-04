@@ -441,7 +441,7 @@ export function HomePage() {
               Destination guides with best-time-to-visit advice, attractions, food, and featured stays.
             </p>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-              {DESTINATIONS.filter((d) => d.slug !== 'lonavala').map((d) => (
+              {DESTINATIONS.map((d) => (
                 <Link
                   key={d.slug}
                   to={`/${d.slug}`}

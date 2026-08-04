@@ -126,3 +126,132 @@ body {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* ==========================================================================
+   Premium Dark Theme Style Overrides
+   ========================================================================== */
+
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  background-color: #090d16 !important;
+  color: #e2e8f0 !important;
+}
+
+/* Background Color Overrides */
+html.dark .bg-white,
+html.dark .bg-white\/80 {
+  background-color: #111827 !important; /* Rich slate dark background for cards */
+}
+
+html.dark .bg-slate-50,
+html.dark .bg-slate-50\/60,
+html.dark .bg-slate-50\/70,
+html.dark .bg-slate-50\/80,
+html.dark .bg-slate-50\/30,
+html.dark .bg-slate-50\/40,
+html.dark .bg-slate-50\/50 {
+  background-color: #090d16 !important; /* Deep dark page background */
+}
+
+html.dark .bg-slate-100 {
+  background-color: #1f2937 !important; /* Muted background elements */
+}
+
+html.dark .bg-slate-200 {
+  background-color: #374151 !important;
+}
+
+/* Border Color Overrides */
+html.dark .border-slate-100,
+html.dark .border-slate-200,
+html.dark .border-slate-300 {
+  border-color: #1f2937 !important; /* Clean subtle dark borders */
+}
+
+html.dark .border-dashed {
+  border-style: dashed !important;
+}
+
+/* Text Color Overrides */
+html.dark .text-slate-900,
+html.dark .text-slate-800 {
+  color: #f9fafb !important; /* Bright high-contrast text for headings */
+}
+
+html.dark .text-slate-700,
+html.dark .text-slate-600,
+html.dark .text-slate-650 {
+  color: #cbd5e1 !important; /* Soft white/gray for body text */
+}
+
+html.dark .text-slate-500,
+html.dark .text-slate-400 {
+  color: #9ca3af !important; /* Muted text for captions/metadata */
+}
+
+/* Input, select, and textarea fields in dark mode */
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background-color: #1f2937 !important;
+  color: #f9fafb !important;
+  border-color: #374151 !important;
+}
+
+html.dark input::placeholder {
+  color: #6b7280 !important;
+}
+
+/* Autocomplete/Dropdown adjustments */
+html.dark .shadow-card,
+html.dark .shadow-card-hover,
+html.dark .shadow-elevated {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Hover background effects */
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-slate-100:hover,
+html.dark .group:hover .group-hover\:bg-primary-100 {
+  background-color: #1f2937 !important;
+}
+
+/* Special button highlights and active items */
+html.dark .bg-primary-50 {
+  background-color: rgba(238, 76, 61, 0.15) !important; /* Primary light red accent in dark mode */
+  color: #fca5a5 !important;
+}
+
+html.dark .text-primary-600,
+html.dark .text-primary-700 {
+  color: #f87171 !important; /* Soft rose red for primary links in dark mode */
+}
+
+html.dark .text-primary-900 {
+  color: #fca5a5 !important;
+}
+
+/* Estimate and budget planner specific styles */
+html.dark #estimator {
+  border-color: #1f2937 !important;
+  background-color: #0b0f19 !important;
+}
+
+html.dark #estimator .bg-white {
+  background-color: #111827 !important;
+}
+
+html.dark #estimator .border-slate-200 {
+  border-color: #374151 !important;
+}
+
+html.dark #estimator .text-primary-700 {
+  color: #f87171 !important;
+}
+
+html.dark #estimator .bg-primary-50\/50 {
+  background-color: rgba(238, 76, 61, 0.1) !important;
+}

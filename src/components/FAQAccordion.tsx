@@ -46,7 +46,7 @@ export const DEFAULT_FAQS: FAQItem[] = [
   },
   {
     q: 'Which destinations does Innbly cover?',
-    a: 'Innbly features stays across India\'s most popular getaway destinations, including Goa, Manali, Shimla, Jaipur, Udaipur, Mussoorie, Coorg, Ooty, and Rishikesh, with more destinations added regularly.',
+    a: 'Innbly features stays across India\'s most popular getaway destinations, including Goa, Manali, Shimla, Jaipur, Udaipur, Mussoorie, Coorg, Ooty, Rishikesh, and Lonavala, with more destinations added regularly.',
   },
 ]
 
