@@ -103,23 +103,8 @@ export function Navbar() {
     <>
       <header className="sticky top-0 z-50 border-b border-slate-100 dark:border-stone-800 bg-white/80 dark:bg-stone-950/80 shadow-sm backdrop-blur-md transition-all duration-300">
         <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-6 sm:px-8 lg:px-10 gap-4">
-          {/* Left Side: Hamburger, Logo, Search Bar */}
-          <div className="flex items-center gap-3.5 flex-shrink-0">
-            {isHost && (
-              <button
-                type="button"
-                onClick={() => setHostMenuOpen((o) => !o)}
-                className={`hidden md:flex h-9 w-9 items-center justify-center rounded-xl border transition active:scale-95 ${
-                  hostMenuOpen
-                    ? 'border-rose-200 bg-rose-50/50 text-primary-600 hover:bg-rose-100/50'
-                    : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-stone-800 dark:bg-stone-900 dark:text-slate-300 dark:hover:bg-stone-800'
-                }`}
-                aria-label={hostMenuOpen ? 'Close hosting menu' : 'Open hosting menu'}
-              >
-                {hostMenuOpen ? <X className="h-4 w-4 stroke-[2.5px]" /> : <Menu className="h-4.5 w-4.5" />}
-              </button>
-            )}
-
+          {/* Left Side: Logo, Search Bar */}
+          <div className="flex items-center gap-3.5 flex-shrink-0 min-w-0">
             <Link to="/" className="flex items-center gap-2 flex-shrink-0">
               <img src="/brand/innbly-icon.jpg" alt="innbly" className="h-9 w-9 rounded-xl object-cover shadow-lg shadow-primary-500/20" />
               <span className="bg-gradient-to-r from-primary-900 to-primary-600 dark:from-white dark:to-primary-400 bg-clip-text text-xl font-extrabold tracking-tight text-transparent">
@@ -137,7 +122,7 @@ export function Navbar() {
                   navigate('/search')
                 }
               }}
-              className="hidden md:block w-40 lg:w-48 xl:w-56"
+              className={`hidden md:block ${isHost ? 'w-64 lg:w-96 xl:w-[28rem]' : 'w-40 lg:w-48 xl:w-56'}`}
             >
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
@@ -151,51 +136,32 @@ export function Navbar() {
             </form>
           </div>
 
-          {/* Center Side: Navigation Links — hosts see their dashboard
-              shortcuts here (mirrors the sidebar), everyone else sees the
-              guest-facing links. */}
-          <div className="hidden lg:flex items-center gap-5 xl:gap-6 flex-shrink-0">
-            {isHost ? (
-              hostLinks.map((link) => (
-                <NavLink
-                  key={link.to}
-                  to={link.to}
-                  end={link.to === '/dashboard'}
-                  className={({ isActive }) =>
-                    `flex items-center gap-1.5 text-xs font-bold transition ${
-                      isActive 
-                        ? 'text-primary-600 dark:text-primary-400' 
-                        : 'text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400'
-                    }`
+          {/* Center Side: Navigation Links — guest-facing links only. Hosts'
+              dashboard shortcuts live solely in the sidebar, not duplicated
+              here, so the search bar can expand into this space instead. */}
+          {!isHost && (
+            <div className="hidden lg:flex items-center gap-5 xl:gap-6 flex-shrink-0">
+              <Link to="/search" className="text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition">Explore</Link>
+              <button
+                onClick={async (e) => {
+                  e.preventDefault()
+                  if (user) {
+                    setSwitchingToHost(true)
+                    const updated = await switchRole()
+                    setSwitchingToHost(false)
+                    if (updated) navigate('/dashboard')
+                    return
                   }
-                >
-                  <link.icon className="h-3.5 w-3.5" /> {link.label}
-                </NavLink>
-              ))
-            ) : (
-              <>
-                <Link to="/search" className="text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition">Explore</Link>
-                <button
-                  onClick={async (e) => {
-                    e.preventDefault()
-                    if (user) {
-                      setSwitchingToHost(true)
-                      const updated = await switchRole()
-                      setSwitchingToHost(false)
-                      if (updated) navigate('/dashboard')
-                      return
-                    }
-                    openAuthModal('host')
-                  }}
-                  className="text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition"
-                >
-                  Become a Host
-                </button>
-                <Link to="/enterprise" className="text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition">About Us</Link>
-                <Link to="/contact" className="text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition">Help</Link>
-              </>
-            )}
-          </div>
+                  openAuthModal('host')
+                }}
+                className="text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition"
+              >
+                Become a Host
+              </button>
+              <Link to="/enterprise" className="text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition">About Us</Link>
+              <Link to="/contact" className="text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition">Help</Link>
+            </div>
+          )}
 
           {/* Right Side: Actions */}
           <div className="flex items-center gap-2.5 sm:gap-3 flex-shrink-0">
@@ -358,6 +324,21 @@ export function Navbar() {
               >
                 <User className="h-4 w-4" /> Sign In / Sign Up
               </Button>
+            )}
+
+            {isHost && (
+              <button
+                type="button"
+                onClick={() => setHostMenuOpen((o) => !o)}
+                className={`hidden md:flex h-9 w-9 items-center justify-center rounded-xl border transition active:scale-95 ${
+                  hostMenuOpen
+                    ? 'border-rose-200 bg-rose-50/50 text-primary-600 hover:bg-rose-100/50'
+                    : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-stone-800 dark:bg-stone-900 dark:text-slate-300 dark:hover:bg-stone-800'
+                }`}
+                aria-label={hostMenuOpen ? 'Close hosting menu' : 'Open hosting menu'}
+              >
+                {hostMenuOpen ? <X className="h-4 w-4 stroke-[2.5px]" /> : <Menu className="h-4.5 w-4.5" />}
+              </button>
             )}
 
             <Button

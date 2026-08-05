@@ -14,8 +14,6 @@ import { CategoryScroller } from '../components/CategoryScroller'
 import { TrendingDestinations } from '../components/TrendingDestinations'
 import { CollectionsGrid } from '../components/CollectionsGrid'
 import { LifestyleExplorer } from '../components/LifestyleExplorer'
-import { TrustStats } from '../components/TrustStats'
-import { RecentlyViewedSection } from '../components/RecentlyViewedSection'
 import { DateRangePicker, formatDisplay } from '../components/DateRangePicker'
 import { LocationAutocomplete } from '../components/LocationAutocomplete'
 import { StickyHomeSearchBar } from '../components/StickyHomeSearchBar'
@@ -471,16 +469,6 @@ export function HomePage() {
           <Reveal>
             <h2 className="mb-6 text-2xl font-bold text-slate-900">Explore by Lifestyle</h2>
             <LifestyleExplorer />
-          </Reveal>
-        </div>
-      </section>
-
-      <RecentlyViewedSection />
-
-      <section className="bg-slate-50/60 py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <Reveal>
-            <TrustStats />
           </Reveal>
         </div>
       </section>

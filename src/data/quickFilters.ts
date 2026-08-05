@@ -14,7 +14,7 @@ export const QUICK_FILTERS: QuickFilter[] = [
   { slug: 'work-friendly', label: 'Work Friendly', predicate: (p) => p.lifestyleTags.includes('Digital Nomad') || p.wifiSpeedMbps >= 100 },
   { slug: 'entire-home', label: 'Entire Home', predicate: (p) => ENTIRE_HOME_TYPES.includes(p.propertyType) },
   { slug: 'family-stay', label: 'Family Stay', predicate: (p) => p.lifestyleTags.includes('Family') },
-  { slug: 'under-2000', label: 'Under ₹2000', predicate: (p) => p.price < 2000 },
+  { slug: 'under-2000', label: 'Under ₹2000', predicate: (p) => p.price <= 2000 },
   { slug: 'pet-friendly', label: 'Pet Friendly', predicate: (p) => p.lifestyleTags.includes('Pet Friendly') },
   { slug: 'high-speed-wifi', label: 'High Speed WiFi', predicate: (p) => p.wifiSpeedMbps >= 100 },
   { slug: 'pool', label: 'Pool', predicate: (p) => p.amenities.includes('Pool') },

@@ -41,6 +41,8 @@ export function PropertyCard({ property, onQuickView }: { property: Property; on
   return (
     <MotionLink
       to={`/property/${property.id}`}
+      target="_blank"
+      rel="noopener noreferrer"
       onMouseEnter={startSlideshow}
       onMouseLeave={stopSlideshow}
       whileHover={{ y: -6 }}

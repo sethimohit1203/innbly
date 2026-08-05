@@ -383,6 +383,21 @@ export function SearchResultsPage() {
 
   const collection = getQuickFilter(collectionSlug)
 
+  // Manually touching a filter after landing on a collection (e.g. "Under
+  // ₹2000" from the homepage) should let that filter take over — otherwise
+  // the collection's predicate keeps silently zeroing out results no matter
+  // what the user changes it to.
+  const withCollectionCleared = <T,>(setter: (v: T) => void) => (v: T) => {
+    if (collectionSlug) setCollectionSlug(null)
+    setter(v)
+  }
+  const setCityAndClear = withCollectionCleared(setCity)
+  const setGuestsAndClear = withCollectionCleared(setGuests)
+  const setBudgetAndClear = withCollectionCleared(setBudget)
+  const setPropertyTypeAndClear = withCollectionCleared(setPropertyType)
+  const setStayDurationAndClear = withCollectionCleared(setStayDuration)
+  const toggleAmenityAndClear = withCollectionCleared(toggleAmenity)
+
   const filtered = useMemo(() => {
     const result = properties.filter((p) => {
       if (freeTextQuery) {
@@ -495,6 +510,7 @@ export function SearchResultsPage() {
           valueCity={city}
           valueState={state}
           onChange={(newCity, newState) => {
+            if (collectionSlug) setCollectionSlug(null)
             setCity(newCity)
             setState(newState)
           }}
@@ -503,7 +519,7 @@ export function SearchResultsPage() {
         <SelectFilter
           label="Guests"
           value={guests}
-          onChange={setGuests}
+          onChange={setGuestsAndClear}
           options={[
             { value: '1', label: '1 Guest' },
             { value: '2', label: '2 Guests' },
@@ -515,7 +531,7 @@ export function SearchResultsPage() {
         <SelectFilter
           label="Stay Length"
           value={stayDuration}
-          onChange={setStayDuration}
+          onChange={setStayDurationAndClear}
           options={[
             { value: 'short', label: 'Short Stay (< 1 week)' },
             { value: 'weekly', label: 'Weekly' },
@@ -523,11 +539,11 @@ export function SearchResultsPage() {
           ]}
           icon={Calendar}
         />
-        <BudgetSlider value={budget} onChange={setBudget} />
+        <BudgetSlider value={budget} onChange={setBudgetAndClear} />
         <MoreFiltersPopover
           amenities={amenities}
           amenityOptions={ALL_AMENITIES}
-          onToggleAmenity={toggleAmenity}
+          onToggleAmenity={toggleAmenityAndClear}
         />
       </div>
     )
@@ -592,10 +608,10 @@ export function SearchResultsPage() {
               <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">Popular Filters</p>
               <div className="space-y-3">
                 {[
-                  { key: 'freeCancellation', label: 'Free Cancellation', checked: freeCancellationOnly, onChange: setFreeCancellationOnly, count: popularFilterCounts.freeCancellation },
-                  { key: 'instantBook', label: 'Instant Book', checked: instantBookOnly, onChange: setInstantBookOnly, count: popularFilterCounts.instantBook },
-                  { key: 'verified', label: 'Verified Properties', checked: verifiedOnly, onChange: setVerifiedOnly, count: popularFilterCounts.verified },
-                  { key: 'guestFavourite', label: 'Guest Favourite', checked: guestFavouriteOnly, onChange: setGuestFavouriteOnly, count: popularFilterCounts.guestFavourite },
+                  { key: 'freeCancellation', label: 'Free Cancellation', checked: freeCancellationOnly, onChange: withCollectionCleared(setFreeCancellationOnly), count: popularFilterCounts.freeCancellation },
+                  { key: 'instantBook', label: 'Instant Book', checked: instantBookOnly, onChange: withCollectionCleared(setInstantBookOnly), count: popularFilterCounts.instantBook },
+                  { key: 'verified', label: 'Verified Properties', checked: verifiedOnly, onChange: withCollectionCleared(setVerifiedOnly), count: popularFilterCounts.verified },
+                  { key: 'guestFavourite', label: 'Guest Favourite', checked: guestFavouriteOnly, onChange: withCollectionCleared(setGuestFavouriteOnly), count: popularFilterCounts.guestFavourite },
                 ].map((f) => (
                   <label key={f.key} className="flex cursor-pointer items-center justify-between gap-2 text-xs text-slate-600 font-semibold hover:text-slate-900">
                     <span className="flex items-center gap-2">
@@ -618,7 +634,7 @@ export function SearchResultsPage() {
               <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-slate-400">Property Type</p>
               <select
                 value={propertyType}
-                onChange={(e) => setPropertyType(e.target.value as any)}
+                onChange={(e) => setPropertyTypeAndClear(e.target.value as any)}
                 className="w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-semibold text-slate-700 outline-none focus:border-primary-500"
               >
                 <option value="all">Select Type</option>
@@ -637,7 +653,7 @@ export function SearchResultsPage() {
               <select
                 onChange={(e) => {
                   if (e.target.value !== 'all') {
-                    toggleAmenity(e.target.value)
+                    toggleAmenityAndClear(e.target.value)
                   }
                 }}
                 className="w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-semibold text-slate-700 outline-none focus:border-primary-500"
