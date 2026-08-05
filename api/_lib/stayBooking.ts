@@ -211,7 +211,10 @@ export async function computeStayBookingBreakdown(input: StayBookingInput): Prom
   const gstAmount = Math.round(roomSubtotal * gstRate)
   const hostCommission = Math.round(roomSubtotal * HOST_COMMISSION_PCT)
   const guestBundledSubtotal = roomSubtotal + guestServiceFee
-  const guestTotal = guestBundledSubtotal + gstAmount + property.securityDeposit
+  // Security deposit is not collected through the online payment — per the
+  // property FAQ/cancellation copy, hosts collect and refund it directly at
+  // checkout, so it's excluded from the Razorpay-charged guestTotal.
+  const guestTotal = guestBundledSubtotal + gstAmount
 
   return {
     propertyId: input.propertyId,

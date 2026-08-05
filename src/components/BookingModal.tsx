@@ -131,12 +131,6 @@ export function BookingModal({ property, checkIn, checkOut, guests, onClose, onB
                   <span>Taxes (est. GST {Math.round(breakdown.gstRate * 100)}%)</span>
                   <span>₹{breakdown.gstAmount.toLocaleString('en-IN')}</span>
                 </div>
-                {breakdown.securityDeposit > 0 && (
-                  <div className="flex justify-between text-slate-600">
-                    <span>Refundable security deposit</span>
-                    <span>₹{breakdown.securityDeposit.toLocaleString('en-IN')}</span>
-                  </div>
-                )}
                 <div className="mt-2 flex justify-between border-t border-slate-100 pt-2 font-bold text-slate-900">
                   <span>Total</span>
                   <span>₹{breakdown.guestTotal.toLocaleString('en-IN')}</span>
