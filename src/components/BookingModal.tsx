@@ -46,6 +46,10 @@ export function BookingModal({ property, checkIn, checkOut, guests, onClose, onB
   }
 
   const handlePay = async () => {
+    if (!property.id.startsWith('host-')) {
+      setError('Booking is not allowed for demo listings.')
+      return
+    }
     if (!checkIn || !checkOut || !tenantName.trim() || !tenantEmail.trim() || !tenantPhone.trim()) {
       setError('Please fill in your name, email, and phone.')
       return
@@ -140,14 +144,28 @@ export function BookingModal({ property, checkIn, checkOut, guests, onClose, onB
 
             {error && <p className="mt-3 text-sm font-semibold text-rose-500">{error}</p>}
 
-            <div className="mt-4 flex items-start gap-2 rounded-xl bg-accent-50 p-3 text-xs text-accent-700">
-              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
-              <span>Paid securely through innbly. The host's contact details unlock right after payment.</span>
-            </div>
+            {!property.id.startsWith('host-') ? (
+              <div className="mt-4 space-y-3">
+                <div className="rounded-xl bg-amber-50 p-4 border border-amber-200 text-xs text-amber-800 flex flex-col gap-1">
+                  <span className="font-bold text-sm">Demo Mode Reservation</span>
+                  <span>Payments and real bookings are disabled for demo catalog properties. Real checkout is only active for listings submitted by hosts.</span>
+                </div>
+                <Button disabled size="lg" className="w-full bg-slate-300 text-slate-500 cursor-not-allowed">
+                  Booking Disabled
+                </Button>
+              </div>
+            ) : (
+              <>
+                <div className="mt-4 flex items-start gap-2 rounded-xl bg-accent-50 p-3 text-xs text-accent-700">
+                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
+                  <span>Paid securely through innbly. The host's contact details unlock right after payment.</span>
+                </div>
 
-            <Button onClick={handlePay} loading={paying} size="lg" className="mt-4 w-full">
-              {paying ? 'Processing…' : breakdown ? `Pay ₹${breakdown.guestTotal.toLocaleString('en-IN')} & Reserve` : 'Pay & Reserve'}
-            </Button>
+                <Button onClick={handlePay} loading={paying} size="lg" className="mt-4 w-full">
+                  {paying ? 'Processing…' : breakdown ? `Pay ₹${breakdown.guestTotal.toLocaleString('en-IN')} & Reserve` : 'Pay & Reserve'}
+                </Button>
+              </>
+            )}
           </>
         )}
       </div>

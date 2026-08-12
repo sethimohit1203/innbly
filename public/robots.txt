@@ -3,5 +3,10 @@ Allow: /
 Disallow: /admin
 Disallow: /dashboard
 Disallow: /api/
+Disallow: /saved
+Disallow: /bookings
+Disallow: /profile
+Disallow: /invite
+Disallow: /compare
 
 Sitemap: https://innbly.com/sitemap.xml

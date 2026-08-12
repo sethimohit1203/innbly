@@ -36,6 +36,11 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
     return
   }
 
+  if (!body.propertyId.startsWith('host-')) {
+    res.status(400).json({ error: 'Payments and bookings are not allowed on demo listings.' })
+    return
+  }
+
   const breakdown = await computeStayBookingBreakdown({
     propertyId: body.propertyId,
     checkIn: body.checkIn,

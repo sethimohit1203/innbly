@@ -72,6 +72,11 @@ export function PropertyCard({ property, onQuickView }: { property: Property; on
 
         {/* Badges on top-left vertically stacked */}
         <div className="absolute left-3 top-3 flex flex-col gap-1.5 z-10">
+          {!property.id.startsWith('host-') && (
+            <span className="flex items-center gap-1 rounded-full bg-slate-800 px-3 py-1 text-[10px] font-bold text-white shadow-sm">
+              Demo Listing
+            </span>
+          )}
           {property.instantBook && (
             <span className="flex items-center gap-1 rounded-full bg-primary-600 px-3 py-1 text-[10px] font-bold text-white shadow-sm">
               <Zap className="h-3 w-3 fill-white" /> Instant Book
