@@ -100,6 +100,32 @@ async function handleRequest(req: ApiRequest, res: ApiResponse) {
     return
   }
 
+  // --- GET action=my-listings ---
+  if (req.method === 'GET' && action === 'my-listings') {
+    const session = verifyUserSession(req)
+    if (!session) {
+      res.status(401).json({ error: 'Not authenticated' })
+      return
+    }
+    const { data: user, error: userError } = await admin.from('users').select('email').eq('id', session.userId).maybeSingle()
+    if (userError || !user) {
+      res.status(401).json({ error: 'Not authenticated' })
+      return
+    }
+    const { data: listings, error: submissionsError } = await admin
+      .from('host_submissions')
+      .select('id, property_title, status, price_per_night, city, neighborhood, created_at, photo_urls')
+      .ilike('owner_email', user.email)
+      .order('created_at', { ascending: false })
+
+    if (submissionsError) {
+      res.status(502).json({ error: submissionsError.message })
+      return
+    }
+    res.status(200).json({ listings })
+    return
+  }
+
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' })
     return
@@ -307,42 +333,75 @@ async function handleRequest(req: ApiRequest, res: ApiResponse) {
   }
 
   // --- POST action=google-auth ---
-  // NOTE: trusts the decoded Google ID token payload from the client
-  // (src/lib/googleAuth.ts) without re-verifying its signature against
-  // Google's JWKS server-side — a real hardening follow-up, flagged rather
-  // than silently left as-is, since this is the one path in this file that
-  // doesn't independently confirm the email the way password+OTP signup
-  // does. Good enough to keep the existing Google button working with a
-  // real session cookie instead of the old fully-local fake login.
   if (action === 'google-auth') {
-    const { name, email: rawEmail } = body as { name?: string; email?: string }
-    if (!name?.trim() || !rawEmail?.trim()) {
-      res.status(400).json({ error: 'Name and email are required.' })
+    const { credential } = body as { credential?: string }
+    if (!credential) {
+      res.status(400).json({ error: 'Google ID token credential is required.' })
       return
     }
-    const email = normalizeEmail(rawEmail)
 
-    const { data: existing } = await admin.from('users').select('*').ilike('email', email).maybeSingle()
-    let row = existing as UserRow | null
-    if (!row) {
-      const { data: inserted, error } = await admin
-        .from('users')
-        .insert({ name: name.trim(), email, password_hash: await hashPassword(randomBytes(24).toString('hex')), role: 'tenant', email_verified: true })
-        .select('*')
-        .single()
-      if (error || !inserted) {
-        res.status(502).json({ error: 'Could not create account.' })
+    try {
+      const googleRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`)
+      if (!googleRes.ok) {
+        res.status(401).json({ error: 'Invalid Google credential.' })
         return
       }
-      row = inserted as UserRow
-    } else if (!row.email_verified) {
-      const { data: updated } = await admin.from('users').update({ email_verified: true }).eq('id', row.id).select('*').single()
-      if (updated) row = updated as UserRow
-    }
+      const payload = (await googleRes.json()) as {
+        email?: string
+        name?: string
+        aud?: string
+        email_verified?: string | boolean
+        picture?: string
+      }
 
-    res.setHeader('Set-Cookie', createUserSessionCookie(row.id, row.role))
-    res.status(200).json({ user: publicUser(row) })
-    return
+      const clientId = process.env.VITE_GOOGLE_CLIENT_ID
+      if (!payload.email || !payload.name || payload.aud !== clientId) {
+        res.status(401).json({ error: 'Invalid Google token audience or payload.' })
+        return
+      }
+
+      const email = normalizeEmail(payload.email)
+      const name = payload.name
+      const avatarUrl = payload.picture || null
+
+      const { data: existing } = await admin.from('users').select('*').ilike('email', email).maybeSingle()
+      let row = existing as UserRow | null
+      if (!row) {
+        const { data: inserted, error } = await admin
+          .from('users')
+          .insert({
+            name: name.trim(),
+            email,
+            password_hash: await hashPassword(randomBytes(24).toString('hex')),
+            role: 'tenant',
+            email_verified: true,
+            avatar_url: avatarUrl,
+          })
+          .select('*')
+          .single()
+        if (error || !inserted) {
+          res.status(502).json({ error: 'Could not create account.' })
+          return
+        }
+        row = inserted as UserRow
+      } else {
+        const updates: Partial<UserRow> = {}
+        if (!row.email_verified) updates.email_verified = true
+        if (!row.avatar_url && avatarUrl) updates.avatar_url = avatarUrl
+
+        if (Object.keys(updates).length > 0) {
+          const { data: updated } = await admin.from('users').update(updates).eq('id', row.id).select('*').single()
+          if (updated) row = updated as UserRow
+        }
+      }
+
+      res.setHeader('Set-Cookie', createUserSessionCookie(row.id, row.role))
+      res.status(200).json({ user: publicUser(row) })
+      return
+    } catch (err) {
+      res.status(502).json({ error: `Google verification failed: ${(err as Error).message}` })
+      return
+    }
   }
 
   // --- POST action=update-profile ---

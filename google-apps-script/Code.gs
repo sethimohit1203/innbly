@@ -56,6 +56,11 @@ function doPost(e) {
       return jsonResponse({ ok: true });
     }
 
+    if (type === 'bookingCancel') {
+      sendBookingCancellationEmails(data);
+      return jsonResponse({ ok: true });
+    }
+
     if (!SHEET_NAMES[type]) {
       return jsonResponse({ ok: false, error: 'Unknown submission type: ' + type });
     }
@@ -380,6 +385,60 @@ function sendBookingEmails(data) {
     body: tenantRows.map(function (r) { return r[0] + ': ' + r[1]; }).join('\n'),
     htmlBody: emailTemplate(tenantSubject, tenantRows, tenantFooter),
   });
+}
+
+/** Sends cancellation alerts to admin/host/tenant when a booking is cancelled. */
+function sendBookingCancellationEmails(data) {
+  var subject = 'Booking CANCELLED — ' + data.propertyTitle;
+  
+  var rows = [
+    ['Property', data.propertyTitle],
+    ['Check-in', data.checkIn],
+    ['Check-out', data.checkOut],
+    ['Cancelled By', data.cancelledBy],
+  ];
+
+  // 1. Email Admin
+  MailApp.sendEmail({
+    to: SUPPORT_EMAIL,
+    subject: subject,
+    body: rows.map(function (r) { return r[0] + ': ' + r[1]; }).join('\n'),
+    htmlBody: emailTemplate(subject, rows, '<p style="margin:0 0 12px;color:#d9332a;font-size:14px;line-height:1.6;font-weight:bold;">Alert: A confirmed booking has been cancelled. Please review refund requirements on Razorpay.</p>'),
+  });
+
+  // 2. Email Host
+  if (data.hostEmail) {
+    var hostSubject = 'Cancellation alert for ' + data.propertyTitle;
+    var hostFooter =
+      '<p style="margin:0 0 12px;color:#475569;font-size:14px;line-height:1.6;">' +
+      'Hi ' + escapeHtml(data.hostName || 'Host') + ', this is to inform you that the booking for ' +
+      escapeHtml(data.propertyTitle) + ' from ' + data.checkIn + ' to ' + data.checkOut + ' has been cancelled ' +
+      'by the ' + escapeHtml(data.cancelledBy.toLowerCase()) + '. If a manual refund is required, it will be processed by the innbly team.' +
+      '</p>';
+    MailApp.sendEmail({
+      to: data.hostEmail,
+      subject: hostSubject,
+      body: rows.map(function (r) { return r[0] + ': ' + r[1]; }).join('\n'),
+      htmlBody: emailTemplate(hostSubject, rows, hostFooter),
+    });
+  }
+
+  // 3. Email Tenant
+  if (data.tenantEmail) {
+    var tenantSubject = 'Your innbly booking has been cancelled';
+    var tenantFooter =
+      '<p style="margin:0 0 12px;color:#475569;font-size:14px;line-height:1.6;">' +
+      'Hi ' + escapeHtml(data.tenantName) + ', your booking at ' + escapeHtml(data.propertyTitle) + ' has ' +
+      'been cancelled. If you are eligible for a refund according to the host\'s cancellation policy, ' +
+      'our team will process it manually via Razorpay and contact you shortly.' +
+      '</p>';
+    MailApp.sendEmail({
+      to: data.tenantEmail,
+      subject: tenantSubject,
+      body: rows.map(function (r) { return r[0] + ': ' + r[1]; }).join('\n'),
+      htmlBody: emailTemplate(tenantSubject, rows, tenantFooter),
+    });
+  }
 }
 
 /** Shared branded HTML email wrapper — a simple card matching the site's

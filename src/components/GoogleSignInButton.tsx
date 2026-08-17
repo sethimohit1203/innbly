@@ -3,7 +3,7 @@ import { decodeGoogleCredential, type GoogleProfile } from '../lib/googleAuth'
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined
 
-export function GoogleSignInButton({ onSuccess }: { onSuccess: (profile: GoogleProfile) => void }) {
+export function GoogleSignInButton({ onSuccess }: { onSuccess: (credential: string, profile: GoogleProfile) => void }) {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -20,7 +20,7 @@ export function GoogleSignInButton({ onSuccess }: { onSuccess: (profile: GoogleP
         client_id: CLIENT_ID,
         callback: (response) => {
           const profile = decodeGoogleCredential(response.credential)
-          if (profile) onSuccess(profile)
+          if (profile) onSuccess(response.credential, profile)
         },
       })
       window.google.accounts.id.renderButton(ref.current, {

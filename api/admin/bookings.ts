@@ -2,6 +2,7 @@ import type { ApiRequest, ApiResponse } from '../_lib/http.js'
 import { readJsonBody } from '../_lib/http.js'
 import { verifyAdminSession } from '../_lib/adminAuth.js'
 import { getSupabaseAdmin } from '../_lib/supabaseAdmin.js'
+import { forwardToSheet } from '../_lib/sheets.js'
 
 interface UpdatePayload {
   id?: string
@@ -52,6 +53,25 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
       return
     }
 
+    let booking: any = null
+    if (body.status === 'cancelled') {
+      const { data, error: fetchError } = await admin
+        .from('bookings')
+        .select('*')
+        .eq('id', body.id)
+        .maybeSingle()
+
+      if (fetchError || !data) {
+        res.status(404).json({ error: 'Booking not found.' })
+        return
+      }
+      booking = data
+      if (booking.status === 'cancelled') {
+        res.status(400).json({ error: 'Booking is already cancelled.' })
+        return
+      }
+    }
+
     const patch: Record<string, string> = {}
     if (body.payoutStatus) patch.payout_status = body.payoutStatus
     if (body.status) patch.status = body.status
@@ -65,6 +85,22 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
       res.status(502).json({ error: error.message })
       return
     }
+
+    if (body.status === 'cancelled' && booking) {
+      forwardToSheet('bookingCancel', {
+        propertyTitle: booking.property_title,
+        hostEmail: booking.host_email,
+        hostName: booking.host_name,
+        hostPhone: booking.host_phone,
+        tenantEmail: booking.tenant_email,
+        tenantName: booking.tenant_name,
+        tenantPhone: booking.tenant_phone,
+        checkIn: booking.check_in,
+        checkOut: booking.check_out,
+        cancelledBy: 'Admin',
+      })
+    }
+
     res.status(200).json({ ok: true })
     return
   }

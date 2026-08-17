@@ -138,10 +138,10 @@ export function AuthModal() {
     finishLogin(pendingUser)
   }
 
-  const handleGoogleSuccess = async (profile: { name: string; email: string }) => {
+  const handleGoogleSuccess = async (credential: string, profile: { name: string; email: string }) => {
     setSubmitting(true)
     try {
-      const { ok, data } = await callAuth('google-auth', { name: profile.name, email: profile.email })
+      const { ok, data } = await callAuth('google-auth', { credential })
       if (!ok) {
         showToast(data.error ?? 'Could not sign in with Google.', 'error')
         return
