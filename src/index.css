@@ -142,7 +142,9 @@ html.dark body {
 
 /* Background Color Overrides */
 html.dark .bg-white,
-html.dark .bg-white\/80 {
+html.dark .bg-white\/80,
+html.dark .bg-white\/90,
+html.dark .bg-white\/95 {
   background-color: #111827 !important; /* Rich slate dark background for cards */
 }
 
@@ -220,7 +222,10 @@ html.dark .group:hover .group-hover\:bg-primary-100 {
 }
 
 /* Special button highlights and active items */
-html.dark .bg-primary-50 {
+html.dark .bg-primary-50,
+html.dark .bg-primary-50\/30,
+html.dark .bg-primary-50\/50,
+html.dark .bg-primary-50\/60 {
   background-color: rgba(238, 76, 61, 0.15) !important; /* Primary light red accent in dark mode */
   color: #fca5a5 !important;
 }

@@ -148,7 +148,7 @@ export function HomePage() {
   return (
     <div>
       {/* Hero — premium layout: 2-column left heading + right search card */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-primary-50/40 via-white to-white pb-20 pt-16 md:pt-24">
+      <section className="relative overflow-hidden bg-gradient-to-b from-primary-50/40 via-white to-white dark:from-stone-950/40 dark:via-stone-900 dark:to-stone-900 pb-20 pt-16 md:pt-24">
         <div className="mx-auto max-w-[1440px] px-6 sm:px-8 lg:px-20 flex flex-col lg:flex-row items-center justify-between gap-12">
           
           {/* Left Column: Heading */}
