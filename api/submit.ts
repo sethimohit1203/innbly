@@ -14,7 +14,7 @@ import { getSupabaseAdmin } from './_lib/supabaseAdmin.js'
  * different path (see handleReview below) since it needs a Supabase write,
  * not just a Sheets forward. */
 
-type SubmissionType = 'lead' | 'signup' | 'newsletter' | 'contact' | 'hostListing' | 'review' | 'coHostInvite'
+type SubmissionType = 'lead' | 'signup' | 'newsletter' | 'contact' | 'hostListing' | 'review' | 'coHostInvite' | 'blogPost'
 
 const RATE_LIMITS: Record<SubmissionType, { max: number; windowMs: number; message: string }> = {
   lead: { max: 5, windowMs: 10 * 60 * 1000, message: 'Too many visit requests. Please try again later.' },
@@ -24,6 +24,10 @@ const RATE_LIMITS: Record<SubmissionType, { max: number; windowMs: number; messa
   hostListing: { max: 5, windowMs: 60 * 60 * 1000, message: 'Too many submissions. Please try again later.' },
   review: { max: 10, windowMs: 60 * 60 * 1000, message: 'Too many reviews submitted. Please try again later.' },
   coHostInvite: { max: 5, windowMs: 60 * 60 * 1000, message: 'Too many invites sent. Please try again later.' },
+  // Generous — this is hit by a scheduled n8n workflow every few hours, not
+  // by end-user traffic, but still rate-limited so a leaked secret can't be
+  // used to hammer the DB.
+  blogPost: { max: 20, windowMs: 60 * 60 * 1000, message: 'Too many blog posts submitted. Please try again later.' },
 }
 
 function isValid(type: SubmissionType, body: Record<string, unknown>): boolean {
@@ -48,6 +52,8 @@ function isValid(type: SubmissionType, body: Record<string, unknown>): boolean {
       )
     case 'coHostInvite':
       return Boolean(body.hostEmail && body.coHostEmail)
+    case 'blogPost':
+      return Boolean(body.title && body.slug && body.content)
   }
 }
 
@@ -116,6 +122,69 @@ async function handleReview(body: ReviewBody, res: ApiResponse) {
   res.status(200).json({ ok: true })
 }
 
+interface BlogPostBody {
+  title: string
+  slug: string
+  content: string
+  description?: string
+  coverImage?: string
+  tags?: string[]
+  author?: string
+  source?: string
+  secret?: string
+}
+
+/** Ingestion endpoint for the auto-blogging n8n workflows (adapted from the
+ * CircleOfLearning and ProRido pipelines this repo's owner already runs —
+ * see n8n-workflows/innbly-auto-blogging.json). Unlike every other type
+ * here, the caller isn't the site's own browser, so it can't be trusted by
+ * origin alone — gated behind a shared secret (BLOG_INGEST_SECRET) instead
+ * of a session cookie. Upserts on slug so a re-run (e.g. n8n retrying after
+ * a timeout) edits the same post rather than creating a duplicate. */
+async function handleBlogPost(body: BlogPostBody, res: ApiResponse) {
+  const expected = process.env.BLOG_INGEST_SECRET
+  if (!expected) {
+    res.status(500).json({ error: 'Blog ingestion is not configured (BLOG_INGEST_SECRET missing).' })
+    return
+  }
+  if (body.secret !== expected) {
+    res.status(403).json({ error: 'Invalid secret.' })
+    return
+  }
+
+  let admin
+  try {
+    admin = getSupabaseAdmin()
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message })
+    return
+  }
+
+  const { error } = await admin.from('blog_posts').upsert(
+    {
+      slug: body.slug.trim(),
+      title: body.title.trim(),
+      description: (body.description ?? '').trim(),
+      content: body.content,
+      cover_image: body.coverImage ?? '',
+      tags: body.tags ?? [],
+      author: body.author?.trim() || 'Innbly Editorial Team',
+      source: body.source ?? 'manual',
+      published: true,
+      published_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: 'slug' },
+  )
+
+  if (error) {
+    res.status(502).json({ error: error.message })
+    return
+  }
+
+  res.status(200).json({ ok: true, url: `https://www.innbly.com/blog/${body.slug.trim()}` })
+}
+
 export default async function handler(req: ApiRequest, res: ApiResponse) {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' })
@@ -125,7 +194,20 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
   const body = readJsonBody<Record<string, unknown> & { type?: SubmissionType }>(req)
   const type = body.type
   if (!type || !RATE_LIMITS[type]) {
-    res.status(400).json({ error: 'Unknown or missing submission type' })
+    console.log('[api/submit] Invalid body or type:', {
+      receivedType: typeof req.body,
+      keys: req.body && typeof req.body === 'object' ? Object.keys(req.body) : [],
+      body: req.body
+    })
+    res.status(400).json({ 
+      error: 'Unknown or missing submission type',
+      debug: {
+        receivedType: typeof req.body,
+        isBuffer: req.body ? req.body.constructor.name === 'Buffer' : false,
+        keys: req.body && typeof req.body === 'object' ? Object.keys(req.body) : [],
+        bodyPreview: typeof req.body === 'string' ? req.body.slice(0, 200) : JSON.stringify(req.body).slice(0, 200)
+      }
+    })
     return
   }
 
@@ -144,6 +226,11 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
 
   if (type === 'review') {
     await handleReview(body as unknown as ReviewBody, res)
+    return
+  }
+
+  if (type === 'blogPost') {
+    await handleBlogPost(body as unknown as BlogPostBody, res)
     return
   }
 
