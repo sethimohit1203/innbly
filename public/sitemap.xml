@@ -1,105 +1,239 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://innbly.com/</loc>
+    <loc>https://www.innbly.com/</loc>
   </url>
   <url>
-    <loc>https://innbly.com/search</loc>
+    <loc>https://www.innbly.com/search</loc>
   </url>
   <url>
-    <loc>https://innbly.com/contact</loc>
+    <loc>https://www.innbly.com/contact</loc>
   </url>
   <url>
-    <loc>https://innbly.com/privacy-policy</loc>
+    <loc>https://www.innbly.com/privacy-policy</loc>
   </url>
   <url>
-    <loc>https://innbly.com/terms</loc>
+    <loc>https://www.innbly.com/terms</loc>
   </url>
   <url>
-    <loc>https://innbly.com/compare</loc>
+    <loc>https://www.innbly.com/compare</loc>
   </url>
   <url>
-    <loc>https://innbly.com/goa</loc>
+    <loc>https://www.innbly.com/blog</loc>
   </url>
   <url>
-    <loc>https://innbly.com/manali</loc>
+    <loc>https://www.innbly.com/saved</loc>
   </url>
   <url>
-    <loc>https://innbly.com/shimla</loc>
+    <loc>https://www.innbly.com/bookings</loc>
   </url>
   <url>
-    <loc>https://innbly.com/jaipur</loc>
+    <loc>https://www.innbly.com/profile</loc>
   </url>
   <url>
-    <loc>https://innbly.com/udaipur</loc>
+    <loc>https://www.innbly.com/invite</loc>
   </url>
   <url>
-    <loc>https://innbly.com/mussoorie</loc>
+    <loc>https://www.innbly.com/enterprise</loc>
   </url>
   <url>
-    <loc>https://innbly.com/coorg</loc>
+    <loc>https://www.innbly.com/enterprise/search</loc>
   </url>
   <url>
-    <loc>https://innbly.com/ooty</loc>
+    <loc>https://www.innbly.com/enterprise/dashboard</loc>
   </url>
   <url>
-    <loc>https://innbly.com/rishikesh</loc>
+    <loc>https://www.innbly.com/admin</loc>
   </url>
   <url>
-    <loc>https://innbly.com/lonavala</loc>
+    <loc>https://www.innbly.com/admin/properties</loc>
   </url>
   <url>
-    <loc>https://innbly.com/goa/villas</loc>
+    <loc>https://www.innbly.com/admin/bookings</loc>
   </url>
   <url>
-    <loc>https://innbly.com/goa/beachfront-villas</loc>
+    <loc>https://www.innbly.com/admin/leads</loc>
   </url>
   <url>
-    <loc>https://innbly.com/manali/cabins</loc>
+    <loc>https://www.innbly.com/admin/messages</loc>
   </url>
   <url>
-    <loc>https://innbly.com/shimla/cottages</loc>
+    <loc>https://www.innbly.com/dashboard</loc>
   </url>
   <url>
-    <loc>https://innbly.com/lonavala/private-pool-villas</loc>
+    <loc>https://www.innbly.com/dashboard/properties</loc>
   </url>
   <url>
-    <loc>https://innbly.com/jaipur/farmhouses</loc>
+    <loc>https://www.innbly.com/dashboard/pricing</loc>
   </url>
   <url>
-    <loc>https://innbly.com/property/p1</loc>
+    <loc>https://www.innbly.com/dashboard/bookings</loc>
   </url>
   <url>
-    <loc>https://innbly.com/property/p2</loc>
+    <loc>https://www.innbly.com/dashboard/leads</loc>
   </url>
   <url>
-    <loc>https://innbly.com/property/p3</loc>
+    <loc>https://www.innbly.com/dashboard/messages</loc>
   </url>
   <url>
-    <loc>https://innbly.com/property/p4</loc>
+    <loc>https://www.innbly.com/dashboard/appointments</loc>
   </url>
   <url>
-    <loc>https://innbly.com/property/p5</loc>
+    <loc>https://www.innbly.com/dashboard/languages</loc>
   </url>
   <url>
-    <loc>https://innbly.com/property/p6</loc>
+    <loc>https://www.innbly.com/dashboard/resources</loc>
   </url>
   <url>
-    <loc>https://innbly.com/property/p7</loc>
+    <loc>https://www.innbly.com/dashboard/co-host</loc>
   </url>
   <url>
-    <loc>https://innbly.com/property/p8</loc>
+    <loc>https://www.innbly.com/dashboard/list-property</loc>
   </url>
   <url>
-    <loc>https://innbly.com/property/p9</loc>
+    <loc>https://www.innbly.com/goa</loc>
   </url>
   <url>
-    <loc>https://innbly.com/property/p10</loc>
+    <loc>https://www.innbly.com/manali</loc>
   </url>
   <url>
-    <loc>https://innbly.com/property/p11</loc>
+    <loc>https://www.innbly.com/shimla</loc>
   </url>
   <url>
-    <loc>https://innbly.com/property/host-0ec7ddea-d59b-4806-bd51-ca2089f6cf25</loc>
+    <loc>https://www.innbly.com/jaipur</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/udaipur</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/mussoorie</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/coorg</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/ooty</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/rishikesh</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/lonavala</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/goa/villas</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/goa/beachfront-villas</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/manali/cabins</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/shimla/cottages</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/lonavala/private-pool-villas</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/jaipur/farmhouses</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/search?collection=work-friendly</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/search?collection=family-stay</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/search?collection=pet-friendly</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/search?collection=pool</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/search?collection=luxury</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/search?collection=beach</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/search?collection=weekend</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/search?collection=budget-picks</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/property/p1</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/property/p2</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/property/p3</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/property/p4</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/property/p5</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/property/p6</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/property/p7</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/property/p8</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/property/p9</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/property/p10</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/property/p11</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/host/Maria%20Fernandes</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/host/Tenzin%20Dorje</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/host/Arjun%20Thakur</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/host/Rohit%20Sharma</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/host/Devika%20Rathore</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/host/Gurpreet%20Singh</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/host/Cariappa%20Nanjappa</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/host/Selvam%20Muthu</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/host/Anjali%20Bisht</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/host/Vivek%20Kapoor</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/host/Nikhil%20Deshmukh</loc>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/property/host-0ec7ddea-d59b-4806-bd51-ca2089f6cf25</loc>
+    <lastmod>2026-07-24</lastmod>
+  </url>
+  <url>
+    <loc>https://www.innbly.com/host/Bhavya%20Jain</loc>
+    <lastmod>2026-07-24</lastmod>
   </url>
 </urlset>
