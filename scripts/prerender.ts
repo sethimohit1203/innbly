@@ -72,7 +72,19 @@ async function main() {
     if (!address) throw new Error('Could not resolve preview server address')
     const baseUrl = address.replace(/\/$/, '')
 
-    browser = await chromium.launch()
+    // Vercel's build image doesn't ship Playwright's Chromium binaries (and
+    // has no apt-get access to install the ones `playwright install` would
+    // need), so this throws there every time — deliberately caught rather
+    // than left to crash `npm run build`. Prerendering is a nice-to-have for
+    // non-JS-executing crawlers; failing the entire deploy over it (which
+    // happened before this guard was added, silently pinning production to
+    // the last successful build) is far worse than shipping without it.
+    try {
+      browser = await chromium.launch()
+    } catch (err) {
+      console.warn(`Skipping prerendering — Chromium is not available in this environment: ${(err as Error).message}`)
+      return
+    }
 
     // Small concurrency window — enough to not take forever on ~35+ routes,
     // gentle enough not to overwhelm the local preview server.
@@ -90,6 +102,5 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error('Failed to prerender:', err)
-  process.exit(1)
+  console.error('Prerendering failed unexpectedly (non-fatal, build continues):', err)
 })
