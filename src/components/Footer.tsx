@@ -91,7 +91,7 @@ export function Footer() {
             <ul className="space-y-3 text-sm font-medium">
               <li><Link to="/enterprise" className="transition-colors hover:text-primary-600 text-slate-500">About innbly</Link></li>
               <li><a href="#" className="transition-colors hover:text-primary-600 text-slate-500">Careers</a></li>
-              <li><a href="#" className="transition-colors hover:text-primary-600 text-slate-500">Blog</a></li>
+              <li><Link to="/blog" className="transition-colors hover:text-primary-600 text-slate-500">Blog</Link></li>
               <li><a href="#" className="transition-colors hover:text-primary-600 text-slate-500">Press</a></li>
               <li><Link to="/contact" className="transition-colors hover:text-primary-600 text-slate-500">Contact Us</Link></li>
             </ul>

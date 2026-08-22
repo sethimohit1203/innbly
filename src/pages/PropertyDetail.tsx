@@ -231,6 +231,14 @@ export function PropertyDetailPage() {
             },
             priceRange: `₹${property.price.toLocaleString('en-IN')}/night`,
             amenityFeature: property.amenities.map((a) => ({ '@type': 'LocationFeatureSpecification', name: a })),
+            makesOffer: {
+              '@type': 'Offer',
+              price: property.price,
+              priceCurrency: 'INR',
+              availability: 'https://schema.org/InStock',
+              url: `${SITE_URL}/property/${property.id}`,
+              description: 'Price per night. Additional service fees and taxes are calculated at checkout.',
+            },
             ...(property.reviewCount > 0
               ? {
                   aggregateRating: {

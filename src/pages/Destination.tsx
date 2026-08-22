@@ -46,6 +46,7 @@ export function DestinationPage({ slug }: { slug: string }) {
     destination
       ? `Book verified villas, cottages, and holiday homes in ${destination.name}, ${destination.state}. ${destination.tagline}. Compare prices, amenities, and host reviews on Innbly.`
       : undefined,
+    destination?.heroImage,
   )
 
   useJsonLd(

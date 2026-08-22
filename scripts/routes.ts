@@ -98,38 +98,7 @@ async function fetchBlogSlugs(): Promise<RouteEntry[]> {
   }
 }
 
-export const STATIC_ROUTES = [
-  '/',
-  '/search',
-  '/contact',
-  '/privacy-policy',
-  '/terms',
-  '/compare',
-  '/blog',
-  '/saved',
-  '/bookings',
-  '/profile',
-  '/invite',
-  '/enterprise',
-  '/enterprise/search',
-  '/enterprise/dashboard',
-  '/admin',
-  '/admin/properties',
-  '/admin/bookings',
-  '/admin/leads',
-  '/admin/messages',
-  '/dashboard',
-  '/dashboard/properties',
-  '/dashboard/pricing',
-  '/dashboard/bookings',
-  '/dashboard/leads',
-  '/dashboard/messages',
-  '/dashboard/appointments',
-  '/dashboard/languages',
-  '/dashboard/resources',
-  '/dashboard/co-host',
-  '/dashboard/list-property'
-]
+export const STATIC_ROUTES = ['/', '/search', '/contact', '/privacy-policy', '/terms', '/compare', '/blog']
 
 /** Every publicly indexable route: static pages, destinations, programmatic
  * destination/type pages, the static demo catalog, plus Supabase-backed

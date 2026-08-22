@@ -330,7 +330,6 @@ function SearchableLocationFilter({
 }
 
 export function SearchResultsPage() {
-  usePageMeta('Search Villas, Holiday Homes & Vacation Rentals', 'Search verified villas, cabins, cottages, and farmhouses by destination, budget, guests, and amenities on innbly.')
   const [searchParams] = useSearchParams()
   const { addSavedSearch } = useSavedSearch()
   const { showToast } = useToast()
@@ -382,6 +381,22 @@ export function SearchResultsPage() {
   ])
 
   const collection = getQuickFilter(collectionSlug)
+
+  // Tier A collections (see quickFilters.ts) get their own indexable
+  // landing page — unique title/description and a self-referencing
+  // canonical to /search?collection=<slug>. Everything else (plain
+  // /search, Tier B collections, any other filter combination) canonicalizes
+  // back to the bare /search page rather than competing for its own
+  // indexed URL — see SITE-STRUCTURE.md.
+  const isIndexableCollection = collection?.tier === 'A'
+  usePageMeta(
+    isIndexableCollection ? collection!.seoTitle! : 'Search Villas, Holiday Homes & Vacation Rentals',
+    isIndexableCollection
+      ? collection!.seoDescription!
+      : 'Search verified villas, cabins, cottages, and farmhouses by destination, budget, guests, and amenities on innbly.',
+    undefined,
+    isIndexableCollection ? `/search?collection=${collection!.slug}` : '/search',
+  )
 
   // Manually touching a filter after landing on a collection (e.g. "Under
   // ₹2000" from the homepage) should let that filter take over — otherwise

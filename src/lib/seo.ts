@@ -1,4 +1,4 @@
-export const SITE_URL = 'https://innbly.com'
+export const SITE_URL = 'https://www.innbly.com'
 export const SITE_NAME = 'innbly'
 export const SITE_LOGO = `${SITE_URL}/brand/innbly-icon.jpg`
 export const SOCIAL_LINKS = {

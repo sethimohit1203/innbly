@@ -9,6 +9,7 @@
     "dev:api": "tsx watch scripts/dev-api-server.ts",
     "prebuild": "tsx scripts/generate-sitemap.ts",
     "build": "tsc -b && vite build",
+    "postbuild": "tsx scripts/prerender.ts",
     "preview": "vite preview",
     "typecheck:api": "tsc --noEmit -p api/tsconfig.json",
     "test:e2e": "playwright test"

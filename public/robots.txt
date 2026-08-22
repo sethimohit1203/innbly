@@ -1,7 +1,15 @@
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /dashboard
 Disallow: /api/
+Disallow: /saved
+Disallow: /bookings
+Disallow: /profile
+Disallow: /invite
+Disallow: /compare
 
 Sitemap: https://www.innbly.com/sitemap.xml
 # llms.txt: https://www.innbly.com/llms.txt
+
 

@@ -1,0 +1,213 @@
+{
+  "name": "Auto Blogging Innbly",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 8,
+              "triggerAtMinute": 15
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0],
+      "id": "schedule-trigger",
+      "name": "Schedule Trigger",
+      "alwaysOutputData": true,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Status",
+              "lookupValue": "Pending"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [224, 0],
+      "id": "get-row",
+      "name": "Get row(s) in sheet",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [448, 0],
+      "id": "limit",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a senior SEO content strategist and travel writer for Innbly.com — a verified vacation-rental marketplace listing villas, holiday homes, cabins, cottages and farmhouses across India.\n\nINPUT:\n\n📌 Title: {{ $('Get row(s) in sheet').item.json.Title }}\n🏷️ Keywords: {{ $('Get row(s) in sheet').item.json.Tags }}\n📝 Brief: {{ $('Get row(s) in sheet').item.json['Content Generation Prompt'] }}\n\nSTRICT RULES:\n- Output ONLY clean Markdown. No labels like \"SEO META SECTION\". No \"Introduction\"/\"Conclusion\" as literal headings.\n- Do not wrap output in code fences.\n- Write like a real human travel writer, not a generic AI voice.\n\nSTRUCTURE:\n- 5-7 H2/H3 sections with short paragraphs, bullet points, concrete tips.\n- Internal linking (mandatory, woven naturally into sentences, 4-6 total): [Browse verified stays](/search), [Read more travel guides](/blog), and — only when the article is about a specific destination Innbly covers (Goa, Manali, Shimla, Jaipur, Udaipur, Lonavala) — a link to that destination's page, e.g. [villas in Goa](/goa). Never invent a destination slug that isn't in this list.\n- External linking (mandatory, 1-2 links): authoritative sources only — e.g. the official India Tourism site (incredibleindia.org), a state tourism board, or Wikipedia for a landmark/region. Never link to competitor booking platforms.\n- End with an H2 \"Frequently Asked Questions\" section, 5-6 Q&As.\n- Close with a short conclusion and a CTA: 👉 \"Find your next verified stay at Innbly.com\"\n\nSEO RULES:\n- 1000-1500 words, natural keyword density, Grade 7-8 readability, humans first.\n\nOUTPUT: Return ONLY the Markdown body. No frontmatter, no backticks.",
+        "options": {
+          "passthroughBinaryImages": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [896, 0],
+      "id": "ai-agent",
+      "name": "AI Agent",
+      "retryOnFail": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-flash-lite-latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [896, 224],
+      "id": "gemini-model",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.pexels.com/v1/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{ $('Get row(s) in sheet').item.json.Title.split(':').pop().trim() || 'india villa vacation' }}"
+            },
+            { "name": "per_page", "value": "3" },
+            { "name": "orientation", "value": "landscape" }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 0],
+      "id": "pexels-search",
+      "name": "Pexels Image Search",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const row = $('Get row(s) in sheet').first().json;\nconst title = row.Title || 'Untitled Blog';\nconst tags = String(row.Tags || '').split(',').map(t => t.trim()).filter(Boolean);\n\nlet content = '';\ntry {\n  const agentOutput = $('AI Agent').first().json;\n  content = agentOutput.output || agentOutput.text || agentOutput.content || '';\n} catch (e) {\n  content = '';\n}\ncontent = String(content).trim().replace(/^```[\\w]*\\n?/gm, '').replace(/^```$/gm, '').trim();\n\nconst slug = (row.Slug || title)\n  .toLowerCase()\n  .trim()\n  .replace(/[^\\w\\s-]/gi, '')\n  .replace(/\\s+/g, '-')\n  .replace(/-+/g, '-')\n  .replace(/^-|-$/g, '');\n\nconst photos = $('Pexels Image Search').first().json?.photos || [];\nconst coverImage = photos[0]?.src?.large2x || '';\n\nreturn [{\n  json: {\n    title,\n    slug,\n    description: content.slice(0, 155).replace(/[#*\\n]/g, ' ').trim(),\n    content,\n    coverImage,\n    tags,\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1344, 0],
+      "id": "prepare-post",
+      "name": "Prepare Blog Post"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.innbly.com/api/submit",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"type\": \"blogPost\",\n  \"secret\": \"REPLACE_WITH_BLOG_INGEST_SECRET\",\n  \"title\": {{ JSON.stringify($json.title) }},\n  \"slug\": {{ JSON.stringify($json.slug) }},\n  \"description\": {{ JSON.stringify($json.description) }},\n  \"content\": {{ JSON.stringify($json.content) }},\n  \"coverImage\": {{ JSON.stringify($json.coverImage) }},\n  \"tags\": {{ JSON.stringify($json.tags) }},\n  \"author\": \"Innbly Editorial Team\",\n  \"source\": \"n8n\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1568, 0],
+      "id": "publish-post",
+      "name": "Publish to Innbly",
+      "alwaysOutputData": true,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_YOUR_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $('Get row(s) in sheet').item.json.row_number }}",
+            "Status": "Done",
+            "Published URL": "={{ $json.url }}"
+          },
+          "matchingColumns": ["row_number"]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [1792, 0],
+      "id": "update-row",
+      "name": "Update row in sheet",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": { "main": [[{ "node": "Get row(s) in sheet", "type": "main", "index": 0 }]] },
+    "Get row(s) in sheet": { "main": [[{ "node": "Limit", "type": "main", "index": 0 }]] },
+    "Limit": { "main": [[{ "node": "AI Agent", "type": "main", "index": 0 }]] },
+    "Google Gemini Chat Model": { "ai_languageModel": [[{ "node": "AI Agent", "type": "ai_languageModel", "index": 0 }]] },
+    "AI Agent": { "main": [[{ "node": "Pexels Image Search", "type": "main", "index": 0 }]] },
+    "Pexels Image Search": { "main": [[{ "node": "Prepare Blog Post", "type": "main", "index": 0 }]] },
+    "Prepare Blog Post": { "main": [[{ "node": "Publish to Innbly", "type": "main", "index": 0 }]] },
+    "Publish to Innbly": { "main": [[{ "node": "Update row in sheet", "type": "main", "index": 0 }]] }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "pinData": {}
+}

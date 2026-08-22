@@ -313,6 +313,34 @@ ownership here is a **per-listing access code** (`host_submissions.access_code`)
   id** — a property with none keeps its existing values (curated demo content for the static
   catalog, or the honest "new/unrated" defaults from `mapApprovedListing.ts` for host listings).
 
+### Blog (auto-published via n8n)
+
+`/blog` and `/blog/:slug` (`src/pages/Blog.tsx`, `src/pages/BlogPost.tsx`) are backed by a
+`blog_posts` Supabase table (`supabase/blog_posts.sql`, run once like every other Supabase file
+here) — same read-through-a-public-view pattern as `approved_listings`: the public site reads
+`published_blog_posts` with the anon key (`src/lib/blog.ts`), and there is **no anon insert
+policy** — every write goes through `api/submit.ts`'s `type: 'blogPost'` branch, gated by a shared
+secret (`BLOG_INGEST_SECRET`, checked against a `secret` field in the POST body, not a session
+cookie — the caller is an n8n workflow, not a logged-in browser). This was folded into
+`api/submit.ts` rather than a new `api/blog.ts` file because the deployment is already at
+Vercel's Hobby-plan cap of 12 serverless functions (see "API" above).
+- The n8n workflow (`n8n-workflows/innbly-auto-blogging.json`, see that folder's `README.md` for
+  setup) is adapted from two reference workflows the site owner already runs for other
+  properties (CircleOfLearning, ProRido) — same shape (Google Sheet queue → scheduled trigger →
+  Gemini AI Agent writes the article → Pexels cover image), but the publish step is a single HTTP
+  Request POST to `/api/submit` instead of a GitHub commit or WordPress REST call, since content
+  lives in Supabase here, not a git repo or WordPress. The upsert is keyed on `slug`, so re-running
+  the workflow for an already-published row edits that post rather than duplicating it.
+- `content` can be Markdown or ready-made HTML — `src/lib/markdown.ts` renders either (HTML is
+  passed through untouched if it already starts with a tag, otherwise converted from Markdown by
+  a small hand-rolled converter; no markdown library dependency was added for this). Content only
+  ever arrives through the `BLOG_INGEST_SECRET`-gated path above, never from a site visitor, which
+  is why rendering it with `dangerouslySetInnerHTML` is an accepted trust boundary here — don't
+  reuse that pattern for anything user-submitted.
+- Blog posts are included in `scripts/generate-sitemap.ts`'s output and get `BlogPosting` +
+  `BreadcrumbList` JSON-LD via `useJsonLd` (`src/pages/BlogPost.tsx`), same per-page-schema
+  pattern as `DestinationPage`.
+
 ### Testing
 
 Playwright specs in `e2e/` are organized by feature area, not by page — `nightly-booking.spec.ts`

@@ -8,13 +8,14 @@ Prices shown are nightly rates in INR. Booking and payment (via Razorpay) is rea
 
 ## Site
 
-- [Home](https://innbly.com/): Search widget, curated collections, popular destinations, and featured vacation rental properties.
-- [Search](https://innbly.com/search): Full listing search with filters for destination, guests, nightly budget, amenities, stay length, and property type (villa, cabin, cottage, farmhouse, holiday home, apartment).
-- [Property detail pages](https://innbly.com/property/): Photos, amenities, nightly price calendar, nearby attractions/restaurants/transport, host profile, and reviews for an individual listing.
-- [Destination pages](https://innbly.com/goa), [/manali](https://innbly.com/manali), [/shimla](https://innbly.com/shimla), [/jaipur](https://innbly.com/jaipur), [/udaipur](https://innbly.com/udaipur): Destination guides — best time to visit, attractions, food, transportation, and featured properties in that destination.
-- [Compare](https://innbly.com/compare): Side-by-side comparison of saved/selected listings.
-- [Host dashboard](https://innbly.com/dashboard): Property, booking, and lead management for hosts (requires a host account).
-- [Contact](https://innbly.com/contact): Support contact form.
+- [Home](https://www.innbly.com/): Search widget, curated collections, popular destinations, and featured vacation rental properties.
+- [Search](https://www.innbly.com/search): Full listing search with filters for destination, guests, nightly budget, amenities, stay length, and property type (villa, cabin, cottage, farmhouse, holiday home, apartment).
+- [Property detail pages](https://www.innbly.com/property/): Photos, amenities, nightly price calendar, nearby attractions/restaurants/transport, host profile, and reviews for an individual listing.
+- [Destination pages](https://www.innbly.com/goa), [/manali](https://www.innbly.com/manali), [/shimla](https://www.innbly.com/shimla), [/jaipur](https://www.innbly.com/jaipur), [/udaipur](https://www.innbly.com/udaipur): Destination guides — best time to visit, attractions, food, transportation, and featured properties in that destination.
+- [Compare](https://www.innbly.com/compare): Side-by-side comparison of saved/selected listings.
+- [Blog](https://www.innbly.com/blog): Destination guides and vacation-rental travel/hosting articles.
+- [Host dashboard](https://www.innbly.com/dashboard): Property, booking, and lead management for hosts (requires a host account).
+- [Contact](https://www.innbly.com/contact): Support contact form.
 
 ## Notes for AI assistants and crawlers
 

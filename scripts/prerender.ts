@@ -6,8 +6,11 @@ import { getAllRoutes } from './routes'
 
 const DIST_DIR = resolve(import.meta.dirname, '../dist')
 
-// Every route in STATIC_ROUTES and dynamic routes will be prerendered.
-const SKIP_PREFIXES: string[] = []
+// Routes that are meaningfully identical for every visitor/crawler (session-
+// gated dashboards, forms) don't need a static snapshot — they're already
+// correctly kept out of the sitemap/robots.txt, and prerendering them would
+// just bake in the logged-out empty state.
+const SKIP_PREFIXES = ['/dashboard', '/admin', '/saved', '/bookings', '/profile', '/invite']
 
 async function snapshotRoute(
   browser: import('@playwright/test').Browser,

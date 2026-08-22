@@ -44,6 +44,8 @@ const AdminLeadsPage = lazy(() => import('./pages/admin/AdminLeads').then((m) =>
 const AdminMessagesPage = lazy(() => import('./pages/admin/AdminMessages').then((m) => ({ default: m.AdminMessagesPage })))
 const AdminBookingsPage = lazy(() => import('./pages/admin/AdminBookings').then((m) => ({ default: m.AdminBookingsPage })))
 const ComparePage = lazy(() => import('./pages/Compare').then((m) => ({ default: m.ComparePage })))
+const BlogPage = lazy(() => import('./pages/Blog').then((m) => ({ default: m.BlogPage })))
+const BlogPostPage = lazy(() => import('./pages/BlogPost').then((m) => ({ default: m.BlogPostPage })))
 const HostProfilePage = lazy(() => import('./pages/HostProfile').then((m) => ({ default: m.HostProfilePage })))
 const DestinationPage = lazy(() => import('./pages/Destination').then((m) => ({ default: m.DestinationPage })))
 const ProgrammaticListingPage = lazy(() => import('./pages/ProgrammaticListingPage').then((m) => ({ default: m.ProgrammaticListingPage })))
@@ -113,6 +115,8 @@ export default function App() {
             <Route path="messages" element={<AdminMessagesPage />} />
           </Route>
           <Route path="/compare" element={<ComparePage />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/blog/:slug" element={<BlogPostPage />} />
           <Route path="/host/:id" element={<HostProfilePage />} />
           {DESTINATIONS.map((d) => (
             <Route key={d.slug} path={`/${d.slug}`} element={<DestinationPage slug={d.slug} />} />

@@ -158,6 +158,7 @@ export function Navbar() {
               >
                 Become a Host
               </button>
+              <Link to="/blog" className="text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition">Blog</Link>
               <Link to="/enterprise" className="text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition">About Us</Link>
               <Link to="/contact" className="text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition">Help</Link>
             </div>
@@ -376,6 +377,14 @@ export function Navbar() {
               Explore
             </Link>
           )}
+
+          <Link
+            to="/blog"
+            onClick={() => setMobileOpen(false)}
+            className="block text-base font-semibold text-slate-700 transition-colors hover:text-primary-600"
+          >
+            Blog
+          </Link>
 
           {isTenant && (
             <>

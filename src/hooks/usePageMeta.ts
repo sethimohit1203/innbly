@@ -4,7 +4,7 @@ import { setCanonical } from '../lib/seo'
 
 const SITE_NAME = 'innbly'
 
-export function usePageMeta(title: string, description?: string, imageUrl?: string) {
+export function usePageMeta(title: string, description?: string, imageUrl?: string, canonicalPath?: string) {
   const location = useLocation()
 
   useEffect(() => {
@@ -43,7 +43,7 @@ export function usePageMeta(title: string, description?: string, imageUrl?: stri
       ogImage.setAttribute('content', imageUrl)
     }
 
-    setCanonical(location.pathname)
+    setCanonical(canonicalPath ?? location.pathname)
 
     return () => {
       document.title = prevTitle
@@ -54,5 +54,5 @@ export function usePageMeta(title: string, description?: string, imageUrl?: stri
       if (description && ogDescription) ogDescription.setAttribute('content', prevOgDescription)
       if (imageUrl && ogImage) ogImage.setAttribute('content', prevOgImage)
     }
-  }, [title, description, imageUrl, location.pathname])
+  }, [title, description, imageUrl, canonicalPath, location.pathname])
 }
